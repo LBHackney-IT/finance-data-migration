@@ -1,0 +1,141 @@
+service: finance-data-migration-api
+provider:
+  name: aws
+  runtime: dotnetcore3.1
+  memorySize: 2048
+  tracing:
+    lambda: true
+    apiGateway: true
+  vpc: ${self:custom.vpc.${opt:stage}}
+  stage: ${opt:stage}
+  # TODO: Enable this line if DynamoDb is in use
+  account: ${opt:account}
+  region: eu-west-2
+  apiKeys:
+    - secureAccess:
+      - api-key-${self:service}-${self:provider.stage}
+  usagePlan:
+    - secureAccess:
+        throttle:
+          burstLimit: 200
+          rateLimit: 100
+  environment:
+    CONNECTION_STRING: Data Source=${ssm:/finance-data-migration/${self:provider.stage}/db-host},${ssm:/finance-data-migration/${self:provider.stage}/db-port};Initial Catalog=${ssm:/finance-data-migration/${self:provider.stage}/db-database};Integrated Security=False;User Id=${ssm:/finance-data-migration/${self:provider.stage}/db-username};Password=${ssm:/finance-data-migration/${self:provider.stage}/db-password};Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;
+    WAIT_DURATION: ${ssm:/finance-data-migration/${self:provider.stage}/step-function-wait-duration}
+    BATCH_SIZE: ${ssm:/finance-data-migration/${self:provider.stage}/bulk-insert-batch-size}
+    ACCEPTED_ORIGINS: ${ssm:/finance-data-migration/${self:provider.stage}/cors-accepted-origins}
+
+package:
+  artifact: ./bin/release/netcoreapp3.1/finance-data-migration-api.zip
+
+functions:
+  FinanceDataMigrationApi:
+    name: ${self:service}-${self:provider.stage}
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.LambdaEntryPoint::FunctionHandlerAsync
+    role: lambdaExecutionRole
+    environment:
+    events:
+      - http:
+          path: /{proxy+}
+          method: ANY
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - If-Match
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - x-correlation-id
+            allowCredentials: false
+  extractTransactions:
+    name: ${self:service}-${self:provider.stage}-extract-transactions
+    description: "The scheduler to extract source data for migration of Transaction entity. Run at 12:15 AM"
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::ExtractTransactions
+    role: lambdaExecutionRole
+    events:
+        - schedule: cron(15 0 * * ? *)   
+  transformTransactions:
+    name: ${self:service}-${self:provider.stage}-transform-transactions
+    description: "The scheduler to transform the extracted Transaction entity data to be migrated. "
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::TransformTransactions  
+    role: lambdaExecutionRole
+  loadTransactions:
+    name: ${self:service}-${self:provider.stage}-load-transactions
+    description: "The scheduler to load the transformed Transaction entity data to the final solution. "
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::LoadTransactions  
+    role: lambdaExecutionRole
+resources:
+  Resources:
+    lambdaExecutionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        Path: /${self:service}/${self:provider.stage}/
+        RoleName: ${self:service}-lambdaExecutionRole
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+          - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+        Policies:
+          - PolicyName: manageLogs
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                  Resource:
+                    - 'Fn::Join':
+                        - ':'
+                        - - 'arn:aws:logs'
+                          - Ref: 'AWS::Region'
+                          - Ref: 'AWS::AccountId'
+                          - 'log-group:/aws/lambda/*:*:*'
+                - Effect: "Allow"
+                  Action:
+                    - "s3:PutObject"
+                    - "s3:GetObject"
+                  Resource:
+                    Fn::Join:
+                      - ""
+                      - - "arn:aws:s3:::"
+                        - "Ref": "ServerlessDeploymentBucket"
+          - PolicyName: lambdaInvocation
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - "lambda:InvokeFunction"
+                  Resource: "*"
+custom:
+  vpc:
+    development:
+      subnetIds:
+        - subnet-0deabb5d8fb9c3446
+        - subnet-000b89c249f12a8ad
+    staging:
+      subnetIds:
+        - subnet-06d3de1bd9181b0d7
+        - subnet-0ed7d7713d1127656
+    production:
+      subnetIds:
+        - subnet-01d3657f97a243261
+        - subnet-0b7b8fea07efabf34
+
+plugins:
+  - serverless-step-functions
