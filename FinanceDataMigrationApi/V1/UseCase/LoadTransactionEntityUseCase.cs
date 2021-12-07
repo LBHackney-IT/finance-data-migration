@@ -5,13 +5,14 @@ using FinanceDataMigrationApi.V1.Gateways;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi
 {
     internal class LoadTransactionEntityUseCase : ILoadTransactionEntityUseCase
     {
-        private IMigrationRunDynamoGateway _migrationRunGateway;
+        private IMigrationRunGateway _migrationRunGateway;
         private readonly IDMTransactionEntityGateway _dMTransactionEntityGateway;
         private readonly IMapper _autoMapper;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
@@ -21,7 +22,7 @@ namespace FinanceDataMigrationApi
         public LoadTransactionEntityUseCase(
 
             IMapper autoMapper,
-            IMigrationRunDynamoGateway migrationRunGateway,
+            IMigrationRunGateway migrationRunGateway,
             IDMTransactionEntityGateway dMTransactionEntityGateway)
         {
             _autoMapper = autoMapper;
@@ -31,25 +32,43 @@ namespace FinanceDataMigrationApi
 
         public async Task<StepResponse> ExecuteAsync()
         {
-            await Task.Delay(0).ConfigureAwait(false);
-
             LoggingHandler.LogInfo($"Starting {DataMigrationTask} task for {DMEntityNames.Transactions} entity");
 
             try
             {
                 // Get latest successfull migrationrun item from DynamoDB Table MigrationRuns. where is_feature_enabled flag is TRUE and set status is "TransformCompleted"
+                var dmRunLogDomain = await _migrationRunGateway.GetDMRunLogByEntityNameAsync(DMEntityNames.Transactions).ConfigureAwait(false);
+
                 //      Update migrationrun item with set status to "LoadInprogress". 
+                dmRunLogDomain.LastRunStatus = MigrationRunStatus.LoadInprogress.ToString();
+                await _migrationRunGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
 
-                // Get data from staging table and populate the dynamodb Transaction table (using the Transaction API POST endpoint).
-                //      Use a Batch mode. 
+                // Get all the Transaction entity extracted data from the SOW2b SQL Server database table DMEntityTransaction,
+                //      where isTransformed flag is TRUE and isLoaded flag is FALSE
+                //      populate the dynamodb Transaction table (using the Transaction API POST endpoint). Use a Batch mode. 
+                var transformedList = await _dMTransactionEntityGateway.GetTransformedListAsync().ConfigureAwait(false);
 
-                //      for each row loaded into dynamodb Transaction table using the Transaction API in batch mode,
-                //      we need to update the corresponding rows isLoaded flag. 
+                // *** START OF BLOCK ***
+                // TODO *** Replace this call to Transaction API with batch of items. ***
+                //      for each row from the Transformed List call Transaction API in batch mode,
+                //      we need to update the corresponding rows isLoaded flag in the staging table. 
+                foreach (var dmEntity in transformedList)
+                {
+                    // Call Transaction API for each item
+                    var apiResult = await _dMTransactionEntityGateway.AddTransactionAsync(dmEntity).ConfigureAwait(false);
+                    dmEntity.IsLoaded = true;
+                }
+                // *** END OF BLOCK
 
-                // If all expected rows equal actual rows have been loaded THEN
-                //      Update migrationrun item with SET start_row_id & end_row_id here?
+                // Update migrationrun item with SET start_row_id & end_row_id here.
                 //      and set status to "LoadCompleted" (Data Set Migrated successfully)
+                dmRunLogDomain.StartRowId = transformedList.First().Id;
+                dmRunLogDomain.EndRowId = transformedList.Last().Id;
+                dmRunLogDomain.LastRunStatus = MigrationRunStatus.LoadCompleted.ToString();
+                await _migrationRunGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
 
+                // Update batched rows to staging table DMTransactionEntity. 
+                await _dMTransactionEntityGateway.UpdateDMTransactionEntityItems(transformedList).ConfigureAwait(false);
 
                 LoggingHandler.LogInfo($"End of {DataMigrationTask} task for {DMEntityNames.Transactions} Entity");
 

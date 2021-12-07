@@ -1,4 +1,4 @@
-using FinanceDataMigrationApi.V1.Infrastructure;
+using FinanceDataMigrationApi.V1.Domain;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -7,15 +7,16 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
 {
     public interface IDMTransactionEntityGateway
     {
-        Task<DMTransactionEntity> GetDMTransactionEntityByIdAsync(int id);
+        Task<DMTransactionEntityDomain> GetDMTransactionEntityByIdAsync(int id);
 
-        Task<IList<DMTransactionEntity>> ListAsync();
+        Task<IList<DMTransactionEntityDomain>> ListAsync();
 
-        //public Task LoadDMTransactionEntities();
-        Task <int> ExtractAsync(DateTime? processingDate);
+        Task <int> ExtractAsync(DateTimeOffset? processingDate);
 
-        public Task<int> UpdateDMTransactionEntityItems(IList<DMTransactionEntity> items);
+        Task UpdateDMTransactionEntityItems(IList<DMTransactionEntityDomain> dMTransactionEntityDomainItems);
 
-        public Task UpdateDMTransactionEntities(DMTransactionEntity dMTransactionEntity);
+        Task<IList<DMTransactionEntityDomain>> GetTransformedListAsync();
+
+        Task<int> AddTransactionAsync(DMTransactionEntityDomain dmEntity);
     }
 }

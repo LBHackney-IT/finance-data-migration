@@ -7,6 +7,6 @@ namespace FinanceDataMigrationApi.V1.UseCase.Interfaces
 {
     public interface IGetMigrationRunListUseCase
     {
-        Task<List<MigrationRun>> ExecuteAsync();
+        Task<List<DMRunLogDomain>> ExecuteAsync();
     }
 }

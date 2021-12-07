@@ -2,7 +2,6 @@ using System.Text.Json.Serialization;
 
 namespace FinanceDataMigrationApi.V1.Domain
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum MigrationRunStatus 
     {
         ReadyToMigrate,
@@ -10,7 +9,10 @@ namespace FinanceDataMigrationApi.V1.Domain
         ExtractInprogress,
         ExtractCompleted,
         ExtractFailed,
-        TransformInprogress
+        TransformInprogress,
+        TransformCompleted,
+        LoadInprogress,
+        LoadCompleted
     }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]

@@ -4,19 +4,20 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FinanceDataMigrationApi.V1.Domain
 {
-    public class MigrationRun
+    public class DMRunLogDomain
     {
-        public Guid Id { get; set; }
+        public long Id { get; set; }
+
         [Required]
-        public string DynamoDbEntity { get; set; }
+        public string DynamoDbTableName { get; set; }
         public long ExpectedRowsToMigrate { get; set; }
         public long ActualRowsMigrated { get; set; }
         public long StartRowId { get; set; }
         public long EndRowId { get; set; }
-        public DateTime LastRunDate { get; set; }
+        public DateTimeOffset? LastRunDate { get; set; }
 
-        [AllowedValues(typeof(MigrationRunStatus))]
-        public MigrationRunStatus LastRunStatus { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public string LastRunStatus { get; set; }
+        public DateTimeOffset UpdatedAt { get; set; }
+        public bool IsFeatureEnabled { get; set; }
     }
 }

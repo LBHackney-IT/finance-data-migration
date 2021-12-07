@@ -1,3 +1,4 @@
+using FinanceDataMigrationApi.V1.Domain;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -14,8 +15,10 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<DMRunLog>().ToTable("DMRunLog");
             modelBuilder.Entity<DMTransactionEntity>();
         }
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DatabaseContext"/> class.
@@ -27,6 +30,12 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         }
 
         /// <summary>
+        /// Get or sets the Data Migration Runs
+        /// </summary>
+        public DbSet<DMRunLog> MigrationRuns { get; set; }
+
+
+        /// <summary>
         /// Get or sets the Data Migration Transaction Entities
         /// </summary>
         public DbSet<DMTransactionEntity> DMTransactionEntities { get; set; }
@@ -36,7 +45,8 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// </summary>
         /// <returns>The Transactions to migrate.</returns>
         public async Task<IList<DMTransactionEntity>> GetDMTransactionEntitiesAsync()
-            => await DMTransactionEntities.Where(x => x.IsTransformed == false && x.IsLoaded == false)
+            => await DMTransactionEntities
+                .Where(x => x.IsTransformed == false)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -45,23 +55,25 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// </summary>
         /// <param name="processingDate">the processiing date.</param>
         /// <returns>the transactions to migrate.</returns>
-        public async Task<int> ExtractDMTransactionsAsync(DateTime? processingDate)
+        //public async Task<int> ExtractDMTransactionsAsync(DateTime? processingDate)
+        public async Task<int> ExtractDMTransactionsAsync(DateTimeOffset? processingDate)
         {
-            return await PerformInterpolatedTransaction($"usp_ExtractTransactionEntity {processingDate:yyyy-mm-dd}", 600).ConfigureAwait(false);
+            var affectedRows = await PerformInterpolatedTransaction($"usp_ExtractTransactionEntity {processingDate:yyyy-MM-dd}", 600).ConfigureAwait(false);
+            
+            return affectedRows;
         }
 
         private async Task<int> PerformInterpolatedTransaction(FormattableString sql, int timeout = 0)
         {
-            int returnedRows;
             await using var transaction = await Database.BeginTransactionAsync().ConfigureAwait(false);
 
             try
             {
                 if (timeout != 0)
                     Database.SetCommandTimeout(timeout);
-                returnedRows = await Database.ExecuteSqlInterpolatedAsync(sql).ConfigureAwait(false);
+                var affectedRows = await Database.ExecuteSqlInterpolatedAsync(sql).ConfigureAwait(false);
                 await transaction.CommitAsync().ConfigureAwait(false);
-                return returnedRows;
+                return affectedRows;
             }
             catch
             {
@@ -70,5 +82,10 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             }
         }
 
+        public async Task<IList<DMTransactionEntity>> GetTransformedListAsync()
+            => await DMTransactionEntities
+                .Where(x => x.IsTransformed == true && x.IsLoaded == false)
+                .ToListAsync()
+                .ConfigureAwait(false);
     }
 }

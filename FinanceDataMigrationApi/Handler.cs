@@ -26,29 +26,19 @@ namespace FinanceDataMigrationApi
         public Handler(IMapper autoMapper)
         {
             DbContextOptionsBuilder optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("CONNECTION_STRING"));
+            var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+            optionsBuilder.UseSqlServer(connectionString);
             DatabaseContext context = new DatabaseContext(optionsBuilder.Options);
 
-            var clientConfig = new AmazonDynamoDBConfig
-            {
-                // Set the endpoint URL
-                ServiceURL = "http://localhost:8000"
-            };
-            var client = new AmazonDynamoDBClient(clientConfig);
-            //var client = new AmazonDynamoDBClient();
-            DynamoDBContext dynamoDbContext = new DynamoDBContext(client);
-
-            IMigrationRunDynamoGateway migrationRunGateway = new DynamoDbGateway(dynamoDbContext);
+            IMigrationRunGateway migrationRunGateway = new MigrationRunGateway(context);
             IDMTransactionEntityGateway dMTransactionEntityGateway = new DMTransactionEntityGateway(context);
 
             _autoMapper = autoMapper;
 
             _extractTransactionsUseCase = new ExtractTransactionEntityUseCase(_autoMapper, migrationRunGateway, dMTransactionEntityGateway);
 
-            //TODO
             _transformTransactionsUseCase = new TransformTransactionEntityUseCase(_autoMapper, migrationRunGateway, dMTransactionEntityGateway);
 
-            //TODO
             _loadTransactionsUseCase = new LoadTransactionEntityUseCase(_autoMapper, migrationRunGateway, dMTransactionEntityGateway);
 
         }
@@ -58,13 +48,11 @@ namespace FinanceDataMigrationApi
             return await _extractTransactionsUseCase.ExecuteAsync().ConfigureAwait(false);
         }
 
-        //TODO
         public async Task<StepResponse> TransformTransactions()
         {
             return await _transformTransactionsUseCase.ExecuteAsync().ConfigureAwait(false);
         }
 
-        //TODO
         public async Task<StepResponse> LoadTransactions()
         {
             return await _loadTransactionsUseCase.ExecuteAsync().ConfigureAwait(false);

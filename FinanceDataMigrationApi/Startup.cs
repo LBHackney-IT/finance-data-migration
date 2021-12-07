@@ -42,16 +42,12 @@ namespace FinanceDataMigrationApi
         {
             Configuration = configuration;
 
-            AWSSDKHandler.RegisterXRayForAllServices(); //TODO NM: Whats this?
+            //AWSSDKHandler.RegisterXRayForAllServices(); //TODO NM: Whats this for?
         }
 
         public IConfiguration Configuration { get; }
 
         private static List<ApiVersionDescription> _apiVersions { get; set; }
-
-        //TODO update the below to the name of your API
-        //TODO NM: take out and use options
-        //private const string ApiName = "Your API Name";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -132,14 +128,7 @@ namespace FinanceDataMigrationApi
                     swaggerSetup.IncludeXmlComments(xmlPath);
             });
 
-            services.ConfigureLambdaLogging(Configuration);
-
-            services.AddLogCallAspect();
-
-            services.ConfigureDynamoDB();
-
             ConfigureDbContext(services);
-
             RegisterGateways(services);
             RegisterUseCases(services);
         }
@@ -155,25 +144,16 @@ namespace FinanceDataMigrationApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
-            //services.AddScoped<IExampleGateway, ExampleGateway>();
             services.AddScoped<IDMTransactionEntityGateway, DMTransactionEntityGateway>();
-            services.AddScoped<IPersonGateway, PersonGateway>();
             services.AddScoped<ITransactionGateway, TransactionGateway>();
-
-            ////TODO: For DynamoDb, remove the line above and uncomment the line below.
-            //services.AddScoped<IExampleDynamoGateway, DynamoDbGateway>();
-            services.AddScoped<IMigrationRunDynamoGateway, DynamoDbGateway>();
-
+            services.AddScoped<IMigrationRunGateway, MigrationRunGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
         {
-            services.AddScoped<IGetAllUseCase, GetAllUseCase>();
-            services.AddScoped<IGetMigrationRunByIdUseCase, GetMigrationRunByIdUseCase>();
-            services.AddScoped<IGetMigrationRunByEntityNameUseCase, GetMigrationRunByEntityNameUseCase>();
-            services.AddScoped<IGetMigrationRunListUseCase, GetMigrationRunListUseCase>();
-            services.AddScoped<IUpdateUseCase, UpdateUseCase>();
-
+            services.AddScoped<IExtractTransactionEntityUseCase, ExtractTransactionEntityUseCase>();
+            services.AddScoped<ITransformTransactionEntityUseCase, TransformTransactionEntityUseCase>();
+            services.AddScoped<ILoadTransactionEntityUseCase, LoadTransactionEntityUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -235,7 +215,7 @@ namespace FinanceDataMigrationApi
                 //});
             });
 
-            app.UseLogCall();
+            // app.UseLogCall();
         }
     }
 }

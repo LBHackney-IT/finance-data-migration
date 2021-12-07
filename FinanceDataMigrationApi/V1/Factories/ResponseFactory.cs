@@ -7,12 +7,12 @@ namespace FinanceDataMigrationApi.V1.Factories
 {
     public static class ResponseFactory
     {
-        public static MigrationRunResponse ToResponse(this MigrationRun domain)
+        public static MigrationRunResponse ToResponse(this MigrationRunDomain domain)
         {
             return domain == null ? null : new MigrationRunResponse()
             {
                 Id = domain.Id,
-                DynamoDbEntity = domain.DynamoDbEntity,
+                DynamoDbEntity = domain.DynamoDbEntityName,
                 LastRunStatus = domain.LastRunStatus,
                 LastRunDate = domain.LastRunDate,
                 ExpectedRowsToMigrate = domain.ExpectedRowsToMigrate,
@@ -23,7 +23,7 @@ namespace FinanceDataMigrationApi.V1.Factories
             };
         }
 
-        public static List<MigrationRunResponse> ToResponse(this IEnumerable<MigrationRun> domainList)
+        public static List<MigrationRunResponse> ToResponse(this IEnumerable<MigrationRunDomain> domainList)
         {
             return domainList == null ?
                 new List<MigrationRunResponse>() :

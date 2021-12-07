@@ -13,59 +13,59 @@ namespace FinanceDataMigrationApi.V1.Factories
     {
         //TODO NM: use AutoMapper for this stuff!!!! 
 
-        public static MigrationRunDbEntity ToDatabase(this MigrationRun migrationRun)
+        public static DMRunLog ToDatabase(this DMRunLogDomain migrationRun)
         {
-            return migrationRun == null ? null : new MigrationRunDbEntity
+            return migrationRun == null ? null : new DMRunLog
             {
                 Id = migrationRun.Id,
-                DynamoDbEntity = migrationRun.DynamoDbEntity,
+                DynamoDbTableName = migrationRun.DynamoDbTableName,
                 ExpectedRowsToMigrate = migrationRun.ExpectedRowsToMigrate,
                 ActualRowsMigrated = migrationRun.ActualRowsMigrated,
                 StartRowId = migrationRun.StartRowId,
                 EndRowId = migrationRun.EndRowId,
                 LastRunDate = migrationRun.LastRunDate,
                 LastRunStatus = migrationRun.LastRunStatus,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = migrationRun.UpdatedAt
             };
         }
 
-        public static MigrationRun ToDomain(this MigrationRunDbEntity migrationRunDbEntity)
+        public static DMRunLogDomain ToDomain(this DMRunLog migrationRunDomain)
         {
-            return migrationRunDbEntity == null ? null : new MigrationRun
+            return migrationRunDomain  == null ? null : new DMRunLogDomain
             {
-                Id = migrationRunDbEntity.Id,
-                DynamoDbEntity = migrationRunDbEntity.DynamoDbEntity,
-                ExpectedRowsToMigrate = migrationRunDbEntity.ExpectedRowsToMigrate,
-                ActualRowsMigrated = migrationRunDbEntity.ActualRowsMigrated,
-                StartRowId = migrationRunDbEntity.StartRowId,
-                EndRowId = migrationRunDbEntity.EndRowId,
-                LastRunDate = migrationRunDbEntity.LastRunDate,
-                LastRunStatus = migrationRunDbEntity.LastRunStatus,
-                UpdatedAt = DateTime.UtcNow
+                Id = migrationRunDomain.Id,
+                DynamoDbTableName = migrationRunDomain.DynamoDbTableName,
+                ExpectedRowsToMigrate = migrationRunDomain.ExpectedRowsToMigrate,
+                ActualRowsMigrated = migrationRunDomain.ActualRowsMigrated,
+                StartRowId = migrationRunDomain.StartRowId,
+                EndRowId = migrationRunDomain.EndRowId,
+                LastRunDate = migrationRunDomain.LastRunDate,
+                LastRunStatus = migrationRunDomain.LastRunStatus,
+                UpdatedAt = migrationRunDomain.UpdatedAt
             };
         }
 
-        public static MigrationRun ToDomain(this MigrationRunUpdateRequest migrationRunUpdateRequest)
+        public static DMRunLog ToDomain(this MigrationRunUpdateRequest migrationRunUpdateRequest)
         {
-            return migrationRunUpdateRequest == null ? null : new MigrationRun
+            return migrationRunUpdateRequest == null ? null : new DMRunLog
             {
-                DynamoDbEntity = migrationRunUpdateRequest.DynamoDbEntity,
+                DynamoDbTableName = migrationRunUpdateRequest.DynamoDbEntity,
                 ExpectedRowsToMigrate = migrationRunUpdateRequest.ExpectedRowsToMigrate,
                 ActualRowsMigrated = migrationRunUpdateRequest.ActualRowsMigrated,
                 StartRowId = migrationRunUpdateRequest.StartRowId,
                 EndRowId = migrationRunUpdateRequest.EndRowId,
                 LastRunDate = migrationRunUpdateRequest.LastRunDate,
-                LastRunStatus = migrationRunUpdateRequest.LastRunStatus,
-                UpdatedAt = DateTime.UtcNow
+                LastRunStatus = migrationRunUpdateRequest.LastRunStatus.ToString(),
+                UpdatedAt = migrationRunUpdateRequest.UpdatedAt 
             };
         }
 
-        public static List<MigrationRun> ToDomain(this IEnumerable<MigrationRunDbEntity> databaseEntity)
-        {
-            return databaseEntity.Select(p => p.ToDomain())
-                                 .OrderBy(x => x.LastRunDate)
-                                 .ToList();
-        }
+        //public static List<MigrationRun> ToDomain(this IEnumerable<MigrationRun> databaseEntity)
+        //{
+        //    return databaseEntity.Select(p => p.ToDomain())
+        //                         .OrderBy(x => x.LastRunDate)
+        //                         .ToList();
+        //}
 
 
     }

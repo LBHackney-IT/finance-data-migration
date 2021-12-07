@@ -16,6 +16,7 @@
       "applicationUrl": "http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
+        "CONNECTION_STRING": "Server=localhost,1433;Database=SOW2b-local;User Id=sa;Password=Pass@word;",
         "DynamoDb_LocalMode": "true",
         "DynamoDb_LocalServiceUrl": "http://localhost:8000"
       }

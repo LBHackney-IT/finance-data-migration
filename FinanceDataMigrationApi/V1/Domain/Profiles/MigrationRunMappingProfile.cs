@@ -16,8 +16,8 @@ namespace FinanceDataMigrationApi.V1.Domain.Profiles
         /// </summary>
         public MigrationRunMappingProfile()
         {
-            CreateMap<MigrationRun, MigrationRunDbEntity>().ReverseMap();
-            CreateMap<MigrationRunUpdateRequest, MigrationRun>().ReverseMap();
+            CreateMap<DMRunLogDomain, DMRunLog>().ReverseMap();
+            CreateMap<MigrationRunUpdateRequest, DMRunLogDomain>().ReverseMap();
         }
     }
 }
