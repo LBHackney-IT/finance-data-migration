@@ -23,6 +23,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Headers;
+using FinanceDataMigrationApi.V1.Common;
 using Hackney.Core.Logging;
 using Hackney.Core.Middleware.Logging;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -144,9 +146,21 @@ namespace FinanceDataMigrationApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
+            services.AddTransient<LoggingDelegatingHandler>();
+
             services.AddScoped<IDMTransactionEntityGateway, DMTransactionEntityGateway>();
             services.AddScoped<ITransactionGateway, TransactionGateway>();
             services.AddScoped<IMigrationRunGateway, MigrationRunGateway>();
+
+            var transactionApiUrl = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_URL");
+            var transactionApiToken = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_TOKEN");
+
+            services.AddHttpClient<ITransactionGateway, TransactionGateway>(c =>
+                {
+                    c.BaseAddress = new Uri(transactionApiUrl);
+                    c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(transactionApiToken);
+                })
+                .AddHttpMessageHandler<LoggingDelegatingHandler>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)

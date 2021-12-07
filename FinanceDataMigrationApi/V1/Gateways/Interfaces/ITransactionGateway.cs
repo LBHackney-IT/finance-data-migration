@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
 {
-    interface ITransactionGateway
+    public interface ITransactionGateway
     {
-        public Task<int> UpdateTransactionItems(IList<Transaction> items);
+        public Task<int> UpdateTransactionItems(IList<AddTransactionRequest> items);
 
         public Task UpdateTransaction(Transaction transaction);
 

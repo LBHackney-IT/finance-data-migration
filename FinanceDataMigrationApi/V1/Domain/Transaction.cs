@@ -8,8 +8,7 @@ namespace FinanceDataMigrationApi.V1.Domain
 {
     public class Transaction
     {
-        [NonEmptyGuid]
-        public Guid Id { get; set; }
+
         [NotNull]
         public Guid TargetId { get; set; }
 

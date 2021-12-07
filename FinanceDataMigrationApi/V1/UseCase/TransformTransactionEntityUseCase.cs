@@ -56,7 +56,9 @@ namespace FinanceDataMigrationApi
                     {
                         // Get Person subset information (from above cached list)
                         // We may want to get all the Persons (Id, FullName) and cache them.
-                        transaction.Person = await GetPersonsCacheAsync(transaction.IdDynamodb, transaction.PaymentReference).ConfigureAwait(false);
+
+                        // TODO FIX PERSON
+                        //transaction.Person = await GetPersonsCacheAsync(transaction.IdDynamodb, transaction.PaymentReference).ConfigureAwait(false);
 
                         // Set the row isTransformed flag to TRUE and Update the row in the staging data table (or batch them)
                         transaction.IsTransformed = true;

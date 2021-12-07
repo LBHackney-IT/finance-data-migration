@@ -7,6 +7,7 @@ using FinanceDataMigrationApi.V1.Handlers;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using FinanceDataMigrationApi.V1.Factories;
 
 namespace FinanceDataMigrationApi
 {
@@ -14,6 +15,7 @@ namespace FinanceDataMigrationApi
     {
         private IMigrationRunGateway _migrationRunGateway;
         private readonly IDMTransactionEntityGateway _dMTransactionEntityGateway;
+        private readonly ITransactionGateway _transactionGateway;
         private readonly IMapper _autoMapper;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
 
@@ -23,11 +25,13 @@ namespace FinanceDataMigrationApi
 
             IMapper autoMapper,
             IMigrationRunGateway migrationRunGateway,
-            IDMTransactionEntityGateway dMTransactionEntityGateway)
+            IDMTransactionEntityGateway dMTransactionEntityGateway,
+            ITransactionGateway transactionGateway)
         {
             _autoMapper = autoMapper;
             _migrationRunGateway = migrationRunGateway;
             _dMTransactionEntityGateway = dMTransactionEntityGateway;
+            _transactionGateway = transactionGateway;
         }
 
         public async Task<StepResponse> ExecuteAsync()
@@ -58,6 +62,10 @@ namespace FinanceDataMigrationApi
                     var apiResult = await _dMTransactionEntityGateway.AddTransactionAsync(dmEntity).ConfigureAwait(false);
                     dmEntity.IsLoaded = true;
                 }
+
+                var transactionsList = transformedList.ToTransactionRequestList();
+                var response = await _transactionGateway.UpdateTransactionItems(transactionsList).ConfigureAwait(false);
+
                 // *** END OF BLOCK
 
                 // Update migrationrun item with SET start_row_id & end_row_id here.

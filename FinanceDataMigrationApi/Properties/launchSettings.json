@@ -18,7 +18,9 @@
         "ASPNETCORE_ENVIRONMENT": "Development",
         "CONNECTION_STRING": "Server=localhost,1433;Database=SOW2b-local;User Id=sa;Password=Pass@word;",
         "DynamoDb_LocalMode": "true",
-        "DynamoDb_LocalServiceUrl": "http://localhost:8000"
+        "DynamoDb_LocalServiceUrl": "http://localhost:8000",
+        "FINANCIAL_TRANSACTION_API_URL": "",
+        "FINANCIAL_TRANSACTION_API_TOKEN": ""
       }
     }
   }
