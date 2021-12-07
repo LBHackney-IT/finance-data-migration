@@ -1,9 +1,7 @@
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Infrastructure;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.Factories
 {
@@ -41,34 +39,34 @@ namespace FinanceDataMigrationApi.V1.Factories
             };
         }
 
-        public static DMTransactionEntityDomain ToDomain(this DMTransactionEntity dMTransactionEntityDomain)
+        public static DMTransactionEntityDomain ToDomain(this DMTransactionEntity dMTransactionEntity)
         {
-            return dMTransactionEntityDomain == null ? null : new DMTransactionEntityDomain
+            return dMTransactionEntity == null ? null : new DMTransactionEntityDomain
             {
-                Id = dMTransactionEntityDomain.Id,
-                BalanceAmount = dMTransactionEntityDomain.BalanceAmount,
-                BankAccountNumber = dMTransactionEntityDomain.BankAccountNumber,
-                ChargedAmount = dMTransactionEntityDomain.ChargedAmount,
-                CreatedAt = dMTransactionEntityDomain.CreatedAt,
-                FinancialMonth = dMTransactionEntityDomain.FinancialMonth,
-                FinancialYear = dMTransactionEntityDomain.FinancialYear,
-                Fund = dMTransactionEntityDomain.Fund,
-                HousingBenefitAmount = dMTransactionEntityDomain.HousingBenefitAmount,
-                IdDynamodb = dMTransactionEntityDomain.IdDynamodb,
-                IsLoaded = dMTransactionEntityDomain.IsLoaded,
-                IsSuspense = dMTransactionEntityDomain.IsSuspense,
-                IsTransformed = dMTransactionEntityDomain.IsTransformed,
-                PaidAmount = dMTransactionEntityDomain.PaidAmount,
-                PaymentReference = dMTransactionEntityDomain.PaymentReference,
-                PeriodNo = dMTransactionEntityDomain.PeriodNo,
-                Person = dMTransactionEntityDomain.Person,
-                SuspenseResolutionInfo = dMTransactionEntityDomain.SuspenseResolutionInfo,
-                TargetId = dMTransactionEntityDomain.TargetId,
-                TargetType = dMTransactionEntityDomain.TargetType,
-                TransactionAmount = dMTransactionEntityDomain.TransactionAmount,
-                TransactionDate = dMTransactionEntityDomain.TransactionDate,
-                TransactionSource = dMTransactionEntityDomain.TransactionSource,
-                TransactionType = dMTransactionEntityDomain.TransactionType
+                Id = dMTransactionEntity.Id,
+                BalanceAmount = dMTransactionEntity.BalanceAmount,
+                BankAccountNumber = dMTransactionEntity.BankAccountNumber,
+                ChargedAmount = dMTransactionEntity.ChargedAmount,
+                CreatedAt = dMTransactionEntity.CreatedAt,
+                FinancialMonth = dMTransactionEntity.FinancialMonth,
+                FinancialYear = dMTransactionEntity.FinancialYear,
+                Fund = dMTransactionEntity.Fund,
+                HousingBenefitAmount = dMTransactionEntity.HousingBenefitAmount,
+                IdDynamodb = dMTransactionEntity.IdDynamodb,
+                IsLoaded = dMTransactionEntity.IsLoaded,
+                IsSuspense = dMTransactionEntity.IsSuspense,
+                IsTransformed = dMTransactionEntity.IsTransformed,
+                PaidAmount = dMTransactionEntity.PaidAmount,
+                PaymentReference = dMTransactionEntity.PaymentReference,
+                PeriodNo = dMTransactionEntity.PeriodNo,
+                Person = dMTransactionEntity.Person,
+                SuspenseResolutionInfo = dMTransactionEntity.SuspenseResolutionInfo,
+                TargetId = dMTransactionEntity.TargetId,
+                TargetType = dMTransactionEntity.TargetType,
+                TransactionAmount = dMTransactionEntity.TransactionAmount,
+                TransactionDate = dMTransactionEntity.TransactionDate,
+                TransactionSource = dMTransactionEntity.TransactionSource,
+                TransactionType = dMTransactionEntity.TransactionType
             };
         }
 

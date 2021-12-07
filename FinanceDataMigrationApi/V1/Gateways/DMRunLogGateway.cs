@@ -80,6 +80,9 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 if (dmLog == null)
                     return false;
 
+                dmLog.ActualRowsMigrated = dmRunLogDomain.ActualRowsMigrated;
+                dmLog.StartRowId = dmRunLogDomain.StartRowId;
+                dmLog.EndRowId = dmRunLogDomain.EndRowId;
                 dmLog.ExpectedRowsToMigrate = dmRunLogDomain.ExpectedRowsToMigrate;
                 dmLog.IsFeatureEnabled = dmRunLogDomain.IsFeatureEnabled; // not sure we need this attribute. May change to Active flag per migration run row?
                 dmLog.LastRunStatus = dmRunLogDomain.LastRunStatus;

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi
 {
-    public class ExtractTransactionEntityUseCase : IExtractTransactionEntityUseCase
+    internal class ExtractTransactionEntityUseCase : IExtractTransactionEntityUseCase
     {
         private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IDMTransactionEntityGateway _dMTransactionEntityGateway;
@@ -45,28 +45,30 @@ namespace FinanceDataMigrationApi
 
                 var newDMRunLogDomain = await _dMRunLogGateway.AddAsync(dmRunLogDomain).ConfigureAwait(false);
 
-                // Call stored procedure usp_ExtractTransactionEntity in SOW2b database to kick off the extract of data to staging table.
+                // Call stored procedure usp_ExtractTransactionEntity in SOW2b database to kick off the extract of data to staging table using
                 int numberOfRowsExtracted = await _dMTransactionEntityGateway.ExtractAsync(lastRunTimestamp).ConfigureAwait(false);
 
-                // if return value from usp is success (>0), then capture how many rows to migrate from return value.
-                // if return value from usp is fail(=0), then no rows to migrate.
+                // if return value from usp is >0 (success), then capture how many rows to migrate from return value.
+                // if return value from usp is =0 (success), but no rows to migrate.
                 // Update migrationrun item with latest run time to NOW and set status to "Extract Completed"
-                if (numberOfRowsExtracted < 0) // -1 usp returned failure
-                {
-                    // error occurred in extract data stored procedure 
-                    newDMRunLogDomain.LastRunStatus = MigrationRunStatus.ExtractFailed.ToString();
-                    LoggingHandler.LogInfo($"Error occurred during {DataMigrationTask} task for {DMEntityNames.Transactions} Entity");
-                }
-                else
+                if (numberOfRowsExtracted > 0) 
                 {
                     // Update migrationrun item with latest run time to NOW and set status to "Extract Completed"
                     newDMRunLogDomain.ExpectedRowsToMigrate = numberOfRowsExtracted;
                     newDMRunLogDomain.LastRunStatus = MigrationRunStatus.ExtractCompleted.ToString();
+                    LoggingHandler.LogInfo($"Number of rows extracted for this migration run = [{numberOfRowsExtracted}]");
+                }
+                else
+                {
+                    // if return value from usp is = -1 (usp returned failure). 
+                    // error occurred in extract data stored procedure 
+                    newDMRunLogDomain.LastRunStatus = MigrationRunStatus.ExtractFailed.ToString();
+                    LoggingHandler.LogInfo($"Error occurred during {DataMigrationTask} task for {DMEntityNames.Transactions} entity");
                 }
 
                 await _dMRunLogGateway.UpdateAsync(newDMRunLogDomain).ConfigureAwait(false);
 
-                LoggingHandler.LogInfo($"End of {DataMigrationTask} task for {DMEntityNames.Transactions} Entity");
+                LoggingHandler.LogInfo($"End of {DataMigrationTask} task for {DMEntityNames.Transactions} entity");
 
                 return new StepResponse()
                 {

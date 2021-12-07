@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace FinanceDataMigrationApi.V1.Domain
@@ -12,7 +13,8 @@ namespace FinanceDataMigrationApi.V1.Domain
         TransformInprogress,
         TransformCompleted,
         LoadInprogress,
-        LoadCompleted
+        LoadCompleted,
+        LoadFailed
     }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -25,7 +27,39 @@ namespace FinanceDataMigrationApi.V1.Domain
     public enum TransactionType
     {
         Rent,
-        Charge
+
+        Charge,
+
+        [Display(Name = "Grounds Maintenance")]
+        GroundsMaintenance,
+
+        [Display(Name = "Bank Payment")]
+        BankPayment,
+
+        [Display(Name = "Basic Rent (No VAT)")]
+        BasicRentNoVAT, 
+
+        [Display(Name = "Cleaning (Estate)")]
+        CleaningEstate,   
+
+        [Display(Name = "Landlord Lighting")]
+        LandlordLighting,
+
+        [Display(Name = "Debit / Credit Card")]
+        DebitCreditCard,
+
+        [Display(Name = "PayPoint/Post Office")]
+        PayPointPostOffice,
+
+        [Display(Name = "Cleaning (Block)")]
+        CleaningBlock,    
+
+        [Display(Name = "Contents Insurance")]
+        ContentsInsurance,
+
+        [Display(Name = "Tenants Levy")]
+        TenantsLevy
+
     }
 
 }

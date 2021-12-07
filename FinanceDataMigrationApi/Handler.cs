@@ -1,6 +1,7 @@
 using Amazon.Lambda.Core;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Gateways;
@@ -32,14 +33,15 @@ namespace FinanceDataMigrationApi
 
             IDMRunLogGateway migrationRunGateway = new DMRunLogGateway(context);
             IDMTransactionEntityGateway dMTransactionEntityGateway = new DMTransactionEntityGateway(context);
-
+            var httpClient = new HttpClient(); 
+            ITransactionGateway transactionGateway = new TransactionGateway(httpClient);
             _autoMapper = autoMapper;
 
             _extractTransactionsUseCase = new ExtractTransactionEntityUseCase(_autoMapper, migrationRunGateway, dMTransactionEntityGateway);
 
             _transformTransactionsUseCase = new TransformTransactionEntityUseCase(_autoMapper, migrationRunGateway, dMTransactionEntityGateway);
 
-            _loadTransactionsUseCase = new LoadTransactionEntityUseCase(_autoMapper, migrationRunGateway, dMTransactionEntityGateway);
+            _loadTransactionsUseCase = new LoadTransactionEntityUseCase(_autoMapper, migrationRunGateway, dMTransactionEntityGateway, transactionGateway);
 
         }
 

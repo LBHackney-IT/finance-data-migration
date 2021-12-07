@@ -1,3 +1,4 @@
+using FinanceDataMigrationApi.V1.Infrastructure;
 using System;
 
 namespace FinanceDataMigrationApi.V1.Domain
@@ -8,9 +9,12 @@ namespace FinanceDataMigrationApi.V1.Domain
 
         public Guid IdDynamodb { get; set; }
 
-        public Guid? TargetId { get; set; }
+        public Guid TargetId { get; set; }
 
+        //public TargetType TargetType { get; set; }
         public string TargetType { get; set; }
+
+        //public short PeriodNo { get; set; }
         public decimal PeriodNo { get; set; }
 
         public int FinancialYear { get; set; }
@@ -19,6 +23,7 @@ namespace FinanceDataMigrationApi.V1.Domain
 
         public string TransactionSource { get; set; }
 
+        //public TransactionType TransactionType { get; set; }
         public string TransactionType { get; set; }
 
         public DateTime TransactionDate { get; set; }
@@ -33,14 +38,15 @@ namespace FinanceDataMigrationApi.V1.Domain
 
         public string SuspenseResolutionInfo { get; set; }
 
-        public decimal? PaidAmount { get; set; }
+        public decimal PaidAmount { get; set; }
 
         public decimal ChargedAmount { get; set; }
 
-        public decimal? HousingBenefitAmount { get; set; }
+        public decimal HousingBenefitAmount { get; set; }
 
         public decimal BalanceAmount { get; set; }
 
+        //public Person Person { get; set; }
         public string Person { get; set; }
 
         public string Fund { get; set; }

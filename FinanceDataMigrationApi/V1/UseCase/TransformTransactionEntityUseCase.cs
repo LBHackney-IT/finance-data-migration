@@ -3,6 +3,7 @@ using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
+using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 
@@ -53,6 +54,8 @@ namespace FinanceDataMigrationApi
                     {
                         // Get Person subset information (from above cached list)
                         // We may want to get all the Persons (Id, FullName) and cache them.
+
+                        // TODO FIX PERSON
                         transaction.Person = await GetPersonsCacheAsync(transaction.IdDynamodb, transaction.PaymentReference).ConfigureAwait(false);
 
                         // Set the row isTransformed flag to TRUE and Update the row in the staging data table (or batch them)
@@ -62,8 +65,7 @@ namespace FinanceDataMigrationApi
                     // Update batched rows to staging table DMTransactionEntity. 
                     await _dMTransactionEntityGateway.UpdateDMTransactionEntityItems(dMTransactions).ConfigureAwait(false);
 
-                    // If all expected rows equal actual rows have been transformed THEN
-                    //      Update migrationrun item with SET start_row_id & end_row_id here and set status to "TransformCompleted"
+                    // Update migrationrun item with set status to "TransformCompleted"
                     dmRunLogDomain.LastRunStatus = MigrationRunStatus.TransformCompleted.ToString();
                     await _dMRunLogGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
                 }
@@ -92,7 +94,8 @@ namespace FinanceDataMigrationApi
         private static async Task<string> GetPersonsCacheAsync(Guid idDynamodb, string paymentReference)
         {
             //TODO temp method until decide how to get person information based on transaction entity
-            return await Task.FromResult($"{{\"Id\" :\"{idDynamodb}\", \"FullName\" = \"{paymentReference}\"}}").ConfigureAwait(false);
+            var tempPerson = new Person { Id = idDynamodb, FullName = paymentReference.Trim() };
+            return await Task.FromResult(JsonConvert.SerializeObject(tempPerson)).ConfigureAwait(false);
         }
     }
 }

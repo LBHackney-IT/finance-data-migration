@@ -24,6 +24,8 @@ provider:
     WAIT_DURATION: ${ssm:/finance-data-migration/${self:provider.stage}/step-function-wait-duration}
     BATCH_SIZE: ${ssm:/finance-data-migration/${self:provider.stage}/bulk-insert-batch-size}
     ACCEPTED_ORIGINS: ${ssm:/finance-data-migration/${self:provider.stage}/cors-accepted-origins}
+    FINANCIAL_TRANSACTION_API_URL: ${ssm:/housing-finance/${self:provider.stage}/financial-transaction-api-url}
+    FINANCIAL_TRANSACTION_API_TOKEN: ${ssm:/housing-finance/${self:provider.stage}/financial-transaction-api-token}
 
 package:
   artifact: ./bin/release/netcoreapp3.1/finance-data-migration-api.zip

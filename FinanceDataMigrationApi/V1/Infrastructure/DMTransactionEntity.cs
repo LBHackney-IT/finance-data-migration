@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using FinanceDataMigrationApi.V1.Domain;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure
 {
@@ -18,12 +19,14 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public Guid IdDynamodb { get; set; }
 
         [Column("target_id")]
-        public Guid? TargetId { get; set; }
+        public Guid TargetId { get; set; }
 
         [Column("target_type")]
+        //public TargetType TargetType { get; set; }
         public string TargetType { get; set; }
 
         [Column("period_no")]
+        //public short PeriodNo { get; set; }
         public decimal PeriodNo { get; set; }
 
         [Column("financial_year")]
@@ -36,6 +39,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public string TransactionSource { get; set; }
 
         [Column("transaction_type")]
+        //public TransactionType TransactionType { get; set; }
         public string TransactionType { get; set; }
 
         [Column("transaction_date")]
@@ -57,18 +61,19 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public string SuspenseResolutionInfo { get; set; }
 
         [Column("paid_amount")]
-        public decimal? PaidAmount { get; set; }
+        public decimal PaidAmount { get; set; }
 
         [Column("charged_amount")]
         public decimal ChargedAmount { get; set; }
 
         [Column("housing_benefit_amount")]
-        public decimal? HousingBenefitAmount { get; set; }
+        public decimal HousingBenefitAmount { get; set; }
 
         [Column("balance_amount")]
         public decimal BalanceAmount { get; set; }
 
         [Column("person")]
+        //public Person Person { get; set; }
         public string Person { get; set; }
 
         [Column("fund")]
