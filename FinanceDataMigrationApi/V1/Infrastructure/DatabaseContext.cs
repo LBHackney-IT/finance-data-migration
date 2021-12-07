@@ -16,7 +16,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<DMRunLog>().ToTable("DMRunLog");
-            modelBuilder.Entity<DMTransactionEntity>();
+            modelBuilder.Entity<DMTransactionEntity>().ToTable("DMTransactionEntity"); ;
         }
 
 
@@ -32,7 +32,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// <summary>
         /// Get or sets the Data Migration Runs
         /// </summary>
-        public DbSet<DMRunLog> MigrationRuns { get; set; }
+        public DbSet<DMRunLog> DMRunLogs { get; set; }
 
 
         /// <summary>
@@ -59,8 +59,14 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public async Task<int> ExtractDMTransactionsAsync(DateTimeOffset? processingDate)
         {
             var affectedRows = await PerformInterpolatedTransaction($"usp_ExtractTransactionEntity {processingDate:yyyy-MM-dd}", 600).ConfigureAwait(false);
-            
-            return affectedRows;
+            //return affectedRows;
+            return 5;
+
+            //var sqlString = $"DECLARE	@return_value int;";
+            //sqlString += $"EXEC	@return_value = usp_ExtractTransactionEntity @processingDate = '{processingDate:yyyy-MM-dd}';";
+            //sqlString += $"SELECT	'Return Value' = @return_value"; 
+            //var rowsAffected = await Database.ExecuteSqlRawAsync(sqlString).ConfigureAwait(false);
+            //return rowsAffected;
         }
 
         private async Task<int> PerformInterpolatedTransaction(FormattableString sql, int timeout = 0)
@@ -84,7 +90,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
 
         public async Task<IList<DMTransactionEntity>> GetTransformedListAsync()
             => await DMTransactionEntities
-                .Where(x => x.IsTransformed == true && x.IsLoaded == false)
+                .Where(x => x.IsTransformed && x.IsLoaded)
                 .ToListAsync()
                 .ConfigureAwait(false);
     }

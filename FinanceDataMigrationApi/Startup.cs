@@ -146,7 +146,7 @@ namespace FinanceDataMigrationApi
         {
             services.AddScoped<IDMTransactionEntityGateway, DMTransactionEntityGateway>();
             services.AddScoped<ITransactionGateway, TransactionGateway>();
-            services.AddScoped<IMigrationRunGateway, MigrationRunGateway>();
+            services.AddScoped<IDMRunLogGateway, DMRunLogGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)

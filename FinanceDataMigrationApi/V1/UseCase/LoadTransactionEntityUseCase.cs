@@ -1,7 +1,6 @@
 using AutoMapper;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Domain;
-using FinanceDataMigrationApi.V1.Gateways;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
 using System;
@@ -12,7 +11,7 @@ namespace FinanceDataMigrationApi
 {
     internal class LoadTransactionEntityUseCase : ILoadTransactionEntityUseCase
     {
-        private IMigrationRunGateway _migrationRunGateway;
+        private IDMRunLogGateway _dMRunLogGateway;
         private readonly IDMTransactionEntityGateway _dMTransactionEntityGateway;
         private readonly IMapper _autoMapper;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
@@ -22,11 +21,11 @@ namespace FinanceDataMigrationApi
         public LoadTransactionEntityUseCase(
 
             IMapper autoMapper,
-            IMigrationRunGateway migrationRunGateway,
+            IDMRunLogGateway dMRunLogGateway,
             IDMTransactionEntityGateway dMTransactionEntityGateway)
         {
             _autoMapper = autoMapper;
-            _migrationRunGateway = migrationRunGateway;
+            _dMRunLogGateway = dMRunLogGateway;
             _dMTransactionEntityGateway = dMTransactionEntityGateway;
         }
 
@@ -37,11 +36,11 @@ namespace FinanceDataMigrationApi
             try
             {
                 // Get latest successfull migrationrun item from DynamoDB Table MigrationRuns. where is_feature_enabled flag is TRUE and set status is "TransformCompleted"
-                var dmRunLogDomain = await _migrationRunGateway.GetDMRunLogByEntityNameAsync(DMEntityNames.Transactions).ConfigureAwait(false);
+                var dmRunLogDomain = await _dMRunLogGateway.GetDMRunLogByEntityNameAsync(DMEntityNames.Transactions).ConfigureAwait(false);
 
                 //      Update migrationrun item with set status to "LoadInprogress". 
                 dmRunLogDomain.LastRunStatus = MigrationRunStatus.LoadInprogress.ToString();
-                await _migrationRunGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
+                await _dMRunLogGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
 
                 // Get all the Transaction entity extracted data from the SOW2b SQL Server database table DMEntityTransaction,
                 //      where isTransformed flag is TRUE and isLoaded flag is FALSE
@@ -65,7 +64,7 @@ namespace FinanceDataMigrationApi
                 dmRunLogDomain.StartRowId = transformedList.First().Id;
                 dmRunLogDomain.EndRowId = transformedList.Last().Id;
                 dmRunLogDomain.LastRunStatus = MigrationRunStatus.LoadCompleted.ToString();
-                await _migrationRunGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
+                await _dMRunLogGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
 
                 // Update batched rows to staging table DMTransactionEntity. 
                 await _dMTransactionEntityGateway.UpdateDMTransactionEntityItems(transformedList).ConfigureAwait(false);

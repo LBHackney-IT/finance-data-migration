@@ -16,5 +16,6 @@ namespace FinanceDataMigrationApi.V1.Boundary.Request
         [AllowedValues(typeof(MigrationRunStatus))]
         public MigrationRunStatus LastRunStatus { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public bool IsFeatureEnabled { get; set; }
     }
 }

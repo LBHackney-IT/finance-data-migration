@@ -31,7 +31,16 @@ namespace FinanceDataMigrationApi.V1.Gateways
         //public async Task<int> ExtractAsync(DateTime? processingDate)
         public async Task<int> ExtractAsync(DateTimeOffset? processingDate)
         {
-            return await _context.ExtractDMTransactionsAsync(processingDate).ConfigureAwait(false);
+            try
+            {
+                return await _context.ExtractDMTransactionsAsync(processingDate).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                LoggingHandler.LogError(e.Message);
+                LoggingHandler.LogError(e.StackTrace);
+                throw;
+            }
         }
 
         /// <summary>
@@ -42,28 +51,18 @@ namespace FinanceDataMigrationApi.V1.Gateways
         /// </returns>
         public async Task<IList<DMTransactionEntityDomain>> ListAsync()
         {
-            var results = await _context.GetDMTransactionEntitiesAsync().ConfigureAwait(false);
+            try
+            {
+                var results = await _context.GetDMTransactionEntitiesAsync().ConfigureAwait(false);
 
-            return results.ToDomain();
-        }
-
-        public async Task<DMTransactionEntityDomain> GetDMTransactionEntityByIdAsync(int id)
-        {
-            await Task.Delay(0).ConfigureAwait(false);
-            //try
-            //{
-            //    var result = await _context.DMTransactionEntitiesValue.FirstOrDefault(x => x.Id == id) ;
-
-            //    return results.ToDomain;
-
-            //}
-            //catch (Exception)
-            //{
-
-            //    throw;
-            //}
-
-            return new DMTransactionEntityDomain();
+                return results.ToDomain();
+            }
+            catch (Exception e)
+            {
+                LoggingHandler.LogError(e.Message);
+                LoggingHandler.LogError(e.StackTrace);
+                throw;
+            }
         }
 
         public async Task UpdateDMTransactionEntityItems(IList<DMTransactionEntityDomain> dMTransactionEntityDomainItems)
@@ -82,17 +81,34 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public async Task<IList<DMTransactionEntityDomain>> GetTransformedListAsync()
         {
-            var results = await _context.GetTransformedListAsync().ConfigureAwait(false);
+            try
+            {
+                var results = await _context.GetTransformedListAsync().ConfigureAwait(false);
 
-            return results.ToDomain();
+                return results.ToDomain();
+            }
+            catch (Exception e)
+            {
+                LoggingHandler.LogError(e.Message);
+                LoggingHandler.LogError(e.StackTrace);
+                throw;
+            }
         }
 
         public async Task<int> AddTransactionAsync(DMTransactionEntityDomain dmEntity)
         {
             // TODO
-
-            await Task.Delay(0).ConfigureAwait(false);
-            return -1;
+            try
+            {
+                await Task.Delay(0).ConfigureAwait(false);
+                return -1;
+            }
+            catch (Exception e)
+            {
+                LoggingHandler.LogError(e.Message);
+                LoggingHandler.LogError(e.StackTrace);
+                throw;
+            }
         }
     }
 }

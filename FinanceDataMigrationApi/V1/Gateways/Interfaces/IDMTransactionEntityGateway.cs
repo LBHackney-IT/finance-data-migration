@@ -7,8 +7,6 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
 {
     public interface IDMTransactionEntityGateway
     {
-        Task<DMTransactionEntityDomain> GetDMTransactionEntityByIdAsync(int id);
-
         Task<IList<DMTransactionEntityDomain>> ListAsync();
 
         Task <int> ExtractAsync(DateTimeOffset? processingDate);

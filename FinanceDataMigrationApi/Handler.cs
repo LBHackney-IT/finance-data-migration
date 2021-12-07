@@ -30,7 +30,7 @@ namespace FinanceDataMigrationApi
             optionsBuilder.UseSqlServer(connectionString);
             DatabaseContext context = new DatabaseContext(optionsBuilder.Options);
 
-            IMigrationRunGateway migrationRunGateway = new MigrationRunGateway(context);
+            IDMRunLogGateway migrationRunGateway = new DMRunLogGateway(context);
             IDMTransactionEntityGateway dMTransactionEntityGateway = new DMTransactionEntityGateway(context);
 
             _autoMapper = autoMapper;

@@ -1,7 +1,6 @@
 using AutoMapper;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Domain;
-using FinanceDataMigrationApi.V1.Gateways;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
 using System;
@@ -11,8 +10,7 @@ namespace FinanceDataMigrationApi
 {
     public class ExtractTransactionEntityUseCase : IExtractTransactionEntityUseCase
     {
-        //private readonly IMigrationRunDynamoGateway _migrationRunGateway;
-        private readonly IMigrationRunGateway _migrationRunGateway;
+        private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IDMTransactionEntityGateway _dMTransactionEntityGateway;
         private readonly IMapper _autoMapper;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
@@ -21,11 +19,11 @@ namespace FinanceDataMigrationApi
 
         public ExtractTransactionEntityUseCase(
             IMapper autoMapper,
-            IMigrationRunGateway migrationRunGateway,
+            IDMRunLogGateway dmRunLogGateway,
             IDMTransactionEntityGateway dMTransactionEntityGateway)
         {
             _autoMapper = autoMapper;
-            _migrationRunGateway = migrationRunGateway;
+            _dMRunLogGateway = dmRunLogGateway;
             _dMTransactionEntityGateway = dMTransactionEntityGateway;
         }
 
@@ -36,7 +34,7 @@ namespace FinanceDataMigrationApi
             try
             {
                 // Get latest successfull migrationrun item from Table MigrationRuns. where is_feature_enabled flag is TRUE.
-                var dmRunLogDomain = await _migrationRunGateway.GetDMRunLogByEntityNameAsync(DMEntityNames.Transactions).ConfigureAwait(false);
+                var dmRunLogDomain = await _dMRunLogGateway.GetDMRunLogByEntityNameAsync(DMEntityNames.Transactions).ConfigureAwait(false);
 
                 // Get latest run timestamp from migrationrun item
                 var lastRunTimestamp = dmRunLogDomain.LastRunDate;
@@ -44,8 +42,8 @@ namespace FinanceDataMigrationApi
                 // Update migrationrun item with latest run time to NOW and set status to "Extract Inprogress"
                 dmRunLogDomain.LastRunDate = DateTimeOffset.UtcNow; 
                 dmRunLogDomain.LastRunStatus = MigrationRunStatus.ExtractInprogress.ToString();
-                //await _migrationRunGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
-                await _migrationRunGateway.AddAsync(dmRunLogDomain).ConfigureAwait(false);
+
+                var newDMRunLogDomain = await _dMRunLogGateway.AddAsync(dmRunLogDomain).ConfigureAwait(false);
 
                 // Call stored procedure usp_ExtractTransactionEntity in SOW2b database to kick off the extract of data to staging table.
                 int numberOfRowsExtracted = await _dMTransactionEntityGateway.ExtractAsync(lastRunTimestamp).ConfigureAwait(false);
@@ -56,17 +54,17 @@ namespace FinanceDataMigrationApi
                 if (numberOfRowsExtracted < 0) // -1 usp returned failure
                 {
                     // error occurred in extract data stored procedure 
-                    dmRunLogDomain.LastRunStatus = MigrationRunStatus.ExtractFailed.ToString();
+                    newDMRunLogDomain.LastRunStatus = MigrationRunStatus.ExtractFailed.ToString();
                     LoggingHandler.LogInfo($"Error occurred during {DataMigrationTask} task for {DMEntityNames.Transactions} Entity");
                 }
                 else
                 {
                     // Update migrationrun item with latest run time to NOW and set status to "Extract Completed"
-                    dmRunLogDomain.ExpectedRowsToMigrate = numberOfRowsExtracted;
-                    dmRunLogDomain.LastRunStatus = MigrationRunStatus.ExtractCompleted.ToString();
+                    newDMRunLogDomain.ExpectedRowsToMigrate = numberOfRowsExtracted;
+                    newDMRunLogDomain.LastRunStatus = MigrationRunStatus.ExtractCompleted.ToString();
                 }
 
-                await _migrationRunGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
+                await _dMRunLogGateway.UpdateAsync(newDMRunLogDomain).ConfigureAwait(false);
 
                 LoggingHandler.LogInfo($"End of {DataMigrationTask} task for {DMEntityNames.Transactions} Entity");
 

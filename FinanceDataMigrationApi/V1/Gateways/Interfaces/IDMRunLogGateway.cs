@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
 {
-    public interface IMigrationRunGateway
+    public interface IDMRunLogGateway
     {
         public Task<DMRunLogDomain> GetDMRunLogByEntityNameAsync(string dynamoDbTableName);
-        public Task AddAsync(DMRunLogDomain migrationRunDomain);
-        public Task UpdateAsync(DMRunLogDomain migrationRunDomain);
+        public Task<DMRunLogDomain> AddAsync(DMRunLogDomain migrationRunDomain);
+        public Task<bool> UpdateAsync(DMRunLogDomain dmRunLogDomain);
     }
 }

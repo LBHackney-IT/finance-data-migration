@@ -1,19 +1,16 @@
 using AutoMapper;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Domain;
-using FinanceDataMigrationApi.V1.Gateways;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi
 {
     internal class TransformTransactionEntityUseCase : ITransformTransactionEntityUseCase
     {
-        private IMigrationRunGateway _migrationRunGateway;
+        private IDMRunLogGateway _dMRunLogGateway;
         private readonly IDMTransactionEntityGateway _dMTransactionEntityGateway;
         private readonly IMapper _autoMapper;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
@@ -21,11 +18,11 @@ namespace FinanceDataMigrationApi
 
         public TransformTransactionEntityUseCase(
             IMapper autoMapper,
-            IMigrationRunGateway migrationRunGateway,
+            IDMRunLogGateway dMRunLogGateway,
             IDMTransactionEntityGateway dMTransactionEntityGateway)
         {
             _autoMapper = autoMapper;
-            _migrationRunGateway = migrationRunGateway;
+            _dMRunLogGateway = dMRunLogGateway;
             _dMTransactionEntityGateway = dMTransactionEntityGateway;
         }
 
@@ -38,14 +35,14 @@ namespace FinanceDataMigrationApi
             try
             {
                 // Get latest migrationrun item from Table MigrationRuns with status ExtractCompleted, where is_feature_enabled flag is TRUE.
-                var dmRunLogDomain = await _migrationRunGateway.GetDMRunLogByEntityNameAsync(DMEntityNames.Transactions).ConfigureAwait(false);
+                var dmRunLogDomain = await _dMRunLogGateway.GetDMRunLogByEntityNameAsync(DMEntityNames.Transactions).ConfigureAwait(false);
 
                 // If there are rows to transform THEN
                 if (dmRunLogDomain.ExpectedRowsToMigrate > 0)
                 {
                     // Update migrationrun item with set status to "Transform Inprogress". SET start_row_id & end_row_id here or during LOAD?
                     dmRunLogDomain.LastRunStatus = MigrationRunStatus.TransformInprogress.ToString();
-                    await _migrationRunGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
+                    await _dMRunLogGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
 
                     // Get all the Transaction entity extracted data from the SOW2b SQL Server database table DMEntityTransaction,
                     //      where isTransformed flag is FALSE and isLoaded flag is FALSE
@@ -62,13 +59,13 @@ namespace FinanceDataMigrationApi
                         transaction.IsTransformed = true;
                     }
 
+                    // Update batched rows to staging table DMTransactionEntity. 
+                    await _dMTransactionEntityGateway.UpdateDMTransactionEntityItems(dMTransactions).ConfigureAwait(false);
+
                     // If all expected rows equal actual rows have been transformed THEN
                     //      Update migrationrun item with SET start_row_id & end_row_id here and set status to "TransformCompleted"
                     dmRunLogDomain.LastRunStatus = MigrationRunStatus.TransformCompleted.ToString();
-                    await _migrationRunGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
-
-                    // Update batched rows to staging table DMTransactionEntity. 
-                    await _dMTransactionEntityGateway.UpdateDMTransactionEntityItems(dMTransactions).ConfigureAwait(false);
+                    await _dMRunLogGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
                 }
 
                 LoggingHandler.LogInfo($"End of {DataMigrationTask} task for {DMEntityNames.Transactions} Entity");
@@ -95,7 +92,7 @@ namespace FinanceDataMigrationApi
         private static async Task<string> GetPersonsCacheAsync(Guid idDynamodb, string paymentReference)
         {
             //TODO temp method until decide how to get person information based on transaction entity
-            return await Task.FromResult($"\"Id\" :\"{idDynamodb}\", \"FullName\" = \"{paymentReference}\"").ConfigureAwait(false);
+            return await Task.FromResult($"{{\"Id\" :\"{idDynamodb}\", \"FullName\" = \"{paymentReference}\"}}").ConfigureAwait(false);
         }
     }
 }
