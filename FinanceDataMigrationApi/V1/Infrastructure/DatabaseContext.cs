@@ -16,8 +16,12 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<DMRunLog>().ToTable("DMRunLog");
-            modelBuilder.Entity<DMTransactionEntity>().ToTable("DMTransactionEntity"); 
+            modelBuilder.Entity<DMTransactionEntity>().Property(x => x.BalanceAmount).HasColumnType("decimal"); 
+            modelBuilder.Entity<DMTransactionEntity>().Property(x => x.ChargedAmount).HasColumnType("decimal"); 
+            modelBuilder.Entity<DMTransactionEntity>().Property(x => x.HousingBenefitAmount).HasColumnType("decimal"); 
+            modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PaidAmount).HasColumnType("decimal"); 
+            modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PeriodNo).HasColumnType("decimal"); 
+            modelBuilder.Entity<DMTransactionEntity>().Property(x => x.TransactionAmount).HasColumnType("decimal"); 
         }
 
 

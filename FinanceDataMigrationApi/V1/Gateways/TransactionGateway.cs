@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.Gateways.Extensions;
+using System.Net.Http.Headers;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {

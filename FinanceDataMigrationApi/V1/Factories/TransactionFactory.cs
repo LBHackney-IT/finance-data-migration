@@ -21,8 +21,8 @@ namespace FinanceDataMigrationApi.V1.Factories
                 PaidAmount = dMTransactionEntityDomain.PaidAmount,
                 PaymentReference = dMTransactionEntityDomain.PaymentReference,
                 PeriodNo = (short) dMTransactionEntityDomain.PeriodNo,
-                //Person = JsonConvert.DeserializeObject<Person>(dMTransactionEntityDomain.Person), // TODO FIX PERSON
-                Person = new Person(), // TODO FIX PERSON
+                Person = JsonConvert.DeserializeObject<Person>(dMTransactionEntityDomain.Person), // TODO FIX PERSON
+                //Person = new Person(), // TODO FIX PERSON
                 TargetId = dMTransactionEntityDomain.TargetId,
                 TargetType = dMTransactionEntityDomain.TargetType.TargetTypeEnumValue(),
                 TransactionAmount = dMTransactionEntityDomain.TransactionAmount,

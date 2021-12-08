@@ -1,4 +1,3 @@
-using AutoMapper;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
@@ -8,21 +7,18 @@ using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi
 {
-    internal class ExtractTransactionEntityUseCase : IExtractTransactionEntityUseCase
+    public class ExtractTransactionEntityUseCase : IExtractTransactionEntityUseCase
     {
         private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IDMTransactionEntityGateway _dMTransactionEntityGateway;
-        private readonly IMapper _autoMapper;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
 
         private const string DataMigrationTask = "EXTRACT";
 
         public ExtractTransactionEntityUseCase(
-            IMapper autoMapper,
             IDMRunLogGateway dmRunLogGateway,
             IDMTransactionEntityGateway dMTransactionEntityGateway)
         {
-            _autoMapper = autoMapper;
             _dMRunLogGateway = dmRunLogGateway;
             _dMTransactionEntityGateway = dMTransactionEntityGateway;
         }

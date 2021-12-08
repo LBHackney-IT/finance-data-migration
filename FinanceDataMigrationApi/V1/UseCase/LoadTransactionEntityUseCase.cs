@@ -1,4 +1,3 @@
-using AutoMapper;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
@@ -10,24 +9,21 @@ using FinanceDataMigrationApi.V1.Factories;
 
 namespace FinanceDataMigrationApi
 {
-    internal class LoadTransactionEntityUseCase : ILoadTransactionEntityUseCase
+    public class LoadTransactionEntityUseCase : ILoadTransactionEntityUseCase
     {
         private IDMRunLogGateway _dMRunLogGateway;
         private readonly IDMTransactionEntityGateway _dMTransactionEntityGateway;
         private readonly ITransactionGateway _transactionGateway;
-        private readonly IMapper _autoMapper;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
 
         private const string DataMigrationTask = "LOAD";
 
         public LoadTransactionEntityUseCase(
 
-            IMapper autoMapper,
             IDMRunLogGateway dMRunLogGateway,
             IDMTransactionEntityGateway dMTransactionEntityGateway,
             ITransactionGateway transactionGateway)
         {
-            _autoMapper = autoMapper;
             _dMRunLogGateway = dMRunLogGateway;
             _dMTransactionEntityGateway = dMTransactionEntityGateway;
             _transactionGateway = transactionGateway;
@@ -53,30 +49,40 @@ namespace FinanceDataMigrationApi
 
                 // for each row from the Transformed List call Transaction API in batch mode,
                 var transactionRequestList = transformedList.ToTransactionRequestList();
-                var response = await _transactionGateway.UpdateTransactionItems(transactionRequestList).ConfigureAwait(false);
 
-                if (response > 0)
+                if (transactionRequestList.Any())
                 {
-                    // we need to update the corresponding rows isLoaded flag in the staging table. 
-                    foreach (var dmEntity in transformedList)
+                    var response = await _transactionGateway.UpdateTransactionItems(transactionRequestList).ConfigureAwait(false);
+
+                    if (response > 0)
                     {
-                        dmEntity.IsLoaded = true;
+                        // we need to update the corresponding rows isLoaded flag in the staging table. 
+                        foreach (var dmEntity in transformedList)
+                        {
+                            dmEntity.IsLoaded = true;
+                        }
+
+                        // Update batched rows to staging table DMTransactionEntity. 
+                        await _dMTransactionEntityGateway.UpdateDMTransactionEntityItems(transformedList).ConfigureAwait(false);
+
+                        // Update migrationrun item with SET start_row_id & end_row_id here.
+                        //      and set status to "LoadCompleted" (Data Set Migrated successfully)
+                        dmRunLogDomain.ActualRowsMigrated = response;
+                        dmRunLogDomain.StartRowId = transformedList.First().Id;
+                        dmRunLogDomain.EndRowId = transformedList.Last().Id;
+                        dmRunLogDomain.LastRunStatus = MigrationRunStatus.LoadCompleted.ToString();
                     }
-
-                    // Update batched rows to staging table DMTransactionEntity. 
-                    await _dMTransactionEntityGateway.UpdateDMTransactionEntityItems(transformedList).ConfigureAwait(false);
-
-                    // Update migrationrun item with SET start_row_id & end_row_id here.
-                    //      and set status to "LoadCompleted" (Data Set Migrated successfully)
-                    dmRunLogDomain.ActualRowsMigrated = response;
-                    dmRunLogDomain.StartRowId = transformedList.First().Id;
-                    dmRunLogDomain.EndRowId = transformedList.Last().Id;
-                    dmRunLogDomain.LastRunStatus = MigrationRunStatus.LoadCompleted.ToString();
+                    else
+                    {
+                        dmRunLogDomain.LastRunStatus = MigrationRunStatus.LoadFailed.ToString();
+                    }
                 }
                 else
                 {
-                    dmRunLogDomain.LastRunStatus = MigrationRunStatus.LoadFailed.ToString();
+                    LoggingHandler.LogInfo($"No records to {DataMigrationTask} for {DMEntityNames.Transactions} Entity");
+                    dmRunLogDomain.LastRunStatus = MigrationRunStatus.NothingToMigrate.ToString();
                 }
+
                 await _dMRunLogGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
 
                 LoggingHandler.LogInfo($"End of {DataMigrationTask} task for {DMEntityNames.Transactions} Entity");

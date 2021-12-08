@@ -14,7 +14,8 @@ namespace FinanceDataMigrationApi.V1.Domain
         TransformCompleted,
         LoadInprogress,
         LoadCompleted,
-        LoadFailed
+        LoadFailed,
+        NothingToMigrate
     }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]

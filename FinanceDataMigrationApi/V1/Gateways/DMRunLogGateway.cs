@@ -46,9 +46,9 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 {
                     DynamoDbTableName = migrationRunDomain.DynamoDbTableName,
                     ExpectedRowsToMigrate = migrationRunDomain.ExpectedRowsToMigrate,
-                    ActualRowsMigrated = migrationRunDomain.ActualRowsMigrated,
-                    StartRowId = migrationRunDomain.StartRowId,
-                    EndRowId = migrationRunDomain.EndRowId,
+                    ActualRowsMigrated = 0,
+                    StartRowId = 0,
+                    EndRowId = 0,
                     LastRunDate = migrationRunDomain.LastRunDate,
                     LastRunStatus = migrationRunDomain.LastRunStatus,
                     UpdatedAt = DateTimeOffset.UtcNow,
@@ -84,14 +84,11 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 dmLog.StartRowId = dmRunLogDomain.StartRowId;
                 dmLog.EndRowId = dmRunLogDomain.EndRowId;
                 dmLog.ExpectedRowsToMigrate = dmRunLogDomain.ExpectedRowsToMigrate;
-                dmLog.IsFeatureEnabled = dmRunLogDomain.IsFeatureEnabled; // not sure we need this attribute. May change to Active flag per migration run row?
                 dmLog.LastRunStatus = dmRunLogDomain.LastRunStatus;
                 dmLog.UpdatedAt = DateTimeOffset.UtcNow;
+                dmLog.IsFeatureEnabled = dmRunLogDomain.IsFeatureEnabled; // not sure we need this attribute. May change to Active flag per migration run row?
                 return await _context.SaveChangesAsync().ConfigureAwait(false) == 1;
 
-
-                //dmRunLogDomain.UpdatedAt = DateTimeOffset.UtcNow;
-                //return await _context.SaveChangesAsync().ConfigureAwait(false) == 1;
             }
             catch (Exception e)
             {

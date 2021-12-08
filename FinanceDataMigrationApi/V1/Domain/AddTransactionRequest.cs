@@ -1,4 +1,6 @@
+using FinanceDataMigrationApi.V1.Infrastructure;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace FinanceDataMigrationApi.V1.Domain
 {
@@ -8,7 +10,7 @@ namespace FinanceDataMigrationApi.V1.Domain
         public Guid TargetId { get; set; }
       
         public TargetType TargetType { get; set; }
-       
+
         public short PeriodNo { get; set; }
 
        
@@ -17,10 +19,8 @@ namespace FinanceDataMigrationApi.V1.Domain
        
         public TransactionType TransactionType { get; set; }
 
-       
         public DateTime TransactionDate { get; set; }
 
-        
         public decimal TransactionAmount { get; set; }
 
        

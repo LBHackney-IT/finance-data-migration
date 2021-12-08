@@ -44,8 +44,6 @@ namespace FinanceDataMigrationApi
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-
-            //AWSSDKHandler.RegisterXRayForAllServices(); //TODO NM: Whats this for?
         }
 
         public IConfiguration Configuration { get; }
@@ -71,8 +69,6 @@ namespace FinanceDataMigrationApi
             });
 
             services.AddSingleton<IApiVersionDescriptionProvider, DefaultApiVersionDescriptionProvider>();
-
-            services.AddDynamoDbHealthCheck<DatabaseEntity>();
 
             services.AddSwaggerGen(swaggerSetup =>
             {

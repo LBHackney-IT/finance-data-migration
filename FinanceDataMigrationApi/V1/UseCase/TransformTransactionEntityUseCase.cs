@@ -5,24 +5,22 @@ using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
 using Newtonsoft.Json;
 using System;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi
 {
-    internal class TransformTransactionEntityUseCase : ITransformTransactionEntityUseCase
+    public class TransformTransactionEntityUseCase : ITransformTransactionEntityUseCase
     {
         private IDMRunLogGateway _dMRunLogGateway;
         private readonly IDMTransactionEntityGateway _dMTransactionEntityGateway;
-        private readonly IMapper _autoMapper;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
         private const string DataMigrationTask = "TRANSFORM";
 
         public TransformTransactionEntityUseCase(
-            IMapper autoMapper,
             IDMRunLogGateway dMRunLogGateway,
             IDMTransactionEntityGateway dMTransactionEntityGateway)
         {
-            _autoMapper = autoMapper;
             _dMRunLogGateway = dMRunLogGateway;
             _dMTransactionEntityGateway = dMTransactionEntityGateway;
         }
@@ -58,6 +56,8 @@ namespace FinanceDataMigrationApi
                         // TODO FIX PERSON
                         transaction.Person = await GetPersonsCacheAsync(transaction.IdDynamodb, transaction.PaymentReference).ConfigureAwait(false);
 
+                        transaction.TransactionType = await TransformTransactionType(transaction.TransactionType).ConfigureAwait(false);
+
                         // Set the row isTransformed flag to TRUE and Update the row in the staging data table (or batch them)
                         transaction.IsTransformed = true;
                     }
@@ -89,6 +89,13 @@ namespace FinanceDataMigrationApi
 
                 throw;
             }
+        }
+
+        private static async Task<string> TransformTransactionType(string transactionType)
+        {
+            //TODO Improve but this is the quick and dirty fix!
+            var enumValueString = transactionType.Trim();
+            return await Task.FromResult(Regex.Replace(enumValueString, "[^0-9A-Za-z]+", "")).ConfigureAwait(false);
         }
 
         private static async Task<string> GetPersonsCacheAsync(Guid idDynamodb, string paymentReference)
