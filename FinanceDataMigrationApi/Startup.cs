@@ -35,6 +35,7 @@ using Hackney.Core.DynamoDb;
 using Microsoft.Extensions.Options;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1;
+using FinanceDataMigrationApi.V1.Infrastructure.Interfaces;
 
 namespace FinanceDataMigrationApi
 {
@@ -135,6 +136,12 @@ namespace FinanceDataMigrationApi
             ConfigureDbContext(services);
             RegisterGateways(services);
             RegisterUseCases(services);
+            #region ExtraSerives
+
+            services.AddScoped<ICustomeHttpClient, CustomeHttpClient>();
+            services.AddScoped<IGetEnvironmentVariables, GetEnvironmentVariables>();
+
+            #endregion
         }
 
         private static void ConfigureDbContext(IServiceCollection services)
@@ -153,6 +160,8 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IDMTransactionEntityGateway, DMTransactionEntityGateway>();
             services.AddScoped<ITransactionGateway, TransactionGateway>();
             services.AddScoped<IDMRunLogGateway, DMRunLogGateway>();
+            services.AddScoped<ITenureGateway, TenureGateway>();
+            services.AddScoped<IPersonGateway, PersonGateway>();
 
             var transactionApiUrl = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_URL");
             var transactionApiToken = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_TOKEN");
@@ -170,6 +179,8 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IExtractTransactionEntityUseCase, ExtractTransactionEntityUseCase>();
             services.AddScoped<ITransformTransactionEntityUseCase, TransformTransactionEntityUseCase>();
             services.AddScoped<ILoadTransactionEntityUseCase, LoadTransactionEntityUseCase>();
+            services.AddScoped<IGetTenureByPrnUseCase, GetTenureByPrnUseCase>();
+            services.AddScoped<IGetPersenByIdUseCase, GetPersenByIdUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

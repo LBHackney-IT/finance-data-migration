@@ -94,7 +94,7 @@ namespace FinanceDataMigrationApi
         private static async Task<string> GetPersonsCacheAsync(Guid idDynamodb, string paymentReference)
         {
             //TODO temp method until decide how to get person information based on transaction entity
-            var tempPerson = new Person { Id = idDynamodb, FullName = paymentReference.Trim() };
+            var tempPerson = new TransactionPerson { Id = idDynamodb, FullName = paymentReference.Trim() };
             return await Task.FromResult(JsonConvert.SerializeObject(tempPerson)).ConfigureAwait(false);
         }
     }
