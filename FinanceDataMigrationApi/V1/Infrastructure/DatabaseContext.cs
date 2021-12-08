@@ -1,6 +1,8 @@
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -57,26 +59,35 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         //public async Task<int> ExtractDMTransactionsAsync(DateTime? processingDate)
         public async Task<int> ExtractDMTransactionsAsync(DateTimeOffset? processingDate)
         {
-            var affectedRows = await PerformInterpolatedTransaction($"usp_ExtractTransactionEntity {processingDate:yyyy-MM-dd}", 600).ConfigureAwait(false);
+            var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_ExtractTransactionEntity] '{processingDate:yyyy-MM-dd}'", 600).ConfigureAwait(false);
             return affectedRows;
         }
 
-        private async Task<int> PerformInterpolatedTransaction(FormattableString sql, int timeout = 0)
+        private async Task<int> ExecuteStoredProcedure(string procedureRawString, int timeout = 0)
         {
-            await using var transaction = await Database.BeginTransactionAsync().ConfigureAwait(false);
-
+            if (timeout != 0)
+                Database.SetCommandTimeout(timeout);
             try
             {
-                if (timeout != 0)
-                    Database.SetCommandTimeout(timeout);
-                var affectedRows = await Database.ExecuteSqlInterpolatedAsync(sql).ConfigureAwait(false);
-                await transaction.CommitAsync().ConfigureAwait(false);
-                return affectedRows;
+                await Database.BeginTransactionAsync(IsolationLevel.ReadCommitted).ConfigureAwait(false);
+
+                var parameterReturn = new SqlParameter
+                {
+                    ParameterName = "ReturnValue",
+                    SqlDbType = SqlDbType.Int,
+                    Direction = ParameterDirection.Output,
+                };
+
+                var result = await Database.ExecuteSqlRawAsync(procedureRawString, parameterReturn).ConfigureAwait(false);
+
+                int returnValue = (int) parameterReturn.Value;
+                await Database.CommitTransactionAsync().ConfigureAwait(false);
+                return returnValue;
             }
-            catch
+            catch (Exception ex)
             {
-                await transaction.RollbackAsync().ConfigureAwait(false);
-                throw;
+                await Database.RollbackTransactionAsync().ConfigureAwait(false);
+                throw new Exception(ex.Message);
             }
         }
 

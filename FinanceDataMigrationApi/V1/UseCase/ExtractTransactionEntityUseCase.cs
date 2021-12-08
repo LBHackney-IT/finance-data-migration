@@ -40,18 +40,18 @@ namespace FinanceDataMigrationApi
                 var lastRunTimestamp = dmRunLogDomain.LastRunDate;
 
                 // Update migrationrun item with latest run time to NOW and set status to "Extract Inprogress"
-                dmRunLogDomain.LastRunDate = DateTimeOffset.UtcNow; 
+                dmRunLogDomain.LastRunDate = DateTimeOffset.UtcNow;
                 dmRunLogDomain.LastRunStatus = MigrationRunStatus.ExtractInprogress.ToString();
 
                 var newDMRunLogDomain = await _dMRunLogGateway.AddAsync(dmRunLogDomain).ConfigureAwait(false);
 
                 // Call stored procedure usp_ExtractTransactionEntity in SOW2b database to kick off the extract of data to staging table using
-                int numberOfRowsExtracted = await _dMTransactionEntityGateway.ExtractAsync(lastRunTimestamp).ConfigureAwait(false);
+                var numberOfRowsExtracted = await _dMTransactionEntityGateway.ExtractAsync(lastRunTimestamp).ConfigureAwait(false);
 
                 // if return value from usp is >0 (success), then capture how many rows to migrate from return value.
                 // if return value from usp is =0 (success), but no rows to migrate.
                 // Update migrationrun item with latest run time to NOW and set status to "Extract Completed"
-                if (numberOfRowsExtracted > 0) 
+                if (numberOfRowsExtracted > 0)
                 {
                     // Update migrationrun item with latest run time to NOW and set status to "Extract Completed"
                     newDMRunLogDomain.ExpectedRowsToMigrate = numberOfRowsExtracted;

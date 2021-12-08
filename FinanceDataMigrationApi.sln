@@ -23,6 +23,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "production", "production", 
 		terraform\production\main.tf = terraform\production\main.tf
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSLambdaFunctionTester", "..\sandip\finance-data-migration\AWSLambdaFunctionTester\AWSLambdaFunctionTester.csproj", "{754F9D8D-AF64-45B1-96CB-8A31069B1E2B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{DE8E4E61-EB76-416B-8417-E8F2F6A0C0D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE8E4E61-EB76-416B-8417-E8F2F6A0C0D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE8E4E61-EB76-416B-8417-E8F2F6A0C0D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{754F9D8D-AF64-45B1-96CB-8A31069B1E2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{754F9D8D-AF64-45B1-96CB-8A31069B1E2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{754F9D8D-AF64-45B1-96CB-8A31069B1E2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{754F9D8D-AF64-45B1-96CB-8A31069B1E2B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

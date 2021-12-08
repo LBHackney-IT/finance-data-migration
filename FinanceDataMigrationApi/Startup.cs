@@ -34,6 +34,7 @@ using Hackney.Core.DynamoDb.HealthCheck;
 using Hackney.Core.DynamoDb;
 using Microsoft.Extensions.Options;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
+using FinanceDataMigrationApi.V1;
 
 namespace FinanceDataMigrationApi
 {
@@ -75,21 +76,22 @@ namespace FinanceDataMigrationApi
 
             services.AddSwaggerGen(swaggerSetup =>
             {
-                //swaggerSetup.AddSecurityDefinition("Token",
-                //    new OpenApiSecurityScheme
-                //    {
-                //        In = ParameterLocation.Header,
-                //        Description = "Your Hackney API Key",
-                //        Name = "X-Api-Key",
-                //        Type = SecuritySchemeType.ApiKey
-                //    });
+                swaggerSetup.AddSecurityDefinition("Bearer",
+                    new OpenApiSecurityScheme
+                    {
+                        In = ParameterLocation.Header,
+                        Description = "Your Hackney Token. Example: \"Authorization: Bearer {token}\"",
+                        Name = "Authorization",
+                        Type = SecuritySchemeType.Http,
+                        Scheme = "bearer"
+                    });
 
                 swaggerSetup.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
                         new OpenApiSecurityScheme
                         {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Token" }
+                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
                         },
                         new List<string>()
                     }
