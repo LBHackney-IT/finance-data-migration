@@ -1,4 +1,5 @@
 using FinanceDataMigrationApi.V1.Domain;
+using FinanceDataMigrationApi.V1.Handlers;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -10,12 +11,30 @@ namespace FinanceDataMigrationApi
     {
         public static TransactionType TransactionTypeEnumValue(this string stringValue)
         {
-            return (TransactionType) Enum.Parse(typeof(TransactionType), stringValue);
+            try
+            {
+                return (TransactionType) Enum.Parse(typeof(TransactionType), stringValue);
+            }
+            catch (Exception e)
+            {
+                LoggingHandler.LogError($"{typeof(TransactionType)} : {e.Message}");
+                LoggingHandler.LogError(e.StackTrace);
+                throw;
+            }
         }
 
         public static TargetType TargetTypeEnumValue(this string stringValue)
         {
-            return (TargetType) Enum.Parse(typeof(TargetType), stringValue);
+            try
+            {
+                return (TargetType) Enum.Parse(typeof(TargetType), stringValue);
+            }
+            catch (Exception e)
+            {
+                LoggingHandler.LogError($"{typeof(TargetType)} : {e.Message}");
+                LoggingHandler.LogError(e.StackTrace);
+                throw;
+            }
         }
 
         /// <summary>

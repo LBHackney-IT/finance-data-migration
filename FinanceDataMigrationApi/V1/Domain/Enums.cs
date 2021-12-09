@@ -31,6 +31,12 @@ namespace FinanceDataMigrationApi.V1.Domain
 
         Charge,
 
+        [Display(Name = "Service Charges")]
+        ServiceCharges,
+
+        [Display(Name = "Housing Benefit")]
+        HousingBenefit,
+
         [Display(Name = "Grounds Maintenance")]
         GroundsMaintenance,
 
@@ -41,13 +47,25 @@ namespace FinanceDataMigrationApi.V1.Domain
         BasicRentNoVAT, 
 
         [Display(Name = "Cleaning (Estate)")]
-        CleaningEstate,   
+        CleaningEstate,
+
+        [Display(Name = "Direct Debit Unpaid ")]
+        DirectDebitUnpaid,
 
         [Display(Name = "Landlord Lighting")]
         LandlordLighting,
 
         [Display(Name = "Debit / Credit Card")]
         DebitCreditCard,
+
+        [Display(Name = "DSS Transfer")]
+        DSSTransfer,
+
+        [Display(Name = "Direct Debit")]
+        DirectDebit,
+
+        [Display(Name = "Tenants Levy")]
+        TenantsLevy,
 
         [Display(Name = "PayPoint/Post Office")]
         PayPointPostOffice,
@@ -58,8 +76,6 @@ namespace FinanceDataMigrationApi.V1.Domain
         [Display(Name = "Contents Insurance")]
         ContentsInsurance,
 
-        [Display(Name = "Tenants Levy")]
-        TenantsLevy
 
     }
 

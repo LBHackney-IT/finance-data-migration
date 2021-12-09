@@ -1,12 +1,6 @@
-using FinanceDataMigrationApi.V1.Boundary.Request;
-using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Infrastructure;
-using FinanceDataMigrationApi.V1.UseCase.Interfaces;
-using Hackney.Core.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -18,6 +12,8 @@ namespace FinanceDataMigrationApi.V1.Controllers
     [ApiVersion("1.0")]
     public class FinanceDataMigrationApiController : BaseController
     {
+
+#if DEBUG 
         private readonly IExtractTransactionEntityUseCase _extractTransactionEntityUseCase;
         private readonly ITransformTransactionEntityUseCase _transformTransactionEntityUse;
         private readonly ILoadTransactionEntityUseCase _loadTransactionEntityUseCase;
@@ -32,7 +28,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
             _loadTransactionEntityUseCase = loadTransactionEntityUseCase;
         }
 
-        [ProducesResponseType(typeof(MigrationRunResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status500InternalServerError)]
@@ -40,7 +36,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [Route("transaction-entity/extract")]
         public async Task<IActionResult> ExtractTransactionEntity()
         {
-            var runExtractTransactionEntity  = await _extractTransactionEntityUseCase.ExecuteAsync().ConfigureAwait(false);
+            var runExtractTransactionEntity = await _extractTransactionEntityUseCase.ExecuteAsync().ConfigureAwait(false);
 
             if (runExtractTransactionEntity.Continue == false)
             {
@@ -50,7 +46,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
             return Ok();
         }
 
-        [ProducesResponseType(typeof(MigrationRunResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status500InternalServerError)]
@@ -68,7 +64,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
             return Ok();
         }
 
-        [ProducesResponseType(typeof(MigrationRunResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status500InternalServerError)]
@@ -85,5 +81,6 @@ namespace FinanceDataMigrationApi.V1.Controllers
 
             return Ok();
         }
+#endif
     }
 }

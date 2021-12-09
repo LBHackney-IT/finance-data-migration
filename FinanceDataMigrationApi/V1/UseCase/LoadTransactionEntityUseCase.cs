@@ -11,7 +11,7 @@ namespace FinanceDataMigrationApi
 {
     public class LoadTransactionEntityUseCase : ILoadTransactionEntityUseCase
     {
-        private IDMRunLogGateway _dMRunLogGateway;
+        private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IDMTransactionEntityGateway _dMTransactionEntityGateway;
         private readonly ITransactionGateway _transactionGateway;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");

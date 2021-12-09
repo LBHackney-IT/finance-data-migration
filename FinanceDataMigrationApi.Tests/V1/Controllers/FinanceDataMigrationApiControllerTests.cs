@@ -1,6 +1,7 @@
 using AutoFixture;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Controllers;
+using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.UseCase;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 using FluentAssertions;
@@ -15,47 +16,57 @@ using Xunit;
 
 namespace FinanceDataMigrationApi.Tests.V1.Controllers
 {
-//    public class FinanceDataMigrationApiControllerTests : LogCallAspectFixture
-    public class FinanceDataMigrationApiControllerTests 
+    public class FinanceDataMigrationApiControllerTests
     {
-        private readonly FinanceDataMigrationApiController _controller;
-        private readonly Mock<IGetMigrationRunByIdUseCase> _mockGetMigrationRunByIdUseCase;
-        private readonly Mock<IGetAllUseCase> _mockGetByAllUseCase;
-        private readonly Mock<IGetMigrationRunByEntityNameUseCase> _mockGetMigrationRunByEntityNameUseCase;
-        private readonly Mock<IUpdateUseCase> _mockUpdateUseCase;
         private readonly Fixture _fixture = new Fixture();
+        private readonly FinanceDataMigrationApiController _controller;
+        private readonly Mock<IExtractTransactionEntityUseCase> _mockExtractTransactionEntityUseCase;
+        private readonly Mock<ITransformTransactionEntityUseCase> _mockTransformTransactionEntityUse;
+        private readonly Mock<ILoadTransactionEntityUseCase> _mockLoadTransactionEntityUseCase;
 
         public FinanceDataMigrationApiControllerTests()
         {
-            _mockGetMigrationRunByIdUseCase = new Mock<IGetMigrationRunByIdUseCase>();
-            _mockGetByAllUseCase = new Mock<IGetAllUseCase>();
-            _mockGetMigrationRunByEntityNameUseCase = new Mock<IGetMigrationRunByEntityNameUseCase>();
-            _mockUpdateUseCase = new Mock<IUpdateUseCase>();
+            _mockExtractTransactionEntityUseCase = new Mock<IExtractTransactionEntityUseCase>();
+            _mockTransformTransactionEntityUse = new Mock<ITransformTransactionEntityUseCase>();
+            _mockLoadTransactionEntityUseCase = new Mock<ILoadTransactionEntityUseCase>();
 
             _controller = new FinanceDataMigrationApiController(
-                _mockGetMigrationRunByIdUseCase.Object,
-                _mockGetByAllUseCase.Object,
-                _mockGetMigrationRunByEntityNameUseCase.Object,
-                _mockUpdateUseCase.Object);
+                _mockExtractTransactionEntityUseCase.Object,
+                _mockTransformTransactionEntityUse.Object,
+                _mockLoadTransactionEntityUseCase.Object);
         }
 
-
-        [Fact (Skip ="To be fixed!")]
-        public async Task GetByIdUseCaseReturnMigrationRunByValidIdShouldReturns200()
+        [Fact]
+        public async Task ExtractTransactionEntityUseCaseShouldReturns200()
         {
-            var migrationRunResponse = _fixture.Create<MigrationRunResponse>();
-            _mockGetMigrationRunByIdUseCase.Setup(x => x.ExecuteAsync(It.IsAny<Guid>())).ReturnsAsync(migrationRunResponse);
+            var stepResponse = _fixture.Create<StepResponse>();
+            _mockExtractTransactionEntityUseCase.Setup(x => x.ExecuteAsync()).ReturnsAsync(stepResponse);
 
-            var result = await _controller.GetById(migrationRunResponse.Id).ConfigureAwait(false);
+            var result = await _controller.ExtractTransactionEntity().ConfigureAwait(false);
 
             result.Should().NotBeNull();
+        }
 
-            var okResult = result as OkObjectResult;
-            okResult.Should().NotBeNull();
+        [Fact]
+        public async Task TransformTransactionEntityUseCaseShouldReturns200()
+        {
+            var stepResponse = _fixture.Create<StepResponse>();
+            _mockTransformTransactionEntityUse.Setup(x => x.ExecuteAsync()).ReturnsAsync(stepResponse);
 
-            var migrationRun = okResult.Value as MigrationRunResponse;
-            migrationRun.Should().NotBeNull();
-            migrationRun.Should().BeEquivalentTo(migrationRunResponse);
+            var result = await _controller.TransformTransactionEntity().ConfigureAwait(false);
+
+            result.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task LoadTransactionEntityUseCaseShouldReturns200()
+        {
+            var stepResponse = _fixture.Create<StepResponse>();
+            _mockLoadTransactionEntityUseCase.Setup(x => x.ExecuteAsync()).ReturnsAsync(stepResponse);
+
+            var result = await _controller.LoadTransactionEntity().ConfigureAwait(false);
+
+            result.Should().NotBeNull();
         }
 
     }

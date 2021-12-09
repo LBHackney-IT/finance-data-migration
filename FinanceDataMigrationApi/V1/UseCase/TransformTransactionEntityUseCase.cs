@@ -12,7 +12,7 @@ namespace FinanceDataMigrationApi
 {
     public class TransformTransactionEntityUseCase : ITransformTransactionEntityUseCase
     {
-        private IDMRunLogGateway _dMRunLogGateway;
+        private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IDMTransactionEntityGateway _dMTransactionEntityGateway;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
         private const string DataMigrationTask = "TRANSFORM";
@@ -57,6 +57,8 @@ namespace FinanceDataMigrationApi
                         transaction.Person = await GetPersonsCacheAsync(transaction.IdDynamodb, transaction.PaymentReference).ConfigureAwait(false);
 
                         transaction.TransactionType = await TransformTransactionType(transaction.TransactionType).ConfigureAwait(false);
+                        transaction.TransactionSource = transaction.TransactionSource.Trim();
+                        transaction.PaymentReference = transaction.PaymentReference.Trim();
 
                         // Set the row isTransformed flag to TRUE and Update the row in the staging data table (or batch them)
                         transaction.IsTransformed = true;
