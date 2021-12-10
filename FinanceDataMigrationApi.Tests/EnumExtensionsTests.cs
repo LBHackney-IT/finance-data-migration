@@ -6,22 +6,32 @@ namespace FinanceDataMigrationApi.Tests
 {
     public class EnumExtensionsTests
     {
-
         [Theory]
-        //[InlineData(TransactionType.Rent, "Rent")]
-        //[InlineData(TransactionType.Charge, "Charge")]
         [InlineData(TransactionType.GroundsMaintenance, "Grounds Maintenance")]
         [InlineData(TransactionType.BasicRentNoVAT, "Basic Rent (No VAT)")]
-        public void GetDisplayNameReturnsTransactionTypeDisplayAttributeName(TransactionType transactionType, string displayNameValue)
+        [InlineData(TransactionType.DebitOrCreditCard, "Debit / Credit Card")]
+        public void GetEnumValueAsStringFromDescription(TransactionType transactionType, string description)
         {
-            // Arrange 
-            var enumValue = transactionType;
+            var enumValue = EnumExtensions.GetValueFromDescription<TransactionType>(description);
 
-            // Act
-            var displayName = enumValue.GetDisplayName();
+            enumValue.ToString().Should().Be(transactionType.ToString());
+        }
 
-            // Assert
-            displayName.Should().Be(displayNameValue);
+        [Fact]
+        public void GetTransactionTypeEnumValueFromDescription()
+        {
+            var enumValue = EnumExtensions.GetValueFromDescription<TransactionType>("Debit / Credit Card");
+
+            enumValue.Should().Be(TransactionType.DebitOrCreditCard);
+
+        }
+
+        [Fact]
+        public void GetTransactionTypeEnumValueAsStringFromDescription()
+        {
+            var enumValue = EnumExtensions.GetValueFromDescription<TransactionType>("Debit / Credit Card");
+
+            enumValue.ToString().Should().Be("DebitOrCreditCard");
         }
 
 

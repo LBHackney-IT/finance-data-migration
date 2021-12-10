@@ -95,13 +95,10 @@ namespace FinanceDataMigrationApi
 
         private static async Task<string> TransformTransactionType(string transactionType)
         {
-            //TODO replace this method with
-            // enumExtension method that will return the EnumValueAsString
-            // from the Description attribute provided by input paramrter transactionType.
             try
             {
-                var enumValueString = transactionType.Trim();
-                return await Task.FromResult(Regex.Replace(enumValueString, "[^0-9A-Za-z]+", "")).ConfigureAwait(false);
+                var enumValueString = EnumExtensions.GetValueFromDescription<TransactionType>(transactionType.Trim());
+                return await Task.FromResult(enumValueString.ToString()).ConfigureAwait(false);
             }
             catch (Exception e)
             {

@@ -1,6 +1,7 @@
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Handlers;
 using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
@@ -37,21 +38,46 @@ namespace FinanceDataMigrationApi
             }
         }
 
-        /// <summary>
-        /// Get human-readable version of enum.
-        /// </summary>
-        /// <param name="enumValue"></param>
-        /// <returns>effective DisplayAttribute.Name of given enum</returns>
-        public static string GetDisplayName(this Enum enumValue)
+        public static T GetValueFromDescription<T>(string description) where T : Enum
         {
-            var displayAttribute = enumValue.GetType()
-                .GetMember(enumValue.ToString())
-                .First()
-                .GetCustomAttribute<DisplayAttribute>();
+            foreach (var field in typeof(T).GetFields())
+            {
+                if (Attribute.GetCustomAttribute(field,
+                typeof(DescriptionAttribute)) is DescriptionAttribute attribute)
+                {
+                    if (attribute.Description == description)
+                        return (T) field.GetValue(null);
+                }
+                else
+                {
+                    if (field.Name == description)
+                        return (T) field.GetValue(null);
+                }
+            }
 
-            var displayName = displayAttribute?.GetName();
-            return displayName ?? enumValue.ToString();
+            throw new ArgumentException("Not found.", nameof(description));
+            // Or return default(T);
         }
 
+        //public static T GetValueFromDescription<T>(string description) where T : Enum
+        //{
+        //    foreach (var field in typeof(T).GetFields())
+        //    {
+        //        if (Attribute.GetCustomAttribute(field,
+        //        typeof(DescriptionAttribute)) is DescriptionAttribute attribute)
+        //        {
+        //            if (attribute.Description == description)
+        //                return (T) field.GetValue(null);
+        //        }
+        //        else
+        //        {
+        //            if (field.Name == description)
+        //                return (T) field.GetValue(null);
+        //        }
+        //    }
+
+        //    throw new ArgumentException("Not found.", nameof(description));
+        //    // Or return default(T);
+        //}
     }
 }
