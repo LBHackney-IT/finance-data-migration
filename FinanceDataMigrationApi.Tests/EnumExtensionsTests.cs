@@ -8,8 +8,8 @@ namespace FinanceDataMigrationApi.Tests
     {
 
         [Theory]
-        [InlineData(TransactionType.Rent, "Rent")]
-        [InlineData(TransactionType.Charge, "Charge")]
+        //[InlineData(TransactionType.Rent, "Rent")]
+        //[InlineData(TransactionType.Charge, "Charge")]
         [InlineData(TransactionType.GroundsMaintenance, "Grounds Maintenance")]
         [InlineData(TransactionType.BasicRentNoVAT, "Basic Rent (No VAT)")]
         public void GetDisplayNameReturnsTransactionTypeDisplayAttributeName(TransactionType transactionType, string displayNameValue)

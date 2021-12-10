@@ -46,7 +46,7 @@ namespace FinanceDataMigrationApi.V1.Domain
 
         public string Address { get; set; }
         [Required]
-        public Person Person { get; set; }
+        public TransactionPerson Person { get; set; }
         [Required]
         public string Fund { get; set; }
     }

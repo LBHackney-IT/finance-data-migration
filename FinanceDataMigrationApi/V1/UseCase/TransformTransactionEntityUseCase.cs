@@ -1,12 +1,13 @@
-using AutoMapper;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
 using Newtonsoft.Json;
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using TransactionPerson = FinanceDataMigrationApi.V1.Domain.TransactionPerson;
 
 namespace FinanceDataMigrationApi
 {
@@ -14,15 +15,19 @@ namespace FinanceDataMigrationApi
     {
         private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IDMTransactionEntityGateway _dMTransactionEntityGateway;
+        private readonly ITenureGateway _tenureGateway;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
         private const string DataMigrationTask = "TRANSFORM";
+        private Guid _targetId;
 
         public TransformTransactionEntityUseCase(
             IDMRunLogGateway dMRunLogGateway,
-            IDMTransactionEntityGateway dMTransactionEntityGateway)
+            IDMTransactionEntityGateway dMTransactionEntityGateway,
+            ITenureGateway tenureGateway)
         {
             _dMRunLogGateway = dMRunLogGateway;
             _dMTransactionEntityGateway = dMTransactionEntityGateway;
+            _tenureGateway = tenureGateway;
         }
 
         // Read data from staging table and enrich with remaining subset data. i.e. Person
@@ -50,12 +55,7 @@ namespace FinanceDataMigrationApi
                     // Iterate through each row (or batched) and enrich with missing information for subsets
                     foreach (var transaction in dMTransactions)
                     {
-                        // Get Person subset information (from above cached list)
-                        // We may want to get all the Persons (Id, FullName) and cache them.
-
-                        // TODO FIX PERSON
-                        transaction.Person = await GetPersonsCacheAsync(transaction.IdDynamodb, transaction.PaymentReference).ConfigureAwait(false);
-
+                        transaction.Person = await GetTransactionPersonAsync(transaction.PaymentReference.Trim()).ConfigureAwait(false);
                         transaction.TransactionType = await TransformTransactionType(transaction.TransactionType).ConfigureAwait(false);
                         transaction.TransactionSource = transaction.TransactionSource.Trim();
                         transaction.PaymentReference = transaction.PaymentReference.Trim();
@@ -95,16 +95,42 @@ namespace FinanceDataMigrationApi
 
         private static async Task<string> TransformTransactionType(string transactionType)
         {
-            //TODO Improve but this is the quick and dirty fix!
-            var enumValueString = transactionType.Trim();
-            return await Task.FromResult(Regex.Replace(enumValueString, "[^0-9A-Za-z]+", "")).ConfigureAwait(false);
+            //TODO replace this method with
+            // enumExtension method that will return the EnumValueAsString
+            // from the Description attribute provided by input paramrter transactionType.
+            try
+            {
+                var enumValueString = transactionType.Trim();
+                return await Task.FromResult(Regex.Replace(enumValueString, "[^0-9A-Za-z]+", "")).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                LoggingHandler.LogError(e.Message);
+                LoggingHandler.LogError(e.StackTrace);
+                throw;
+            }
         }
 
-        private static async Task<string> GetPersonsCacheAsync(Guid idDynamodb, string paymentReference)
+        /// <summary>
+        /// This gets the first responsible person
+        /// </summary>
+        /// <param name="paymentReference"></param>
+        /// <returns></returns>
+        private async Task<string> GetTransactionPersonAsync(string paymentReference)
         {
-            //TODO temp method until decide how to get person information based on transaction entity
-            var tempPerson = new Person { Id = idDynamodb, FullName = paymentReference.Trim() };
-            return await Task.FromResult(JsonConvert.SerializeObject(tempPerson)).ConfigureAwait(false);
+            var tenureList = await _tenureGateway.GetByPrnAsync(paymentReference).ConfigureAwait(false);
+            var tenure = tenureList.FirstOrDefault();
+            _targetId = tenure.Id;
+            var householdMembers = tenureList.Select(x => x.HouseholdMembers).FirstOrDefault();
+            var householdMember = householdMembers!.FirstOrDefault(x => x.IsResponsible);
+
+            if (householdMember != null)
+            {
+                var transactionPerson = new TransactionPerson { Id = householdMember.Id, FullName = householdMember.FullName };
+                return await Task.FromResult(JsonConvert.SerializeObject(transactionPerson)).ConfigureAwait(false);
+            }
+
+            return null;
         }
     }
 }

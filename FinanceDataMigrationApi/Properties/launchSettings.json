@@ -1,5 +1,4 @@
 {
-  "$schema": "http://json.schemastore.org/launchsettings.json",
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
@@ -8,11 +7,17 @@
       "sslPort": 44394
     }
   },
+  "$schema": "http://json.schemastore.org/launchsettings.json",
   "profiles": {
     "finance-data-migration-api": {
       "commandName": "Project",
       "launchUrl": "api/v1/healthcheck/ping",
       "environmentVariables": {
+        "FINANCIAL_TRANSACTION_API_URL": "",
+        "DynamoDb_LocalServiceUrl": "http://localhost:8000",
+        "ACCEPTED_ORIGINS": "True",
+        "FINANCIAL_TRANSACTION_API_TOKEN": "",
+        "DynamoDb_LocalMode": "true",
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "applicationUrl": "http://localhost:5000"

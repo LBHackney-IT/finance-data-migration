@@ -48,8 +48,8 @@ namespace FinanceDataMigrationApi.V1.Factories
                 BankAccountNumber = dMTransactionEntity.BankAccountNumber,
                 ChargedAmount = dMTransactionEntity.ChargedAmount,
                 CreatedAt = dMTransactionEntity.CreatedAt,
-                FinancialMonth = dMTransactionEntity.FinancialMonth,
-                FinancialYear = dMTransactionEntity.FinancialYear,
+                FinancialMonth = (short) dMTransactionEntity.FinancialMonth,
+                FinancialYear = (short) dMTransactionEntity.FinancialYear,
                 Fund = dMTransactionEntity.Fund,
                 HousingBenefitAmount = dMTransactionEntity.HousingBenefitAmount,
                 IdDynamodb = dMTransactionEntity.IdDynamodb,
@@ -69,21 +69,6 @@ namespace FinanceDataMigrationApi.V1.Factories
                 TransactionType = dMTransactionEntity.TransactionType
             };
         }
-
-        //public static DMTransactionEntity ToDomain(this DMTransactionEntityUpdateRequest DMTransactionEntityUpdateRequest)
-        //{
-        //    return DMTransactionEntityUpdateRequest == null ? null : new DMTransactionEntity
-        //    {
-        //        DynamoDbEntityName = DMTransactionEntityUpdateRequest.DynamoDbEntity,
-        //        ExpectedRowsToMigrate = DMTransactionEntityUpdateRequest.ExpectedRowsToMigrate,
-        //        ActualRowsMigrated = DMTransactionEntityUpdateRequest.ActualRowsMigrated,
-        //        StartRowId = DMTransactionEntityUpdateRequest.StartRowId,
-        //        EndRowId = DMTransactionEntityUpdateRequest.EndRowId,
-        //        LastRunDate = DMTransactionEntityUpdateRequest.LastRunDate,
-        //        LastRunStatus = DMTransactionEntityUpdateRequest.LastRunStatus,
-        //        UpdatedAt = DateTime.UtcNow
-        //    };
-        //}
 
         public static List<DMTransactionEntityDomain> ToDomain(this IList<DMTransactionEntity> databaseEntity)
         {

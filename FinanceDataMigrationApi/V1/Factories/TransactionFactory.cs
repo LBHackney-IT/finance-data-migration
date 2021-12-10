@@ -24,8 +24,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                     PaidAmount = dMTransactionEntityDomain.PaidAmount,
                     PaymentReference = dMTransactionEntityDomain.PaymentReference,
                     PeriodNo = (short) dMTransactionEntityDomain.PeriodNo,
-                    Person = JsonConvert.DeserializeObject<Person>(dMTransactionEntityDomain.Person), // TODO FIX PERSON
-                    //Person = new Person(), // TODO FIX PERSON
+                    Person = JsonConvert.DeserializeObject<TransactionPerson>(dMTransactionEntityDomain.Person), // TODO FIX PERSON
                     Address = null,
                     TargetId = dMTransactionEntityDomain.TargetId,
                     TargetType = dMTransactionEntityDomain.TargetType.TargetTypeEnumValue(),
@@ -33,6 +32,8 @@ namespace FinanceDataMigrationApi.V1.Factories
                     TransactionDate = dMTransactionEntityDomain.TransactionDate,
                     TransactionSource = dMTransactionEntityDomain.TransactionSource,
                     TransactionType = dMTransactionEntityDomain.TransactionType.TransactionTypeEnumValue(),
+                    FinancialYear = dMTransactionEntityDomain.FinancialYear,
+                    FinancialMonth = dMTransactionEntityDomain.FinancialMonth
                 };
             }
             catch (Exception e)

@@ -5,6 +5,6 @@ namespace FinanceDataMigrationApi.V1.UseCase.Interfaces
 {
     public interface IGetAllUseCase
     {
-       public Task<MigrationRunResponseList> ExecuteAsync();
+       public Task<TransactionPerson> ExecuteAsync();
     }
 }

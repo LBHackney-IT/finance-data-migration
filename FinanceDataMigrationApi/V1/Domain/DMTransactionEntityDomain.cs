@@ -11,19 +11,16 @@ namespace FinanceDataMigrationApi.V1.Domain
 
         public Guid TargetId { get; set; }
 
-        //public TargetType TargetType { get; set; }
         public string TargetType { get; set; }
 
-        //public short PeriodNo { get; set; }
         public decimal PeriodNo { get; set; }
 
-        public int FinancialYear { get; set; }
+        public short FinancialYear { get; set; }
 
-        public int FinancialMonth { get; set; }
+        public short FinancialMonth { get; set; }
 
         public string TransactionSource { get; set; }
 
-        //public TransactionType TransactionType { get; set; }
         public string TransactionType { get; set; }
 
         public DateTime TransactionDate { get; set; }
@@ -46,7 +43,6 @@ namespace FinanceDataMigrationApi.V1.Domain
 
         public decimal BalanceAmount { get; set; }
 
-        //public Person Person { get; set; }
         public string Person { get; set; }
 
         public string Fund { get; set; }

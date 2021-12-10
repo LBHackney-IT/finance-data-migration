@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using FinanceDataMigrationApi.V1.Domain;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure
@@ -22,11 +23,9 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public Guid TargetId { get; set; }
 
         [Column("target_type")]
-        //public TargetType TargetType { get; set; }
         public string TargetType { get; set; }
 
         [Column("period_no")]
-        //public short PeriodNo { get; set; }
         public decimal PeriodNo { get; set; }
 
         [Column("financial_year")]
@@ -39,7 +38,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public string TransactionSource { get; set; }
 
         [Column("transaction_type")]
-        //public TransactionType TransactionType { get; set; }
         public string TransactionType { get; set; }
 
         [Column("transaction_date")]
@@ -73,7 +71,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public decimal BalanceAmount { get; set; }
 
         [Column("person")]
-        //public Person Person { get; set; }
         public string Person { get; set; }
 
         [Column("fund")]

@@ -7,6 +7,7 @@ using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Gateways;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
+using FinanceDataMigrationApi.V1.Infrastructure.Interfaces;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
@@ -31,12 +32,15 @@ namespace FinanceDataMigrationApi
             var httpClient = new HttpClient(); 
             ITransactionGateway transactionGateway = new TransactionGateway(httpClient);
 
+            IGetEnvironmentVariables getEnvironmentVariables = new GetEnvironmentVariables();
+            ICustomeHttpClient _customeHttpClient = new CustomeHttpClient();
+            ITenureGateway tenureGateway = new TenureGateway(_customeHttpClient, getEnvironmentVariables);
+
             _extractTransactionsUseCase = new ExtractTransactionEntityUseCase(migrationRunGateway, dMTransactionEntityGateway);
 
-            _transformTransactionsUseCase = new TransformTransactionEntityUseCase(migrationRunGateway, dMTransactionEntityGateway);
+            _transformTransactionsUseCase = new TransformTransactionEntityUseCase(migrationRunGateway, dMTransactionEntityGateway, tenureGateway);
 
             _loadTransactionsUseCase = new LoadTransactionEntityUseCase(migrationRunGateway, dMTransactionEntityGateway, transactionGateway);
-
         }
 
         public async Task<StepResponse> ExtractTransactions()

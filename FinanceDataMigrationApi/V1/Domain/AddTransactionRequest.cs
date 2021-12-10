@@ -46,9 +46,15 @@ namespace FinanceDataMigrationApi.V1.Domain
         public string Address { get; set; }
 
         
-        public Person Person { get; set; }
+        public TransactionPerson Person { get; set; }
 
       
         public string Fund { get; set; }
+
+        public short FinancialYear { get; set; }
+
+        public short FinancialMonth { get; set; }
+
+        public string SortCode { get; set; }
     }
 }

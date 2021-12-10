@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using FinanceDataMigrationApi.V1.Controllers;
-using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using FinanceDataMigrationApi.V1.Gateways;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.UseCase;
@@ -19,22 +17,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using FinanceDataMigrationApi.V1.Common;
-using Hackney.Core.Logging;
-using Hackney.Core.Middleware.Logging;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Hackney.Core.HealthCheck;
-using Hackney.Core.Middleware.CorrelationId;
-using Hackney.Core.DynamoDb.HealthCheck;
-using Hackney.Core.DynamoDb;
 using Microsoft.Extensions.Options;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
-using FinanceDataMigrationApi.V1;
+using FinanceDataMigrationApi.V1.Infrastructure.Interfaces;
 
 namespace FinanceDataMigrationApi
 {
@@ -131,6 +121,12 @@ namespace FinanceDataMigrationApi
             ConfigureDbContext(services);
             RegisterGateways(services);
             RegisterUseCases(services);
+            #region ExtraSerives
+
+            services.AddScoped<ICustomeHttpClient, CustomeHttpClient>();
+            services.AddScoped<IGetEnvironmentVariables, GetEnvironmentVariables>();
+
+            #endregion
         }
 
         private static void ConfigureDbContext(IServiceCollection services)
@@ -149,6 +145,8 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IDMTransactionEntityGateway, DMTransactionEntityGateway>();
             services.AddScoped<ITransactionGateway, TransactionGateway>();
             services.AddScoped<IDMRunLogGateway, DMRunLogGateway>();
+            services.AddScoped<ITenureGateway, TenureGateway>();
+            services.AddScoped<IPersonGateway, PersonGateway>();
 
             var transactionApiUrl = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_URL");
             var transactionApiToken = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_TOKEN");
@@ -166,6 +164,8 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IExtractTransactionEntityUseCase, ExtractTransactionEntityUseCase>();
             services.AddScoped<ITransformTransactionEntityUseCase, TransformTransactionEntityUseCase>();
             services.AddScoped<ILoadTransactionEntityUseCase, LoadTransactionEntityUseCase>();
+            services.AddScoped<IGetTenureByPrnUseCase, GetTenureByPrnUseCase>();
+            services.AddScoped<IGetPersonByIdUseCase, GetPersonByIdUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
