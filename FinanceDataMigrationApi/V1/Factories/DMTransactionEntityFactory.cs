@@ -1,3 +1,4 @@
+using System;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using System.Collections.Generic;
@@ -12,19 +13,19 @@ namespace FinanceDataMigrationApi.V1.Factories
             return dMTransactionEntity == null ? null : new DMTransactionEntity
             {
                 Id = dMTransactionEntity.Id,
-                BalanceAmount  =  dMTransactionEntity.BalanceAmount,
+                BalanceAmount  =  dMTransactionEntity.BalanceAmount?? 0,
                 BankAccountNumber = dMTransactionEntity.BankAccountNumber,
-                ChargedAmount = dMTransactionEntity.ChargedAmount,
+                ChargedAmount = dMTransactionEntity.ChargedAmount?? 0,
                 CreatedAt = dMTransactionEntity.CreatedAt,
                 FinancialMonth = dMTransactionEntity.FinancialMonth,
                 FinancialYear = dMTransactionEntity.FinancialYear,
                 Fund = dMTransactionEntity.Fund,
-                HousingBenefitAmount = dMTransactionEntity.HousingBenefitAmount,
+                HousingBenefitAmount = dMTransactionEntity.HousingBenefitAmount?? 0,
                 IdDynamodb = dMTransactionEntity.IdDynamodb,
                 IsLoaded = dMTransactionEntity.IsLoaded,
                 IsSuspense = dMTransactionEntity.IsSuspense,
                 IsTransformed = dMTransactionEntity.IsTransformed,
-                PaidAmount = dMTransactionEntity.PaidAmount,
+                PaidAmount = dMTransactionEntity.PaidAmount?? 0,
                 PaymentReference = dMTransactionEntity.PaymentReference,
                 PeriodNo = dMTransactionEntity.PeriodNo,
                 Person = dMTransactionEntity.Person,
@@ -61,7 +62,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                 PeriodNo = dMTransactionEntity.PeriodNo,
                 Person = dMTransactionEntity.Person,
                 SuspenseResolutionInfo = dMTransactionEntity.SuspenseResolutionInfo,
-                TargetId = dMTransactionEntity.TargetId,
+                TargetId = dMTransactionEntity.TargetId?? Guid.Empty,
                 TargetType = dMTransactionEntity.TargetType,
                 TransactionAmount = dMTransactionEntity.TransactionAmount,
                 TransactionDate = dMTransactionEntity.TransactionDate,

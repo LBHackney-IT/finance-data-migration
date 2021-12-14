@@ -15,13 +15,13 @@ namespace FinanceDataMigrationApi.V1.Factories
             {
                 return dMTransactionEntityDomain == null ? null : new AddTransactionRequest
                 {
-                    BalanceAmount = dMTransactionEntityDomain.BalanceAmount,
+                    BalanceAmount = dMTransactionEntityDomain.BalanceAmount?? 0,
                     BankAccountNumber = dMTransactionEntityDomain.BankAccountNumber,
-                    ChargedAmount = dMTransactionEntityDomain.ChargedAmount,
+                    ChargedAmount = dMTransactionEntityDomain.ChargedAmount?? 0,
                     Fund = dMTransactionEntityDomain.Fund,
-                    HousingBenefitAmount = dMTransactionEntityDomain.HousingBenefitAmount,
+                    HousingBenefitAmount = dMTransactionEntityDomain.HousingBenefitAmount?? 0,
                     IsSuspense = dMTransactionEntityDomain.IsSuspense,
-                    PaidAmount = dMTransactionEntityDomain.PaidAmount,
+                    PaidAmount = dMTransactionEntityDomain.PaidAmount?? 0,
                     PaymentReference = dMTransactionEntityDomain.PaymentReference,
                     PeriodNo = (short) dMTransactionEntityDomain.PeriodNo,
                     Person = JsonConvert.DeserializeObject<TransactionPerson>(dMTransactionEntityDomain.Person), // TODO FIX PERSON

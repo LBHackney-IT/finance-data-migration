@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
@@ -53,7 +54,14 @@ namespace FinanceDataMigrationApi.V1.Gateways
         {
             try
             {
-                var results = await _context.GetDMTransactionEntitiesAsync().ConfigureAwait(false);
+                //var results = await _context.DMTransactionEntities
+                //    .Where(x => x.IsTransformed == false)
+                //    .ToListAsync()
+                //    .ConfigureAwait(false);
+                var results = await _context.DMTransactionEntities
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+                //var results = await _context.GetDMTransactionEntitiesAsync().ConfigureAwait(false);
 
                 return results.ToDomain();
             }

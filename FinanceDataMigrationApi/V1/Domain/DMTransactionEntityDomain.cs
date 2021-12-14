@@ -13,7 +13,7 @@ namespace FinanceDataMigrationApi.V1.Domain
 
         public string TargetType { get; set; }
 
-        public decimal PeriodNo { get; set; }
+        public int PeriodNo { get; set; }
 
         public short FinancialYear { get; set; }
 
@@ -35,13 +35,13 @@ namespace FinanceDataMigrationApi.V1.Domain
 
         public string SuspenseResolutionInfo { get; set; }
 
-        public decimal PaidAmount { get; set; }
+        public decimal? PaidAmount { get; set; }
 
-        public decimal ChargedAmount { get; set; }
+        public decimal? ChargedAmount { get; set; }
 
-        public decimal HousingBenefitAmount { get; set; }
+        public decimal? HousingBenefitAmount { get; set; }
 
-        public decimal BalanceAmount { get; set; }
+        public decimal? BalanceAmount { get; set; }
 
         public string Person { get; set; }
 
