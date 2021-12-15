@@ -67,7 +67,7 @@ namespace FinanceDataMigrationApi
                         transaction.IsTransformed = true;
                     }
 
-                    // Update batched rows to staging table DMTransactionEntity. 
+                    // Update batched rows to staging table DMTransactionEntity.
                     await _dMTransactionEntityGateway.UpdateDMTransactionEntityItems(dMTransactions).ConfigureAwait(false);
 
                     // Update migrationrun item with set status to "TransformCompleted"
@@ -116,9 +116,12 @@ namespace FinanceDataMigrationApi
         /// </summary>
         /// <param name="paymentReference"></param>
         /// <returns></returns>
-        private async Task<string> GetTransactionPersonAsync(string paymentReference)
+        public async Task<string> GetTransactionPersonAsync(string paymentReference)
         {
             var tenureList = await _tenureGateway.GetByPrnAsync(paymentReference).ConfigureAwait(false);
+
+            if (tenureList is null) return null;
+
             var tenure = tenureList.FirstOrDefault();
             _targetId = tenure.Id;
 

@@ -3,8 +3,9 @@ using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi
 {
-    public interface ITransformTransactionEntityUseCase 
+    public interface ITransformTransactionEntityUseCase
     {
         public Task<StepResponse> ExecuteAsync();
+        public Task<string> GetTransactionPersonAsync(string paymentReference);
     }
 }
