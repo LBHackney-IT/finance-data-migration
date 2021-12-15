@@ -54,15 +54,11 @@ namespace FinanceDataMigrationApi.V1.Gateways
         {
             try
             {
-                //var results = await _context.DMTransactionEntities
-                //    .Where(x => x.IsTransformed == false)
-                //    .ToListAsync()
-                //    .ConfigureAwait(false);
                 var results = await _context.DMTransactionEntities
+                    .Where(x => x.IsTransformed == false)
                     .ToListAsync()
                     .ConfigureAwait(false);
-                //var results = await _context.GetDMTransactionEntitiesAsync().ConfigureAwait(false);
-
+              
                 return results.ToDomain();
             }
             catch (Exception e)

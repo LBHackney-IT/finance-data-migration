@@ -157,6 +157,29 @@ namespace FinanceDataMigrationApi
                     c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(transactionApiToken);
                 })
                 .AddHttpMessageHandler<LoggingDelegatingHandler>();
+
+
+            var searchApiUrl = Environment.GetEnvironmentVariable("SEARCH_API_URL");
+            var searchApiToken = Environment.GetEnvironmentVariable("SEARCH_API_TOKEN");
+
+            services.AddHttpClient<ITenureGateway, TenureGateway>(c =>
+                {
+                    c.BaseAddress = new Uri(searchApiUrl);
+                    c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(searchApiToken);
+                })
+                .AddHttpMessageHandler<LoggingDelegatingHandler>();
+
+
+            var personApiUrl = Environment.GetEnvironmentVariable("PERSON_API_URL");
+            var personApiToken = Environment.GetEnvironmentVariable("PERSON_API_TOKEN");
+
+            services.AddHttpClient<IPersonGateway, PersonGateway>(c =>
+                {
+                    c.BaseAddress = new Uri(personApiUrl);
+                    c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", personApiToken);
+                })
+                .AddHttpMessageHandler<LoggingDelegatingHandler>();
+
         }
 
         private static void RegisterUseCases(IServiceCollection services)
