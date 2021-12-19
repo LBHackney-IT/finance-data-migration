@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FluentAssertions;
 using Hackney.Shared.Tenure.Domain;
@@ -13,6 +16,7 @@ namespace FinanceDataMigrationApi.Tests.V1.UseCase
         private Mock<IDMRunLogGateway> _dMRunLogGateway;
         private Mock<IDMTransactionEntityGateway> _dMTransactionEntityGateway;
         private Mock<ITenureGateway> _tenureGateway;
+        private Mock<IPersonGateway> _personGateway;
         private static readonly Guid _householdmemberId = Guid.NewGuid();
 
 
@@ -22,13 +26,14 @@ namespace FinanceDataMigrationApi.Tests.V1.UseCase
              _dMRunLogGateway = new Mock<IDMRunLogGateway>();
              _dMTransactionEntityGateway = new Mock<IDMTransactionEntityGateway>();
              _tenureGateway = new Mock<ITenureGateway>();
+             _personGateway = new Mock<IPersonGateway>();
         }
 
 
         [Fact]
         public async void GetTransactionPersonShouldReturnFullNameGivenHouseholdMembers()
         {
-            var expected = "\"FullName\":\"Joe Blogs\"";
+            var expected = "\"Joe Blogs\"";
 
             //mocks
             var tenureList = MockTenureInformation();
@@ -38,13 +43,15 @@ namespace FinanceDataMigrationApi.Tests.V1.UseCase
             var sut = new TransformTransactionEntityUseCase(
                 _dMRunLogGateway.Object,
                 _dMTransactionEntityGateway.Object,
-                _tenureGateway.Object);
+                _tenureGateway.Object,
+                _personGateway.Object);
 
-            var transactionPerson = await sut.GetTransactionPersonAsync("123").ConfigureAwait(true);
+            var response = await sut.GetTransactionPersonAsync("123").ConfigureAwait(true);
+
 
 
             //assert
-            transactionPerson.Should().Contain(expected);
+            response.Should().Contain(expected);
 
         }
 
@@ -59,7 +66,8 @@ namespace FinanceDataMigrationApi.Tests.V1.UseCase
             var sut = new TransformTransactionEntityUseCase(
                 _dMRunLogGateway.Object,
                 _dMTransactionEntityGateway.Object,
-                _tenureGateway.Object);
+                _tenureGateway.Object,
+                _personGateway.Object);
 
             var transactionPerson = await sut.GetTransactionPersonAsync("123").ConfigureAwait(true);
 
