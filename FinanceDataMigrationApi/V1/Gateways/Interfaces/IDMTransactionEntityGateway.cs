@@ -15,6 +15,8 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
 
         Task<IList<DMTransactionEntityDomain>> GetTransformedListAsync();
 
+        Task<IList<DMTransactionEntityDomain>> GetLoadedListAsync();
+
         Task<int> AddTransactionAsync(DMTransactionEntityDomain dmEntity);
     }
 }

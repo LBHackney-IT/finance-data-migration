@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Threading.Tasks;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 
 namespace FinanceDataMigrationApi.V1.Controllers
 {
@@ -17,15 +18,18 @@ namespace FinanceDataMigrationApi.V1.Controllers
         private readonly IExtractTransactionEntityUseCase _extractTransactionEntityUseCase;
         private readonly ITransformTransactionEntityUseCase _transformTransactionEntityUse;
         private readonly ILoadTransactionEntityUseCase _loadTransactionEntityUseCase;
+        private readonly IIndexTransactionEntityUseCase _indexTransactionEntityUseCase;
 
         public FinanceDataMigrationApiController(
             IExtractTransactionEntityUseCase extractTransactionEntityUseCase,
             ITransformTransactionEntityUseCase transformTransactionEntityUseCase,
-            ILoadTransactionEntityUseCase loadTransactionEntityUseCase)
+            ILoadTransactionEntityUseCase loadTransactionEntityUseCase,
+            IIndexTransactionEntityUseCase indexTransactionEntityUseCase)
         {
             _extractTransactionEntityUseCase = extractTransactionEntityUseCase;
             _transformTransactionEntityUse = transformTransactionEntityUseCase;
             _loadTransactionEntityUseCase = loadTransactionEntityUseCase;
+            _indexTransactionEntityUseCase = indexTransactionEntityUseCase;
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -61,7 +65,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
                 return NotFound(new BaseErrorResponse((int) HttpStatusCode.InternalServerError, "Extract Transaction Entity Task Failed!!"));
             }
 
-            return Ok();
+            return Ok("Transaction Entities Extracted Successfully");
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -79,7 +83,25 @@ namespace FinanceDataMigrationApi.V1.Controllers
                 return NotFound(new BaseErrorResponse((int) HttpStatusCode.InternalServerError, "Load Transaction Entity Task Failed!!"));
             }
 
-            return Ok();
+            return Ok("Transaction Entities Loaded Successfully");
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status500InternalServerError)]
+        [HttpGet]
+        [Route("transaction-entity/index-all")]
+        public async Task<IActionResult> IndexTransactionEntity()
+        {
+            var runLoadTransactionEntity = await _indexTransactionEntityUseCase.ExecuteAsync().ConfigureAwait(false);
+
+            if (runLoadTransactionEntity.Continue == false)
+            {
+                return NotFound(new BaseErrorResponse((int) HttpStatusCode.InternalServerError, "Index Transaction Entity Task Failed!!"));
+            }
+
+            return Ok("Transaction Entities Indexed Successfully");
         }
 #endif
     }

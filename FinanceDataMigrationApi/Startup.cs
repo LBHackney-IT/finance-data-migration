@@ -119,6 +119,9 @@ namespace FinanceDataMigrationApi
             });
 
             ConfigureDbContext(services);
+
+            services.ConfigureElasticSearch(Configuration);
+
             RegisterGateways(services);
             RegisterUseCases(services);
             #region ExtraSerives
@@ -147,6 +150,7 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IDMRunLogGateway, DMRunLogGateway>();
             services.AddScoped<ITenureGateway, TenureGateway>();
             services.AddScoped<IPersonGateway, PersonGateway>();
+            services.AddScoped<IEsGateway, EsGateway>();
 
             var transactionApiUrl = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_URL");
             var transactionApiToken = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_TOKEN");
@@ -189,6 +193,7 @@ namespace FinanceDataMigrationApi
             services.AddScoped<ILoadTransactionEntityUseCase, LoadTransactionEntityUseCase>();
             services.AddScoped<IGetTenureByPrnUseCase, GetTenureByPrnUseCase>();
             services.AddScoped<IGetPersonByIdUseCase, GetPersonByIdUseCase>();
+            services.AddScoped<IIndexTransactionEntityUseCase, IndexTransactionEntityUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

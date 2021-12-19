@@ -51,6 +51,8 @@ namespace FinanceDataMigrationApi.V1.Domain
 
         public bool IsLoaded { get; set; }
 
+        public bool IsIndexed { get; set; }
+
         public DateTimeOffset CreatedAt { get; set; }
     }
 }

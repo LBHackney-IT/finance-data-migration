@@ -99,6 +99,22 @@ namespace FinanceDataMigrationApi.V1.Gateways
             }
         }
 
+        public async Task<IList<DMTransactionEntityDomain>> GetLoadedListAsync()
+        {
+            try
+            {
+                var results = await _context.GetLoadedListAsync().ConfigureAwait(false);
+
+                return results.ToDomain();
+            }
+            catch (Exception e)
+            {
+                LoggingHandler.LogError(e.Message);
+                LoggingHandler.LogError(e.StackTrace);
+                throw;
+            }
+        }
+
         public async Task<int> AddTransactionAsync(DMTransactionEntityDomain dmEntity)
         {
             // TODO

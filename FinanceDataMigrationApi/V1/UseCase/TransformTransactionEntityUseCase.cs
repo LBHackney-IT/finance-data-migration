@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Hackney.Shared.HousingSearch.Domain.Transactions;
 using TransactionPerson = FinanceDataMigrationApi.V1.Domain.TransactionPerson;
 
 namespace FinanceDataMigrationApi
@@ -62,9 +63,10 @@ namespace FinanceDataMigrationApi
                         transaction.TransactionType = await TransformTransactionType(transaction.TransactionType).ConfigureAwait(false);
                         transaction.TransactionSource = transaction.TransactionSource.Trim();
                         transaction.PaymentReference = transaction.PaymentReference.Trim();
-
+                        transaction.TargetId = _targetId;
                         // Set the row isTransformed flag to TRUE and Update the row in the staging data table (or batch them)
                         transaction.IsTransformed = true;
+                        transaction.IsIndexed = false;
                     }
 
                     // Update batched rows to staging table DMTransactionEntity.
@@ -126,24 +128,14 @@ namespace FinanceDataMigrationApi
             _targetId = tenure.Id;
 
            
-            var householdMembers = tenureList.Select(x => x.HouseholdMembers).FirstOrDefault();
+            var householdMembers = tenureList.SelectMany(x => x.HouseholdMembers).ToList();
 
+            var householdMember = householdMembers.Where(x => x.IsResponsible).ToList();
 
-            //var householdMembersList = tenureList.Select(x => x.HouseholdMembers).ToList();
-            //var isResponsibleList = householdMembersList!.FindAll(x => x.IsResponsible)).ToList();
-
-
-
-            var householdMember = householdMembers!.FirstOrDefault(x => x.IsResponsible);
-
-            if (householdMember != null)
+            if (householdMember.Count == 1 )
             {
-                //isResponsibleList.ForEach(item =>
-                //{
-                //    var personDetails = _personGateway.GetById(item.)
-                //});
-                
-                var transactionPerson = new TransactionPerson { Id = householdMember.Id, FullName = householdMember.FullName };
+              
+                var transactionPerson = new TransactionPerson { Id = householdMember[0].Id, FullName = householdMember[0].FullName };
                 return await Task.FromResult(JsonConvert.SerializeObject(transactionPerson)).ConfigureAwait(false);
             }
 

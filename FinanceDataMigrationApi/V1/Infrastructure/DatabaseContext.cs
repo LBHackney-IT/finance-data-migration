@@ -101,5 +101,11 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .Where(x => x.IsTransformed && !x.IsLoaded)
                 .ToListAsync()
                 .ConfigureAwait(false);
+
+        public async Task<IList<DMTransactionEntity>> GetLoadedListAsync()
+            => await DMTransactionEntities
+                .Where(x => x.IsTransformed && x.IsLoaded)
+                .ToListAsync()
+                .ConfigureAwait(false);
     }
 }

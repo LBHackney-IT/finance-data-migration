@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.Gateways.Extensions;
 using System.Net.Http.Headers;
+using Hackney.Shared.HousingSearch.Domain.Transactions;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
@@ -23,7 +24,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             throw new NotImplementedException();
         }
 
-        public async Task<int> UpdateTransactionItems(IList<AddTransactionRequest> transactions)
+        public async Task<int> UpdateTransactionItems(IList<Transaction> transactions)
         {
             var response = await _client.PostAsJsonAsyncType(new Uri("api/v1/transactions/process-batch", UriKind.Relative), transactions)
                 .ConfigureAwait(true);

@@ -82,6 +82,9 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         [Column("is_loaded")]
         public bool IsLoaded { get; set; }
 
+        [Column("is_indexed")]
+        public bool? IsIndexed { get; set; }
+
         [Column("created_at")]
         public DateTimeOffset CreatedAt { get; set; }
 
