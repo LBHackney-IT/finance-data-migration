@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
@@ -39,7 +40,14 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [Route("charge-entity/extract")]
         public async Task<IActionResult> ExtractChargeEntity()
         {
-            throw new NotImplementedException();
+            var runExtractTransactionEntity = await _extractChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
+
+            if (runExtractTransactionEntity.Continue == false)
+            {
+                return NotFound(new BaseErrorResponse((int) HttpStatusCode.InternalServerError, "Extract Charge Entity Task Failed!!"));
+            }
+
+            return Ok();
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]

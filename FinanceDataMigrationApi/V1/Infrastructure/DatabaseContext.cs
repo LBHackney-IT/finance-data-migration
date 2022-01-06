@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using FinanceDataMigrationApi.V1.Domain;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure
 {
@@ -16,11 +17,11 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.BalanceAmount).HasColumnType("decimal"); 
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.ChargedAmount).HasColumnType("decimal"); 
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.HousingBenefitAmount).HasColumnType("decimal"); 
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PaidAmount).HasColumnType("decimal"); 
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PeriodNo).HasColumnType("decimal"); 
+            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.BalanceAmount).HasColumnType("decimal");
+            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.ChargedAmount).HasColumnType("decimal");
+            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.HousingBenefitAmount).HasColumnType("decimal");
+            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PaidAmount).HasColumnType("decimal");
+            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PeriodNo).HasColumnType("decimal");
             //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.TransactionAmount).HasColumnType("decimal");
             modelBuilder.Entity<DMTransactionEntity>().Property(x => x.TargetId).HasDefaultValueSql("NEWID()");
         }
@@ -47,6 +48,57 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public DbSet<DMTransactionEntity> DMTransactionEntities { get; set; }
 
         /// <summary>
+        /// Get or sets the Data Migration Charge Entity
+        /// </summary>
+        public DbSet<DMChargeEntity> DMChargeEntities { get; set; }
+
+
+        #region Charges Entity Specific
+
+
+        /// <summary>
+        /// Get the Data Migration Charge Entities
+        /// </summary>
+        /// <returns>The Transactions to migrate</returns>
+        public async Task<IList<DMChargeEntity>> GetDMChargeEntitiesAsync()
+            => await DMChargeEntities
+                .Where(x => x.IsTransformed == false)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+
+        /// <summary>
+        /// Extract the data migration charges entities
+        /// </summary>
+        /// <param name="processingDate">the processing date</param>
+        /// <returns>the charges to migrate</returns>
+        public async Task<int> ExtractDMChargesAsync(DateTimeOffset? processingDate)
+        {
+            //TODO: StoredProc does not have processingDate parameters, need to clarify with Felipe, keep it consistent
+
+            return await ExecuteStoredProcedure(
+                $"EXEC @returnValue = [dbo].[usp_ExtractChargesEntity]", 600)
+                .ConfigureAwait(false);
+        }
+
+        public async Task<IList<DMChargeEntity>> GetTransformedChargeListAsync()
+            => await DMChargeEntities
+                .Where(x => x.IsTransformed && !x.IsLoaded)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+        public async Task<IList<DMChargeEntity>> GetLoadedChargeListAsync()
+            => await DMChargeEntities
+                .Where(x => x.IsTransformed && x.IsLoaded)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+        #endregion
+
+        #region Transaction Entity Specific
+
+
+        /// <summary>
         /// Get the Data Migration Transaction Entities.
         /// </summary>
         /// <returns>The Transactions to migrate.</returns>
@@ -68,6 +120,21 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             return affectedRows;
         }
 
+
+
+        public async Task<IList<DMTransactionEntity>> GetTransformedListAsync()
+            => await DMTransactionEntities
+                .Where(x => x.IsTransformed && !x.IsLoaded)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+        public async Task<IList<DMTransactionEntity>> GetLoadedListAsync()
+            => await DMTransactionEntities
+                .Where(x => x.IsTransformed && x.IsLoaded)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+        #endregion
         private async Task<int> ExecuteStoredProcedure(string procedureRawString, int timeout = 0)
         {
             if (timeout != 0)
@@ -95,17 +162,5 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 throw new Exception(ex.Message);
             }
         }
-
-        public async Task<IList<DMTransactionEntity>> GetTransformedListAsync()
-            => await DMTransactionEntities
-                .Where(x => x.IsTransformed && !x.IsLoaded)
-                .ToListAsync()
-                .ConfigureAwait(false);
-
-        public async Task<IList<DMTransactionEntity>> GetLoadedListAsync()
-            => await DMTransactionEntities
-                .Where(x => x.IsTransformed && x.IsLoaded)
-                .ToListAsync()
-                .ConfigureAwait(false);
     }
 }
