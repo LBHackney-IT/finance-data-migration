@@ -4,8 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure
 {
-    [Table("DMChargeEntity")]
-    public class DMChargeEntity
+    [Table("DMChargesEntity")]
+    public class DMChargesEntity
     {
         [Key]
         [Column("id")]
@@ -20,6 +20,9 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         [Column("payment_reference")]
         public string PaymentReference { get; set; }
 
+        [Column("property_reference")]
+        public string PropertyReference { get; set; }
+
         [Column("target_type")]
         public string TargetType { get; set; }
 
@@ -28,30 +31,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
 
         [Column("detailed_charges")]
         public string DetailedCharges { get; set; }
-
-        [Column("type")]
-        public string Type { get; set; }
-
-        [Column("sub_type")]
-        public string SubType { get; set; }
-
-        [Column("charge_type")]
-        public string ChargeType { get; set; }
-
-        [Column("frequency")]
-        public string Frequency { get; set; }
-
-        [Column("amount")]
-        public decimal? Amount { get; set; }
-
-        [Column("charge_code")]
-        public string ChargeCode { get; set; }
-
-        [Column("start_date")]
-        public DateTime StartDate { get; set; }
-
-        [Column("end_date")]
-        public DateTime EndDate { get; set; }
 
         [Column("is_transformed")]
         public bool IsTransformed { get; set; }

@@ -26,7 +26,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 var migrationRun = await _context.DMRunLogs
                     .Where(x => x.DynamoDbTableName == dynamoDbTableName)
                     .OrderByDescending(x => x.Id)
-                    .FirstAsync().ConfigureAwait(false);
+                    .FirstOrDefaultAsync().ConfigureAwait(false);
 
                 return migrationRun.ToDomain();
             }

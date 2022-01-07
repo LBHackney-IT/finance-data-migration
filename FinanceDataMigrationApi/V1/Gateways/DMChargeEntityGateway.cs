@@ -32,7 +32,23 @@ namespace FinanceDataMigrationApi.V1.Gateways
         {
             try
             {
-                return await _context.ExtractDMChargesAsync(processingDate).ConfigureAwait(false);
+                return await _context.ExtractDMChargesAsync().ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                LoggingHandler.LogError(e.Message);
+                LoggingHandler.LogError(e.StackTrace);
+                throw;
+            }
+        }
+
+
+        public async Task<List<DMDetailedChargesEntity>> GetDetailChargesListAsync(string paymentReference)
+        {
+            try
+            {
+                return await _context.GetDetailChargesListAsync(paymentReference).ConfigureAwait(false);
+
             }
             catch (Exception e)
             {

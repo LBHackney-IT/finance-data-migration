@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.Domain;
+using Nest;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure
 {
@@ -24,6 +25,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PeriodNo).HasColumnType("decimal");
             //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.TransactionAmount).HasColumnType("decimal");
             modelBuilder.Entity<DMTransactionEntity>().Property(x => x.TargetId).HasDefaultValueSql("NEWID()");
+            modelBuilder.Entity<DMDetailedChargesEntity>().HasNoKey();
         }
 
 
@@ -50,7 +52,12 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// <summary>
         /// Get or sets the Data Migration Charge Entity
         /// </summary>
-        public DbSet<DMChargeEntity> DMChargeEntities { get; set; }
+        public DbSet<DMChargesEntity> DMChargeEntities { get; set; }
+
+        /// <summary>
+        /// Get Data Migration Detailed Charges Entities
+        /// </summary>
+        public DbSet<DMDetailedChargesEntity> DMDetailedChargesEntities { get; set; }
 
 
         #region Charges Entity Specific
@@ -60,7 +67,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// Get the Data Migration Charge Entities
         /// </summary>
         /// <returns>The Transactions to migrate</returns>
-        public async Task<IList<DMChargeEntity>> GetDMChargeEntitiesAsync()
+        public async Task<IList<DMChargesEntity>> GetDMChargeEntitiesAsync()
             => await DMChargeEntities
                 .Where(x => x.IsTransformed == false)
                 .ToListAsync()
@@ -70,9 +77,8 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// <summary>
         /// Extract the data migration charges entities
         /// </summary>
-        /// <param name="processingDate">the processing date</param>
         /// <returns>the charges to migrate</returns>
-        public async Task<int> ExtractDMChargesAsync(DateTimeOffset? processingDate)
+        public async Task<int> ExtractDMChargesAsync()
         {
             //TODO: StoredProc does not have processingDate parameters, need to clarify with Felipe, keep it consistent
 
@@ -81,17 +87,47 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .ConfigureAwait(false);
         }
 
-        public async Task<IList<DMChargeEntity>> GetTransformedChargeListAsync()
+        public async Task<IList<DMChargesEntity>> GetTransformedChargeListAsync()
             => await DMChargeEntities
                 .Where(x => x.IsTransformed && !x.IsLoaded)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-        public async Task<IList<DMChargeEntity>> GetLoadedChargeListAsync()
+        public async Task<IList<DMChargesEntity>> GetLoadedChargeListAsync()
             => await DMChargeEntities
                 .Where(x => x.IsTransformed && x.IsLoaded)
                 .ToListAsync()
                 .ConfigureAwait(false);
+
+        /// <summary>
+        /// Get Detailed Charge from Database Query
+        /// </summary>
+        /// <param name="paymentReference"></param>
+        /// <returns>List of Details Charges</returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<List<DMDetailedChargesEntity>> GetDetailChargesListAsync(string paymentReference)
+        {
+
+            var param = new SqlParameter("@payment_reference", paymentReference.TrimEnd());
+
+            try
+            {
+                var result =  await DMDetailedChargesEntities
+                    .FromSqlRaw("[dbo].[usp_ExtractDetailedChargesEntity] @payment_reference",param)
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+
+                return result;
+
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+
+        }
+
+
 
         #endregion
 
@@ -162,5 +198,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 throw new Exception(ex.Message);
             }
         }
+
+
     }
 }

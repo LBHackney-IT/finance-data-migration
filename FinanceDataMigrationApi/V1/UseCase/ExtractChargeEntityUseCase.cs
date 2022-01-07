@@ -33,10 +33,11 @@ namespace FinanceDataMigrationApi.V1.UseCase
             try
             {
                 // Get latest successfull migrationrun item from Table MigrationRuns. where is_feature_enabled flag is TRUE.
-                var dmRunLogDomain = await _dMRunLogGateway.GetDMRunLogByEntityNameAsync(DMEntityNames.Charges).ConfigureAwait(false);
+                var dmRunLogDomain = await _dMRunLogGateway.GetDMRunLogByEntityNameAsync(DMEntityNames.Charges).ConfigureAwait(false) ??
+                                     new DMRunLogDomain() {DynamoDbTableName = DMEntityNames.Charges};
 
                 // Get latest run timestamp from migrationrun item
-                var lastRunTimestamp = dmRunLogDomain.LastRunDate;
+                var lastRunTimestamp = dmRunLogDomain.LastRunDate?? DateTimeOffset.UtcNow;
 
                 // Update migrationrun item with latest run time to NOW and set status to "Extract Inprogress"
                 dmRunLogDomain.LastRunDate = DateTimeOffset.UtcNow;

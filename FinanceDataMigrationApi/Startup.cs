@@ -119,6 +119,7 @@ namespace FinanceDataMigrationApi
             });
 
             ConfigureDbContext(services);
+            services.ConfigureDynamoDB();
 
             services.ConfigureElasticSearch(Configuration);
 
@@ -145,12 +146,14 @@ namespace FinanceDataMigrationApi
         {
             services.AddTransient<LoggingDelegatingHandler>();
 
+            services.AddScoped<IDMChargeEntityGateway, DMChargeEntityGateway>();
             services.AddScoped<IDMTransactionEntityGateway, DMTransactionEntityGateway>();
             services.AddScoped<ITransactionGateway, TransactionGateway>();
             services.AddScoped<IDMRunLogGateway, DMRunLogGateway>();
             services.AddScoped<ITenureGateway, TenureGateway>();
             services.AddScoped<IPersonGateway, PersonGateway>();
             services.AddScoped<IEsGateway, EsGateway>();
+            services.AddScoped<IAssetGateway, AssetGateway>();
 
             var transactionApiUrl = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_URL");
             var transactionApiToken = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_TOKEN");
@@ -174,6 +177,17 @@ namespace FinanceDataMigrationApi
                 .AddHttpMessageHandler<LoggingDelegatingHandler>();
 
 
+            var assetApiUrl = Environment.GetEnvironmentVariable("ASSET_INFO_API_URL");
+            var assetApiToken = Environment.GetEnvironmentVariable("ASSET_INFO_API_TOKEN");
+
+            services.AddHttpClient<IAssetGateway, AssetGateway>(c =>
+                {
+                    c.BaseAddress = new Uri(assetApiUrl);
+                    c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", assetApiToken);
+                })
+                .AddHttpMessageHandler<LoggingDelegatingHandler>();
+
+
             var personApiUrl = Environment.GetEnvironmentVariable("PERSON_API_URL");
             var personApiToken = Environment.GetEnvironmentVariable("PERSON_API_TOKEN");
 
@@ -183,7 +197,6 @@ namespace FinanceDataMigrationApi
                     c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", personApiToken);
                 })
                 .AddHttpMessageHandler<LoggingDelegatingHandler>();
-
         }
 
         private static void RegisterUseCases(IServiceCollection services)
@@ -194,6 +207,9 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IGetTenureByPrnUseCase, GetTenureByPrnUseCase>();
             services.AddScoped<IGetPersonByIdUseCase, GetPersonByIdUseCase>();
             services.AddScoped<IIndexTransactionEntityUseCase, IndexTransactionEntityUseCase>();
+            services.AddScoped<IExtractChargeEntityUseCase, ExtractChargeEntityUseCase>();
+            services.AddScoped<ITransformChargeEntityUseCase, TransformChargeEntityUseCase>();
+            //services.AddScoped<ILoadChargeEntityUseCase, LoadChargeEntityUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

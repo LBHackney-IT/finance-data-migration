@@ -13,7 +13,6 @@
     </PropertyGroup>
     <ItemGroup>
       <Compile Remove="V1\Factories\ResponseFactory.cs" />
-      <Compile Remove="V1\Gateways\DynamoDbGateway.cs" />
       <Compile Remove="V1\Gateways\DynamoDbGateway_OLD.cs" />
       <Compile Remove="V1\Gateways\ExampleGateway.cs" />
       <Compile Remove="V1\Gateways\Interfaces\IExampleDynamoGateway.cs" />

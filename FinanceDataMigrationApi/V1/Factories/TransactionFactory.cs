@@ -5,6 +5,7 @@ using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Handlers;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
 using Newtonsoft.Json;
+using TargetType = Hackney.Shared.HousingSearch.Domain.Transactions.TargetType;
 
 namespace FinanceDataMigrationApi.V1.Factories
 {
@@ -29,7 +30,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                     Sender = JsonConvert.DeserializeObject<Sender>(dMTransactionEntityDomain.Person), // TODO FIX PERSON
                     Address = null,
                     TargetId = dMTransactionEntityDomain.TargetId,
-                    TargetType = dMTransactionEntityDomain.TargetType.TargetTypeEnumValue(),
+                    TargetType = (TargetType) dMTransactionEntityDomain.TargetType.TargetTypeEnumValue(),
                     TransactionAmount = dMTransactionEntityDomain.TransactionAmount,
                     TransactionDate = dMTransactionEntityDomain.TransactionDate,
                     TransactionSource = dMTransactionEntityDomain.TransactionSource,
@@ -49,7 +50,7 @@ namespace FinanceDataMigrationApi.V1.Factories
         public static List<Transaction> ToTransactionRequestList(this IList<DMTransactionEntityDomain> transactions)
         {
             //return transactions.Select(item => item.ToTransactionRequest()).ToList();
-            var transactionRequestList = transactions.Select(item => item.ToTransactionRequest()).ToList();  
+            var transactionRequestList = transactions.Select(item => item.ToTransactionRequest()).ToList();
             return transactionRequestList;
         }
     }

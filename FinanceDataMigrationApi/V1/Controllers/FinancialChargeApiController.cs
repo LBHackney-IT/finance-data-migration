@@ -15,21 +15,18 @@ namespace FinanceDataMigrationApi.V1.Controllers
     public class FinancialChargeApiController : BaseController
     {
         private readonly IExtractChargeEntityUseCase _extractChargeEntityUseCase;
-        private readonly ITransformChargeEntityUseCase _transformChargeEntityUse;
-        private readonly ILoadChargeEntityUseCase _loadChargeEntityUseCase;
-        private readonly IIndexChargeEntityUseCase _indexChargeEntityUseCase;
+        private readonly ITransformChargeEntityUseCase _transformChargeEntityUseCase;
+        //private readonly ILoadChargeEntityUseCase _loadChargeEntityUseCase;
 
         public FinancialChargeApiController(
             IExtractChargeEntityUseCase extractChargeEntityUseCase,
-            ITransformChargeEntityUseCase transformChargeEntityUse,
-            ILoadChargeEntityUseCase loadChargeEntityUseCase,
-            IIndexChargeEntityUseCase indexChargeEntityUseCase
-            )
+            ITransformChargeEntityUseCase transformChargeEntityUseCase
+            //,ILoadChargeEntityUseCase loadChargeEntityUseCase
+        )
         {
             _extractChargeEntityUseCase = extractChargeEntityUseCase;
-            _transformChargeEntityUse = transformChargeEntityUse;
-            _loadChargeEntityUseCase = loadChargeEntityUseCase;
-            _indexChargeEntityUseCase = indexChargeEntityUseCase;
+            _transformChargeEntityUseCase = transformChargeEntityUseCase;
+            //_loadChargeEntityUseCase = loadChargeEntityUseCase;
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -40,11 +37,12 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [Route("charge-entity/extract")]
         public async Task<IActionResult> ExtractChargeEntity()
         {
-            var runExtractTransactionEntity = await _extractChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
+            var runExtractChargeEntity = await _extractChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
 
-            if (runExtractTransactionEntity.Continue == false)
+            if (runExtractChargeEntity.Continue == false)
             {
-                return NotFound(new BaseErrorResponse((int) HttpStatusCode.InternalServerError, "Extract Charge Entity Task Failed!!"));
+                return NotFound(new BaseErrorResponse((int) HttpStatusCode.InternalServerError,
+                    "Extract Charge Entity Task Failed!!"));
             }
 
             return Ok();
@@ -58,7 +56,15 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [Route("charge-entity/transform")]
         public async Task<IActionResult> TransformChargeEntity()
         {
-            throw new NotImplementedException();
+            var runExtractChargeEntity = await _transformChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
+
+            if (runExtractChargeEntity.Continue == false)
+            {
+                return NotFound(new BaseErrorResponse((int) HttpStatusCode.InternalServerError,
+                    "Transform Charge Entity Task Failed!!"));
+            }
+
+            return Ok("Charge Entities Transformed Successfully");
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -67,8 +73,18 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status500InternalServerError)]
         [HttpGet]
         [Route("charge-entity/load")]
-        public async Task<IActionResult> LoadChargeEntity()
+        public Task<IActionResult> LoadChargeEntity()
         {
+            // var runLoadChargeEntity = await _loadChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
+            //
+            // if (runLoadChargeEntity.Continue == false)
+            // {
+            //     return NotFound(new BaseErrorResponse((int) HttpStatusCode.InternalServerError,
+            //         "Load Charge Entity Task Failed!!"));
+            // }
+            //
+            // return Ok("Charge Entities Loaded Successfully");
+
             throw new NotImplementedException();
         }
     }
