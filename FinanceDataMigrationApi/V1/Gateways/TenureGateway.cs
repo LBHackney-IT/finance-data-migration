@@ -32,7 +32,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             var response = await _client.GetAsync(uri).ConfigureAwait(true);
             var tenureResponse = await response.ReadContentAs<APIResponse<TenureResponse>>().ConfigureAwait(true);
 
-            return tenureResponse?.Results.Tenures;
+            return tenureResponse?.Results?.Tenures;
         }
     }
 }

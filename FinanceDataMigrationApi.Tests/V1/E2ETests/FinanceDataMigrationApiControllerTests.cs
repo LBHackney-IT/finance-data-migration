@@ -42,7 +42,7 @@ namespace FinanceDataMigrationApi.Tests.V1.E2ETests
 
         }
 
-        [Fact(Skip = "Person API requires authentication but FinanceDataMigrationAPI has not implement auth Brearer")]
+        [Fact]
         public async Task TransformTransitionEntityReturnsOkResponseWhenDataToMigrate()
         {
             //arrange cause data to be populated for testing
@@ -66,6 +66,22 @@ namespace FinanceDataMigrationApi.Tests.V1.E2ETests
 
             //act
             var uri = new Uri($"api/v1/data-migration/transaction-entity/load", UriKind.Relative);
+            var response = await _testClient
+                .GetAsync(uri).ConfigureAwait(false);
+
+            var result = response.StatusCode;
+
+            //assert
+            result.Should().Be(HttpStatusCode.OK);
+
+        }
+
+        [Fact]
+        public async Task IndexTransactionEntityReturnsOkResponseWhenDataToMigrate()
+        {
+
+            //act
+            var uri = new Uri($"api/v1/data-migration/transaction-entity/index-all", UriKind.Relative);
             var response = await _testClient
                 .GetAsync(uri).ConfigureAwait(false);
 
