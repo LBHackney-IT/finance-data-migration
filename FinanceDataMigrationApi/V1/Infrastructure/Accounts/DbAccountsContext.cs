@@ -1,14 +1,17 @@
-using FinanceDataMigrationApi.V1.Infrastructure;
-using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FinanceDataMigrationApi.V1.Gateways
+namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
 {
     public class DbAccountsContext : DbContext
     {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.HasDefaultSchema("dbo");
+        }
+
         /// <summary>
         /// Get or sets the Data Migration Runs
         /// </summary>
@@ -23,7 +26,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
         /// Initializes a new instance of the <see cref="DbAccountsContext"/> class.
         /// </summary>
         /// <param name="options">The options for this context.</param>
-        public DbAccountsContext(DbContextOptions options)
+        public DbAccountsContext(DbContextOptions<DbAccountsContext> options)
             : base(options)
         {
         }

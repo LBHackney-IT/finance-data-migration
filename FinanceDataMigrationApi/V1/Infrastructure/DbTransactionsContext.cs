@@ -16,6 +16,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasDefaultSchema("dbo");
             //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.BalanceAmount).HasColumnType("decimal"); 
             //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.ChargedAmount).HasColumnType("decimal"); 
             //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.HousingBenefitAmount).HasColumnType("decimal"); 
@@ -29,7 +30,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// Initializes a new instance of the <see cref="DbTransactionsContext"/> class.
         /// </summary>
         /// <param name="options">The options for this context.</param>
-        public DbTransactionsContext(DbContextOptions options)
+        public DbTransactionsContext(DbContextOptions<DbTransactionsContext> options)
             : base(options)
         {
         }

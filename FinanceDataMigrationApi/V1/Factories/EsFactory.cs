@@ -68,28 +68,34 @@ namespace FinanceDataMigrationApi.V1.Factories
             return new QueryableAccount
             {
                 Id = accountEntity.DynamoDbId,
-                ParentAccountId = accountEntity.ParentAccountId,
+                ParentAccountId = accountEntity.ParentAccountId.ValueOrDefault(),
                 PaymentReference = accountEntity.PaymentReference,
                 //EndReasonCode = accountEntity.EndReasonCode, // ToDo: find EndReasonCode in Shared package
-                AccountBalance = accountEntity.AccountBalance,
-                ConsolidatedBalance = accountEntity.ConsolidatedBalance,
-                AccountStatus = (AccountStatus) (accountEntity.AccountStatus ? 1 : 0), // ToDo: fix this terrible part
+                AccountBalance = accountEntity.AccountBalance.ValueOrDefault(),
+                ConsolidatedBalance = accountEntity.ConsolidatedBalance.ValueOrDefault(),
+                AccountStatus = accountEntity.AccountStatus.ToEnumValue<AccountStatus>(),
                 EndDate = accountEntity.EndDate,
                 CreatedBy = "Migration",
                 CreatedAt = DateTime.UtcNow,
                 //LastUpdatedBy = accountEntity.LastUpdatedBy,
                 //LastUpdatedAt = accountEntity.LastUpdatedAt,
                 StartDate = accountEntity.StartDate,
-                TargetId = accountEntity.TargetId,
+                TargetId = accountEntity.TargetId.ValueOrDefault(),
                 TargetType = accountEntity.TargetType.ToEnumValue<TargetType>(),
                 AccountType = accountEntity.AccountType.ToEnumValue<AccountType>(),
                 AgreementType = accountEntity.AgreementType,
-                RentGroupType = accountEntity.RentGroupType.ToEnumValue<RentGroupType>(),
+                RentGroupType = RentGroupType.Garages//accountEntity.RentGroupType.ToEnumValue<RentGroupType>(),
                 // ToDo: define models
                 //ConsolidatedCharges = JsonConvert.DeserializeObject<>(accountEntity.ConsolidatedCharges),
                 //Tenure = JsonConvert.DeserializeObject<>(accountEntity.Tenure)
             };
         }
+
+        public static Guid ValueOrDefault(this Guid? value)
+            => value.HasValue ? value.Value : Guid.Empty;
+
+        public static decimal ValueOrDefault(this decimal? value)
+            => value.HasValue ? value.Value : 0;
 
         public static List<QueryableAccount> ToAccountRequestList(IEnumerable<DMAccountEntity> accounts)
         {

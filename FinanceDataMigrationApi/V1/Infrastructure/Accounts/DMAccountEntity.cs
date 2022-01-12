@@ -7,7 +7,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
     /// <summary>
     /// The Data Migration Transaction Entity.
     /// </summary>
-    [Table("DMAccountEntity")]
+    [Table("DMAccountsEntity")]
     public class DMAccountEntity
     {
         [Key]
@@ -18,7 +18,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
         public Guid DynamoDbId { get; set; }
 
         [Column("target_id")]
-        public Guid TargetId { get; set; }
+        public Guid? TargetId { get; set; }
 
         [Column("target_type")]
         public string TargetType { get; set; }
@@ -33,13 +33,13 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
         public string AgreementType { get; set; }
 
         [Column("account_balance")]
-        public decimal AccountBalance { get; set; }
+        public decimal? AccountBalance { get; set; }
 
         [Column("consolidated_balance")]
-        public decimal ConsolidatedBalance { get; set; }
+        public decimal? ConsolidatedBalance { get; set; }
 
         [Column("parent_account_id")]
-        public Guid ParentAccountId { get; set; }
+        public Guid? ParentAccountId { get; set; }
 
         [Column("payment_reference")]
         public string PaymentReference { get; set; }
@@ -60,7 +60,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
         public DateTime StartDate { get; set; }
 
         [Column("end_date")]
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         [Column("end_reason_code")]
         public string EndReasonCode { get; set; }
@@ -72,7 +72,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
         public string Tenure { get; set; }
 
         [Column("account_status")]
-        public bool AccountStatus { get; set; }
+        public string AccountStatus { get; set; }
 
         [Column("is_transformed")]
         public bool IsTransformed { get; set; }

@@ -5,6 +5,7 @@ using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -52,9 +53,14 @@ namespace FinanceDataMigrationApi.V1.UseCase
                 }
                 else
                 {
+                    Stopwatch stopwatch = new Stopwatch();
+                    stopwatch.Start();
+
                     var esRequests = EsFactory.ToAccountRequestList(loadedAccounts);
 
-                    await _esGateway.BulkIndexAccounts(esRequests).ConfigureAwait(false);
+                    stopwatch.Stop();
+                    var time = stopwatch.Elapsed;
+                    //await _esGateway.BulkIndexAccounts(esRequests).ConfigureAwait(false);
 
                     // we need to update the corresponding rows isLoaded flag in the staging table.
                     loadedAccounts.ToList().ForEach(item => item.IsIndexed = true);

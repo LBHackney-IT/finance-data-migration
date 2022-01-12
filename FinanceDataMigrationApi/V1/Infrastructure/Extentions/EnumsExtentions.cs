@@ -9,6 +9,11 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Extentions
         {
             try
             {
+                if(stringValue == null)
+                {
+                    return default(T);
+                }
+
                 return (T) Enum.Parse(typeof(T), stringValue);
             }
             catch (Exception e)
