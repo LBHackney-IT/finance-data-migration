@@ -60,6 +60,7 @@
 
   <ItemGroup>
     <Folder Include="terraform\" />
+    <Folder Include="V1\Domain\Accounts\" />
   </ItemGroup>
 
   <ItemGroup>

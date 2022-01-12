@@ -11,7 +11,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Gateways
         public bool GetDmRunLogByEntityNameHasBeenCalled { get; private set; }
         public Task<DMRunLogDomain> DmRunLogDomainResult { get; private set; }
 
-        public DmRunLogGatewayProxy(DatabaseContext context) : base(context)
+        public DmRunLogGatewayProxy(DbTransactionsContext context) : base(context)
         {
         }
 

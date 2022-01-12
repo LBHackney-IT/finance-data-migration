@@ -135,7 +135,7 @@ namespace FinanceDataMigrationApi
         private static void ConfigureDbContext(IServiceCollection services)
         {
             var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-            services.AddDbContext<DatabaseContext>(opt => opt.UseSqlServer(connectionString, sqlOptions =>
+            services.AddDbContext<DbTransactionsContext>(opt => opt.UseSqlServer(connectionString, sqlOptions =>
             {
                 sqlOptions.CommandTimeout(360);
             }));

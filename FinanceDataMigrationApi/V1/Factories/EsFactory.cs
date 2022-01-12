@@ -1,8 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
+using FinanceDataMigrationApi.V1.Infrastructure.Extentions;
+using Hackney.Shared.HousingSearch.Domain.Accounts.Enum;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
+using Hackney.Shared.HousingSearch.Gateways.Models.Accounts;
 using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
+using Newtonsoft.Json;
+using TargetType = Hackney.Shared.HousingSearch.Domain.Accounts.Enum.TargetType;
 
 namespace FinanceDataMigrationApi.V1.Factories
 {
@@ -55,6 +61,33 @@ namespace FinanceDataMigrationApi.V1.Factories
         {
             var transactionRequestList = transactions.Select(item => item.ToQueryableTransaction()).ToList();
             return transactionRequestList;
+        }
+
+        public static QueryableAccount ToQueryableAccount(this DMAccountEntity accountEntity)
+        {
+            return new QueryableAccount
+            {
+                Id = accountEntity.DynamoDbId,
+                ParentAccountId = accountEntity.ParentAccountId,
+                PaymentReference = accountEntity.PaymentReference,
+                //EndReasonCode = accountEntity.EndReasonCode, // ToDo: find EndReasonCode in Shared package
+                AccountBalance = accountEntity.AccountBalance,
+                ConsolidatedBalance = accountEntity.ConsolidatedBalance,
+                AccountStatus = (AccountStatus) (accountEntity.AccountStatus ? 1 : 0), // ToDo: fix this terrible part
+                EndDate = accountEntity.EndDate,
+                CreatedBy = "Migration",
+                CreatedAt = DateTime.UtcNow,
+                //LastUpdatedBy = accountEntity.LastUpdatedBy,
+                //LastUpdatedAt = accountEntity.LastUpdatedAt,
+                StartDate = accountEntity.StartDate,
+                TargetId = accountEntity.TargetId,
+                TargetType = accountEntity.TargetType.ToEnumValue<TargetType>(),
+                AccountType = accountEntity.AccountType.ToEnumValue<AccountType>(),
+                AgreementType = accountEntity.AgreementType,
+                RentGroupType = accountEntity.RentGroupType.ToEnumValue<RentGroupType>(),
+                ConsolidatedCharges = JsonConvert.DeserializeObject<>(accountEntity.ConsolidatedCharges),
+                Tenure = JsonConvert.DeserializeObject<>(accountEntity.Tenure)
+            };
         }
     }
 }

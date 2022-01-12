@@ -33,8 +33,13 @@ namespace FinanceDataMigrationApi.V1.UseCase
                 var dmRunLogDomain = await _dMRunLogGateway.GetDMRunLogByEntityNameAsync(DMEntityNames.Accounts).ConfigureAwait(false);
 
                 // Update migrationrun item with set status to "IndexInprogress". 
-                //dmRunLogDomain.LastRunStatus = MigrationRunStatus.IndexInprogress.ToString();
-                //await _dMRunLogGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
+                dmRunLogDomain.LastRunStatus = MigrationRunStatus.IndexInprogress.ToString();
+                await _dMRunLogGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
+
+                // Get all the Account entities extracted data from the SOW2b SQL Server database table DMEntityAccounts,
+                //      where isTransformed flag is TRUE and isLoaded flag is FALSE
+                //      populate the dynamodb Account table (using the Accounts API POST endpoint). Use a Batch mode. 
+                var loadedList = await _dMTransactionEntityGateway.GetLoadedListAsync().ConfigureAwait(false);
 
                 LoggingHandler.LogInfo($"End of {DataMigrationTask} task for {DMEntityNames.Accounts} Entity");
 

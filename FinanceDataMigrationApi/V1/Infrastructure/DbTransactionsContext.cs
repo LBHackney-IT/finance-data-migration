@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 namespace FinanceDataMigrationApi.V1.Infrastructure
 {
     /// <summary>
-    /// The database context class.
+    /// The database context class to work with transaction entities.
     /// </summary>
     /// <seealso cref="DbContext" />
-    public class DatabaseContext : DbContext
+    public class DbTransactionsContext : DbContext
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,12 +25,11 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             modelBuilder.Entity<DMTransactionEntity>().Property(x => x.TargetId).HasDefaultValueSql("NEWID()");
         }
 
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="DatabaseContext"/> class.
+        /// Initializes a new instance of the <see cref="DbTransactionsContext"/> class.
         /// </summary>
         /// <param name="options">The options for this context.</param>
-        public DatabaseContext(DbContextOptions options)
+        public DbTransactionsContext(DbContextOptions options)
             : base(options)
         {
         }
