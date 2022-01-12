@@ -85,9 +85,16 @@ namespace FinanceDataMigrationApi.V1.Factories
                 AccountType = accountEntity.AccountType.ToEnumValue<AccountType>(),
                 AgreementType = accountEntity.AgreementType,
                 RentGroupType = accountEntity.RentGroupType.ToEnumValue<RentGroupType>(),
-                ConsolidatedCharges = JsonConvert.DeserializeObject<>(accountEntity.ConsolidatedCharges),
-                Tenure = JsonConvert.DeserializeObject<>(accountEntity.Tenure)
+                // ToDo: define models
+                //ConsolidatedCharges = JsonConvert.DeserializeObject<>(accountEntity.ConsolidatedCharges),
+                //Tenure = JsonConvert.DeserializeObject<>(accountEntity.Tenure)
             };
+        }
+
+        public static List<QueryableAccount> ToAccountRequestList(IEnumerable<DMAccountEntity> accounts)
+        {
+            var transactionRequestList = accounts.Select(item => item.ToQueryableAccount()).ToList();
+            return transactionRequestList;
         }
     }
 }

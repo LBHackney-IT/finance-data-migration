@@ -7,5 +7,6 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
     public interface IDMAccountEntityGateway
     {
         Task<IList<DMAccountEntity>> GetLoadedListAsync();
+        Task UpdateDMAccountEntityItems(IList<DMAccountEntity> dMAccountEntities);
     }
 }

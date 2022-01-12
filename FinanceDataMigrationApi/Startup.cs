@@ -139,6 +139,11 @@ namespace FinanceDataMigrationApi
             {
                 sqlOptions.CommandTimeout(360);
             }));
+
+            services.AddDbContext<DbAccountsContext>(opt => opt.UseSqlServer(connectionString, sqlOptions =>
+            {
+                sqlOptions.CommandTimeout(360);
+            }));
         }
 
         private static void RegisterGateways(IServiceCollection services)
