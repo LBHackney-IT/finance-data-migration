@@ -75,7 +75,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                 ConsolidatedBalance = accountEntity.ConsolidatedBalance.ValueOrDefault(),
                 AccountStatus = accountEntity.AccountStatus.ToEnumValue<AccountStatus>(),
                 EndDate = accountEntity.EndDate,
-                CreatedBy = "Migration",
+                CreatedBy = "Migration", // ToDo: what should we specify here?
                 CreatedAt = DateTime.UtcNow,
                 //LastUpdatedBy = accountEntity.LastUpdatedBy,
                 //LastUpdatedAt = accountEntity.LastUpdatedAt,
@@ -84,17 +84,20 @@ namespace FinanceDataMigrationApi.V1.Factories
                 TargetType = accountEntity.TargetType.ToEnumValue<TargetType>(),
                 AccountType = accountEntity.AccountType.ToEnumValue<AccountType>(),
                 AgreementType = accountEntity.AgreementType,
-                RentGroupType = RentGroupType.Garages//accountEntity.RentGroupType.ToEnumValue<RentGroupType>(),
-                // ToDo: define models
-                //ConsolidatedCharges = JsonConvert.DeserializeObject<>(accountEntity.ConsolidatedCharges),
-                //Tenure = JsonConvert.DeserializeObject<>(accountEntity.Tenure)
+                RentGroupType = RentGroupType.Garages,//accountEntity.RentGroupType.ToEnumValue<RentGroupType>(),
+                // ToDo: define domain models
+                ConsolidatedCharges = DeserializeOrDefault<List<QueryableConsolidatedCharge>>(accountEntity.ConsolidatedCharges),
+                Tenure = DeserializeOrDefault<QueryableTenure>(accountEntity.Tenure)
             };
         }
 
-        public static Guid ValueOrDefault(this Guid? value)
+        private static T DeserializeOrDefault<T>(string json) where T : class
+            => json == null ? null : JsonConvert.DeserializeObject<T>(json);
+
+        private static Guid ValueOrDefault(this Guid? value)
             => value.HasValue ? value.Value : Guid.Empty;
 
-        public static decimal ValueOrDefault(this decimal? value)
+        private static decimal ValueOrDefault(this decimal? value)
             => value.HasValue ? value.Value : 0;
 
         public static List<QueryableAccount> ToAccountRequestList(IEnumerable<DMAccountEntity> accounts)

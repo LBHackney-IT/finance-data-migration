@@ -152,7 +152,7 @@ namespace FinanceDataMigrationApi
             services.AddTransient<LoggingDelegatingHandler>();
 
             services.AddScoped<IDMTransactionEntityGateway, DMTransactionEntityGateway>();
-            services.AddScoped<IDMAccountEntityGateway,DMAccountEntityGateway>();
+            services.AddScoped<IDMAccountEntityGateway, DMAccountEntityGateway>();
             services.AddScoped<ITransactionGateway, TransactionGateway>();
             services.AddScoped<IDMRunLogGateway, DMRunLogGateway>();
             services.AddScoped<ITenureGateway, TenureGateway>();
