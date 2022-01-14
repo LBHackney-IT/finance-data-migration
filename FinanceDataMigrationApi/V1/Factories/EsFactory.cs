@@ -84,7 +84,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                 TargetType = accountEntity.TargetType.ToEnumValue<TargetType>(),
                 AccountType = accountEntity.AccountType.ToEnumValue<AccountType>(),
                 AgreementType = accountEntity.AgreementType,
-                RentGroupType = RentGroupType.Garages,//accountEntity.RentGroupType.ToEnumValue<RentGroupType>(),
+                RentGroupType = accountEntity.RentGroupType.ToRentGroup() /*RentGroupType.Garages,*/ /*accountEntity.RentGroupType.ToEnumValue<RentGroupType>()*/,
                 // ToDo: define domain models
                 ConsolidatedCharges = DeserializeOrDefault<List<QueryableConsolidatedCharge>>(accountEntity.ConsolidatedCharges),
                 Tenure = DeserializeOrDefault<QueryableTenure>(accountEntity.Tenure)

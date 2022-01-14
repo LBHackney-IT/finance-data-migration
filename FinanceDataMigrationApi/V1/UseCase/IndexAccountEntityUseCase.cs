@@ -56,11 +56,12 @@ namespace FinanceDataMigrationApi.V1.UseCase
                     Stopwatch stopwatch = new Stopwatch();
                     stopwatch.Start();
 
-                    var esRequests = EsFactory.ToAccountRequestList(loadedAccounts);
+                    var esRequests = EsFactory.
+                        ToAccountRequestList(loadedAccounts);
 
                     stopwatch.Stop();
                     var time = stopwatch.Elapsed;
-                    //await _esGateway.BulkIndexAccounts(esRequests).ConfigureAwait(false);
+                    await _esGateway.BulkIndexAccounts(esRequests).ConfigureAwait(false);
 
                     // we need to update the corresponding rows isLoaded flag in the staging table.
                     loadedAccounts.ToList().ForEach(item => item.IsIndexed = true);
