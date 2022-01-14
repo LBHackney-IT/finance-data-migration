@@ -25,6 +25,7 @@ using FinanceDataMigrationApi.V1.Common;
 using Microsoft.Extensions.Options;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Infrastructure.Interfaces;
+using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
 
 namespace FinanceDataMigrationApi
 {
@@ -135,7 +136,12 @@ namespace FinanceDataMigrationApi
         private static void ConfigureDbContext(IServiceCollection services)
         {
             var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-            services.AddDbContext<DatabaseContext>(opt => opt.UseSqlServer(connectionString, sqlOptions =>
+            services.AddDbContext<DbTransactionsContext>(opt => opt.UseSqlServer(connectionString, sqlOptions =>
+            {
+                sqlOptions.CommandTimeout(360);
+            }));
+
+            services.AddDbContext<DbAccountsContext>(opt => opt.UseSqlServer(connectionString, sqlOptions =>
             {
                 sqlOptions.CommandTimeout(360);
             }));
@@ -146,6 +152,7 @@ namespace FinanceDataMigrationApi
             services.AddTransient<LoggingDelegatingHandler>();
 
             services.AddScoped<IDMTransactionEntityGateway, DMTransactionEntityGateway>();
+            services.AddScoped<IDMAccountEntityGateway, DMAccountEntityGateway>();
             services.AddScoped<ITransactionGateway, TransactionGateway>();
             services.AddScoped<IDMRunLogGateway, DMRunLogGateway>();
             services.AddScoped<ITenureGateway, TenureGateway>();
@@ -190,6 +197,7 @@ namespace FinanceDataMigrationApi
         {
             services.AddScoped<IExtractTransactionEntityUseCase, ExtractTransactionEntityUseCase>();
             services.AddScoped<ITransformTransactionEntityUseCase, TransformTransactionEntityUseCase>();
+            services.AddScoped<IIndexAccountEntityUseCase, IndexAccountEntityUseCase>();
             services.AddScoped<ILoadTransactionEntityUseCase, LoadTransactionEntityUseCase>();
             services.AddScoped<IGetTenureByPrnUseCase, GetTenureByPrnUseCase>();
             services.AddScoped<IGetPersonByIdUseCase, GetPersonByIdUseCase>();

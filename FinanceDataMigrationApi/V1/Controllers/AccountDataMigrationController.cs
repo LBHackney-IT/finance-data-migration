@@ -26,7 +26,6 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status500InternalServerError)]
         [HttpGet]
         [Route("accounts-entity/index-all")]
-
         public async Task<IActionResult> IndexAccountEntity()
         {
             var runLoadTransactionEntity = await _indexAccountEntityUseCase.ExecuteAsync().ConfigureAwait(false);

@@ -14,11 +14,11 @@ namespace FinanceDataMigrationApi.V1.Gateways
 {
     public class DMTransactionEntityGateway : IDMTransactionEntityGateway
     {
-        private readonly DatabaseContext _context;
+        private readonly DbTransactionsContext _context;
 
         private readonly int _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE"));
 
-        public DMTransactionEntityGateway(DatabaseContext context)
+        public DMTransactionEntityGateway(DbTransactionsContext context)
         {
             _context = context;
         }
