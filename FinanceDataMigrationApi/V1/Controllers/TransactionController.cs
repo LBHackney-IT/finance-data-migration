@@ -1,6 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using AutoFixture;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,17 +15,30 @@ namespace FinanceDataMigrationApi.V1.Controllers
     [ApiVersion("1.0")]
     public class TransactionController : BaseController
     {
-        private readonly ITransactionGateway _gateway;
+        private readonly IBatchInsertUseCase _batchInsertUseCase;
 
-        public TransactionController(ITransactionGateway gateway)
+        public TransactionController(IBatchInsertUseCase batchInsertUseCase)
         {
-            _gateway = gateway;
+            _batchInsertUseCase = batchInsertUseCase;
         }
-        [Route("{transactions}")]
+
         [HttpPost]
         public async Task<IActionResult> BatchInsert(List<Transaction> transactions)
         {
-            await _gateway.BatchInsert(transactions).ConfigureAwait(false);
+            await _batchInsertUseCase.ExecuteAsync(transactions).ConfigureAwait(false);
+            return Ok("True");
+        }
+
+        [Route("dummy")]
+        [HttpPost]
+        public async Task<IActionResult> DummyBatchInsert(int count)
+        {
+            for (int i = 0; i < 1000; i++)
+            {
+                Fixture fixture = new Fixture();
+                List<Transaction> transactions = fixture.CreateMany<Transaction>(count).ToList();
+                await _batchInsertUseCase.ExecuteAsync(transactions).ConfigureAwait(false); 
+            }
             return Ok("True");
         }
     }
