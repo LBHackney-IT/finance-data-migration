@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,6 +7,7 @@ using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 
 namespace FinanceDataMigrationApi.V1.Controllers
 {
@@ -29,17 +31,37 @@ namespace FinanceDataMigrationApi.V1.Controllers
             return Ok("True");
         }
 
-        [Route("dummy")]
+        [Route("dummy-sync")]
         [HttpPost]
-        public async Task<IActionResult> DummyBatchInsert(int count)
+        public async Task<IActionResult> DummyBatchInsertSync(int count)
         {
-            for (int i = 0; i < 1000; i++)
+            double totlaSeconds = 0;
+            List<Task> tasks = new List<Task>();
+            for (int i = 0; i < count/25; i++)
             {
                 Fixture fixture = new Fixture();
-                List<Transaction> transactions = fixture.CreateMany<Transaction>(count).ToList();
-                await _batchInsertUseCase.ExecuteAsync(transactions).ConfigureAwait(false); 
+                List<Transaction> transactions = fixture.CreateMany<Transaction>(25).ToList();
+                DateTime startDateTime = DateTime.Now;
+                await _batchInsertUseCase.ExecuteAsync(transactions).ConfigureAwait(false);
+                totlaSeconds += DateTime.Now.Subtract(startDateTime).TotalSeconds;
             }
-            return Ok("True");
+            return Ok($"Elapsed time: {totlaSeconds}");
+        }
+
+        [Route("dummy-async")]
+        [HttpPost]
+        public async Task<IActionResult> DummyBatchInsertAsync(int count)
+        {
+            List<Task> tasks = new List<Task>();
+            for (int i = 0; i < count / 25; i++)
+            {
+                Fixture fixture = new Fixture();
+                List<Transaction> transactions = fixture.CreateMany<Transaction>(25).ToList();
+                tasks.Add(_batchInsertUseCase.ExecuteAsync(transactions));
+            }
+            DateTime startDateTime = DateTime.Now;
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+            return Ok($"Elapsed time: {DateAndTime.Now.Subtract(startDateTime).TotalSeconds}");
         }
     }
 }
