@@ -19,6 +19,27 @@ namespace FinanceDataMigrationApi.V1.Gateways
             _context = context;
         }
 
+        /// <summary>
+        /// Extract the Accounts Entities to migrate asynchronous.
+        /// </summary>
+        /// <returns>
+        /// The list of Accounts Entities.
+        /// </returns>
+        //public async Task<int> ExtractAsync(DateTime? processingDate)
+        public async Task<int> ExtractAsync(DateTimeOffset? processingDate)
+        {
+            try
+            {
+                return await _context.ExtractDMAccountsAsync().ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                LoggingHandler.LogError(e.Message);
+                LoggingHandler.LogError(e.StackTrace);
+                throw;
+            }
+        }
+
         public async Task<IList<DMAccountEntity>> GetLoadedListAsync()
         {
             try

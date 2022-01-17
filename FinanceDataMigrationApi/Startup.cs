@@ -26,6 +26,7 @@ using Microsoft.Extensions.Options;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Infrastructure.Interfaces;
 using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
+using Hackney.Core.DynamoDb;
 
 namespace FinanceDataMigrationApi
 {
@@ -51,7 +52,7 @@ namespace FinanceDataMigrationApi
             ApiOptions apiOptions = apiOptionsConfigSection.Get<ApiOptions>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
-
+            
             services.AddApiVersioning(o =>
             {
                 o.DefaultApiVersion = new ApiVersion(1, 0);
@@ -120,7 +121,7 @@ namespace FinanceDataMigrationApi
             });
 
             ConfigureDbContext(services);
-
+            services.ConfigureDynamoDB();
             services.ConfigureElasticSearch(Configuration);
 
             RegisterGateways(services);
@@ -149,6 +150,8 @@ namespace FinanceDataMigrationApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
+            services.AddScoped<IChargesApiGateway, DynamoDbGateway>();
+
             services.AddTransient<LoggingDelegatingHandler>();
 
             services.AddScoped<IDMTransactionEntityGateway, DMTransactionEntityGateway>();
@@ -196,8 +199,10 @@ namespace FinanceDataMigrationApi
         private static void RegisterUseCases(IServiceCollection services)
         {
             services.AddScoped<IExtractTransactionEntityUseCase, ExtractTransactionEntityUseCase>();
+            services.AddScoped<IGetChargesByIdUseCase, GetChargesByIdUseCase>();
             services.AddScoped<ITransformTransactionEntityUseCase, TransformTransactionEntityUseCase>();
             services.AddScoped<IIndexAccountEntityUseCase, IndexAccountEntityUseCase>();
+            services.AddScoped<IExtractAccountEntityUseCase, ExtractAccountEntityUseCase>();
             services.AddScoped<ILoadTransactionEntityUseCase, LoadTransactionEntityUseCase>();
             services.AddScoped<IGetTenureByPrnUseCase, GetTenureByPrnUseCase>();
             services.AddScoped<IGetPersonByIdUseCase, GetPersonByIdUseCase>();

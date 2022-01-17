@@ -13,11 +13,33 @@ namespace FinanceDataMigrationApi.V1.Controllers
     [ApiVersion("1.0")]
     public class AccountDataMigrationController : BaseController
     {
+        private readonly IExtractAccountEntityUseCase _extractAccountEntityUseCase;
         private readonly IIndexAccountEntityUseCase _indexAccountEntityUseCase;
 
-        public AccountDataMigrationController(IIndexAccountEntityUseCase indexAccountEntityUseCase)
+        public AccountDataMigrationController(
+            IIndexAccountEntityUseCase indexAccountEntityUseCase,
+            IExtractAccountEntityUseCase extractAccountEntityUseCase)
         {
             _indexAccountEntityUseCase = indexAccountEntityUseCase;
+            _extractAccountEntityUseCase = extractAccountEntityUseCase;
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status500InternalServerError)]
+        [HttpGet]
+        [Route("accounts-entity/extract")]
+        public async Task<IActionResult> ExtractAccountEntity()
+        {
+            var runExtractTransactionEntity = await _extractAccountEntityUseCase.ExecuteAsync().ConfigureAwait(false);
+
+            if (runExtractTransactionEntity.Continue == false)
+            {
+                return NotFound(new BaseErrorResponse((int) HttpStatusCode.InternalServerError, "Extract Account Entity Task Failed!!"));
+            }
+
+            return Ok();
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -36,6 +58,6 @@ namespace FinanceDataMigrationApi.V1.Controllers
             }
 
             return Ok("Account Entities Indexed Successfully");
-        }
+        }   
     }
 }

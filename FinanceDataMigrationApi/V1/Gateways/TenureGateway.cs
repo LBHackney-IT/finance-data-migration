@@ -9,6 +9,8 @@ using FinanceDataMigrationApi.V1.Gateways.Extensions;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using FinanceDataMigrationApi.V1.Infrastructure.Interfaces;
+using Hackney.Shared.HousingSearch.Domain.Tenure;
+using Hackney.Shared.Tenure.Boundary.Requests;
 using Hackney.Shared.Tenure.Domain;
 using Newtonsoft.Json;
 
@@ -33,6 +35,11 @@ namespace FinanceDataMigrationApi.V1.Gateways
             var tenureResponse = await response.ReadContentAs<APIResponse<TenureResponse>>().ConfigureAwait(true);
 
             return tenureResponse?.Results.Tenures;
+        }
+
+        public Task<TenureInformation> GetEntityById(TenureQueryRequest query)
+        {
+            throw new NotImplementedException();
         }
     }
 }
