@@ -12,8 +12,6 @@
         <UserSecretsId>c1dc564e-5883-4ecf-963b-a8a865566aa2</UserSecretsId>
     </PropertyGroup>
     <ItemGroup>
-      <Compile Remove="V1\Factories\ResponseFactory.cs" />
-      <Compile Remove="V1\Gateways\DynamoDbGateway.cs" />
       <Compile Remove="V1\Gateways\DynamoDbGateway_OLD.cs" />
       <Compile Remove="V1\Gateways\ExampleGateway.cs" />
       <Compile Remove="V1\Gateways\Interfaces\IExampleDynamoGateway.cs" />
@@ -55,11 +53,16 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.4.1" />
     <PackageReference Include="NEST" Version="7.15.0" />
-    <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.22.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="terraform\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Hackney.Shared.HousingSearch">
+      <HintPath>..\..\housing-search-shared\Hackney.Shared.HousingSearch\bin\Debug\netstandard2.1\Hackney.Shared.HousingSearch.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
