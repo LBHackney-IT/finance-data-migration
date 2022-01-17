@@ -1,5 +1,4 @@
 using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using System;
@@ -10,12 +9,10 @@ namespace FinanceDataMigrationApi.V1.Gateways
 {
     public class DynamoDbGateway : IChargesApiGateway
     {
-        private readonly IDynamoDBContext _dynamoDbContext;
         private readonly IAmazonDynamoDB _amazonDynamoDb;
 
-        public DynamoDbGateway(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB amazonDynamoDb)
+        public DynamoDbGateway(IAmazonDynamoDB amazonDynamoDb)
         {
-            _dynamoDbContext = dynamoDbContext;
             _amazonDynamoDb = amazonDynamoDb;
         }
 
