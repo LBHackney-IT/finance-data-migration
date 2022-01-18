@@ -16,7 +16,7 @@ namespace FinanceDataMigrationApi.V1.UseCase
         }
         public async Task<List<ConsolidatedCharge>> ExecuteAsync(Guid targetId)
         {
-            return (await _consolidatedChargesApiGateway.GeConsolidatedtChargesByIdAsync(targetId).ConfigureAwait(false));
+            return (await _consolidatedChargesApiGateway.GetConsolidatedtChargesByIdAsync(targetId).ConfigureAwait(false));
         }
     }
 }

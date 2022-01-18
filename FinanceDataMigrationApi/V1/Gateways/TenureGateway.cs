@@ -1,18 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Boundary.Response.MetaData;
 using FinanceDataMigrationApi.V1.Gateways.Extensions;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
-using FinanceDataMigrationApi.V1.Infrastructure.Enums;
-using FinanceDataMigrationApi.V1.Infrastructure.Interfaces;
-using Hackney.Shared.HousingSearch.Domain.Tenure;
 using Hackney.Shared.Tenure.Boundary.Requests;
 using Hackney.Shared.Tenure.Domain;
-using Newtonsoft.Json;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {

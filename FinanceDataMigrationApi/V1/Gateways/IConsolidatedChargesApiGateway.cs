@@ -7,6 +7,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
 {
     public interface IConsolidatedChargesApiGateway
     {
-        public Task<List<ConsolidatedCharge>> GeConsolidatedtChargesByIdAsync(Guid targetId);
+        public Task<List<ConsolidatedCharge>> GetConsolidatedtChargesByIdAsync(Guid targetId);
     }
 }

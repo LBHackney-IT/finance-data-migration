@@ -1,14 +1,13 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 
 namespace FinanceDataMigrationApi.V1.Controllers
 {
     [ApiController]
-    [Route("api/v1/tenure")]
+    [Route("api/v1/tenureInformation")]
     [Produces("application/json")]
     [ApiVersion("1.0")]
-    public class TenureController : BaseController
+    public class TenureInformationController : ControllerBase
     {
         private readonly IGetTenureByPrnUseCase _tenureByPrnUseCase;
 

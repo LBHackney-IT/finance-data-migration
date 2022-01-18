@@ -17,7 +17,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             _amazonDynamoDb = amazonDynamoDb;
         }
 
-        public async Task<List<ConsolidatedCharge>> GeConsolidatedtChargesByIdAsync(Guid targetId)
+        public async Task<List<ConsolidatedCharge>> GetConsolidatedtChargesByIdAsync(Guid targetId)
         {
             var request = new QueryRequest
             {
@@ -33,6 +33,11 @@ namespace FinanceDataMigrationApi.V1.Gateways
             var chargesLists = await _amazonDynamoDb.QueryAsync(request).ConfigureAwait(false);
 
             return chargesLists?.ToConsolidatedChargeDomain();
+        }
+
+        public async Task<TenureInformation> GetTenureInformationByPrnAsync(string prn)
+        {
+           
         }
     }
 }
