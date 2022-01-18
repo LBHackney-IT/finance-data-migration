@@ -3,6 +3,7 @@ using System.Linq;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Gateways;
+using Hackney.Shared.HousingSearch.Domain.Accounts;
 
 namespace FinanceDataMigrationApi.V1.Factories
 {
@@ -30,19 +31,5 @@ namespace FinanceDataMigrationApi.V1.Factories
         //        new List<MigrationRunResponse>() :
         //        domainList.Select(domain => domain.ToResponse()).ToList();
         //}
-        public static ChargeResponse ToResponse(this Charge domain)
-        {
-            return new ChargeResponse()
-            {
-                Id = domain.Id,
-                TargetId = domain.TargetId,
-                DetailedCharges = domain.DetailedCharges,
-                TargetType = domain.TargetType
-            };
-        }
-        public static List<ChargeResponse> ToResponse(this IEnumerable<Charge> domainList)
-        {
-            return domainList.Select(domain => domain.ToResponse()).ToList();
-        }
     }
 }

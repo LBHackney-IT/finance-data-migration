@@ -1,13 +1,14 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Infrastructure;
+using Hackney.Shared.HousingSearch.Domain.Accounts;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
-    public class DynamoDbGateway : IChargesApiGateway
+    public class DynamoDbGateway : IConsolidatedChargesApiGateway
     {
         private readonly IAmazonDynamoDB _amazonDynamoDb;
 
@@ -16,7 +17,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             _amazonDynamoDb = amazonDynamoDb;
         }
 
-        public async Task<List<Charge>> GetChargesByIdAsync(Guid targetId)
+        public async Task<List<ConsolidatedCharge>> GeConsolidatedtChargesByIdAsync(Guid targetId)
         {
             var request = new QueryRequest
             {
@@ -31,7 +32,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
             var chargesLists = await _amazonDynamoDb.QueryAsync(request).ConfigureAwait(false);
 
-            return chargesLists?.ToChargeDomain();
+            return chargesLists?.ToConsolidatedChargeDomain();
         }
     }
 }

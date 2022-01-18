@@ -150,7 +150,7 @@ namespace FinanceDataMigrationApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
-            services.AddScoped<IChargesApiGateway, DynamoDbGateway>();
+            services.AddScoped<IConsolidatedChargesApiGateway, DynamoDbGateway>();
 
             services.AddTransient<LoggingDelegatingHandler>();
 
@@ -199,7 +199,7 @@ namespace FinanceDataMigrationApi
         private static void RegisterUseCases(IServiceCollection services)
         {
             services.AddScoped<IExtractTransactionEntityUseCase, ExtractTransactionEntityUseCase>();
-            services.AddScoped<IGetChargesByIdUseCase, GetChargesByIdUseCase>();
+            services.AddScoped<IGetConsolidatedChargesByIdUseCase, GetChargesByIdUseCase>();
             services.AddScoped<ITransformTransactionEntityUseCase, TransformTransactionEntityUseCase>();
             services.AddScoped<IIndexAccountEntityUseCase, IndexAccountEntityUseCase>();
             services.AddScoped<IExtractAccountEntityUseCase, ExtractAccountEntityUseCase>();
