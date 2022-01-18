@@ -1,21 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Boundary.Response.MetaData;
 using FinanceDataMigrationApi.V1.Gateways.Extensions;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
-using Hackney.Shared.Tenure.Boundary.Requests;
 using Hackney.Shared.Tenure.Domain;
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
-    public class TenureGateway: ITenureGateway
+    public class TenureAPIGateway : ITenureAPIGateway
     {
         private readonly HttpClient _client;
 
-        public TenureGateway(HttpClient client)
+        public TenureAPIGateway(HttpClient client)
         {
             _client = client;
         }
@@ -30,11 +29,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
             var tenureResponse = await response.ReadContentAs<APIResponse<TenureResponse>>().ConfigureAwait(true);
 
             return tenureResponse?.Results.Tenures;
-        }
-
-        public Task<TenureInformation> GetEntityById(TenureQueryRequest query)
-        {
-            throw new NotImplementedException();
         }
     }
 }

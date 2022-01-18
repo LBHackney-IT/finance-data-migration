@@ -7,7 +7,7 @@ using Hackney.Shared.HousingSearch.Domain.Transactions;
 
 namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
 {
-    public interface ITransactionGateway
+    public interface ITransactionAPIGateway
     {
         public Task<int> UpdateTransactionItems(IList<Transaction> items);
 

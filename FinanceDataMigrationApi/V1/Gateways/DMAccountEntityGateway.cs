@@ -2,8 +2,10 @@ using EFCore.BulkExtensions;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.Gateways
@@ -31,6 +33,31 @@ namespace FinanceDataMigrationApi.V1.Gateways
             try
             {
                 return await _context.ExtractDMAccountsAsync().ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                LoggingHandler.LogError(e.Message);
+                LoggingHandler.LogError(e.StackTrace);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Lists the Account Entities to migrate.
+        /// </summary>
+        /// <returns>
+        /// The list of Account Entities.
+        /// </returns>
+        public async Task<IList<DMAccountEntity>> ListAsync()
+        {
+            try
+            {
+                var results = await _context.DMAccountEntities
+                    .Where(x => x.IsTransformed == false)
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+
+                return results;
             }
             catch (Exception e)
             {

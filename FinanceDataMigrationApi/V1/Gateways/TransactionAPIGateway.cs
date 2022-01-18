@@ -1,21 +1,18 @@
-using FinanceDataMigrationApi.V1.Domain;
+using FinanceDataMigrationApi.V1.Gateways.Extensions;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
+using Hackney.Shared.HousingSearch.Domain.Transactions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using FinanceDataMigrationApi.V1.Gateways.Extensions;
-using System.Net.Http.Headers;
-using Hackney.Shared.HousingSearch.Domain.Transactions;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
-    public class TransactionGateway : ITransactionGateway
+    public class TransactionAPIGateway : ITransactionAPIGateway
     {
         private readonly HttpClient _client;
 
-        public TransactionGateway(HttpClient client)
+        public TransactionAPIGateway(HttpClient client)
         {
             _client = client;
         }

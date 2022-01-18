@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Elasticsearch.Net;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Nest;
+using System;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure
 {
@@ -28,8 +25,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .DisableDirectStreaming();
             var esClient = new ElasticClient(connectionSettings);
             services.TryAddSingleton<IElasticClient>(esClient);
-
-
         }
     }
 }

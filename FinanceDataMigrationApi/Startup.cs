@@ -27,6 +27,10 @@ using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Infrastructure.Interfaces;
 using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
 using Hackney.Core.DynamoDb;
+using FinanceDataMigrationApi.V1.UseCase.Accounts;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Accounts;
+using Hackney.Core.ElasticSearch.Interfaces;
+using Hackney.Core.ElasticSearch;
 
 namespace FinanceDataMigrationApi
 {
@@ -130,6 +134,8 @@ namespace FinanceDataMigrationApi
 
             services.AddScoped<ICustomeHttpClient, CustomeHttpClient>();
             services.AddScoped<IGetEnvironmentVariables, GetEnvironmentVariables>();
+            services.AddScoped(typeof(IQueryBuilder<>), typeof(QueryBuilder<>));
+            services.AddScoped<IWildCardAppenderAndPrepender, WildCardAppenderAndPrepender>();
 
             #endregion
         }
@@ -150,39 +156,39 @@ namespace FinanceDataMigrationApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
-            services.AddScoped<IConsolidatedChargesApiGateway, DynamoDbGateway>();
+            services.AddScoped<IConsolidatedChargesApiGateway, ChargesDynamoDbGateway>();
 
             services.AddTransient<LoggingDelegatingHandler>();
 
             services.AddScoped<IDMTransactionEntityGateway, DMTransactionEntityGateway>();
             services.AddScoped<IDMAccountEntityGateway, DMAccountEntityGateway>();
-            services.AddScoped<ITransactionGateway, TransactionGateway>();
+            services.AddScoped<ITransactionAPIGateway, TransactionAPIGateway>();
             services.AddScoped<IDMRunLogGateway, DMRunLogGateway>();
-            services.AddScoped<ITenureGateway, TenureGateway>();
+            services.AddScoped<ITenureAPIGateway, TenureAPIGateway>();
             services.AddScoped<IPersonGateway, PersonGateway>();
             services.AddScoped<IEsGateway, EsGateway>();
+            services.AddScoped<ITenureDynamoDbGateway, TenureDynamoDbGateway>();
+            services.AddScoped<ITransactionsDynamoDbGateway, TransactionsDynamoDbGateway>();
 
             var transactionApiUrl = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_URL");
             var transactionApiToken = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_TOKEN");
 
-            services.AddHttpClient<ITransactionGateway, TransactionGateway>(c =>
+            services.AddHttpClient<ITransactionAPIGateway, TransactionAPIGateway>(c =>
                 {
                     c.BaseAddress = new Uri(transactionApiUrl);
                     c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(transactionApiToken);
                 })
                 .AddHttpMessageHandler<LoggingDelegatingHandler>();
 
-
             var searchApiUrl = Environment.GetEnvironmentVariable("SEARCH_API_URL");
             var searchApiToken = Environment.GetEnvironmentVariable("SEARCH_API_TOKEN");
 
-            services.AddHttpClient<ITenureGateway, TenureGateway>(c =>
+            services.AddHttpClient<ITenureAPIGateway, TenureAPIGateway>(c =>
                 {
                     c.BaseAddress = new Uri(searchApiUrl);
                     c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(searchApiToken);
                 })
                 .AddHttpMessageHandler<LoggingDelegatingHandler>();
-
 
             var personApiUrl = Environment.GetEnvironmentVariable("PERSON_API_URL");
             var personApiToken = Environment.GetEnvironmentVariable("PERSON_API_TOKEN");
@@ -193,20 +199,21 @@ namespace FinanceDataMigrationApi
                     c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", personApiToken);
                 })
                 .AddHttpMessageHandler<LoggingDelegatingHandler>();
-
         }
 
         private static void RegisterUseCases(IServiceCollection services)
         {
             services.AddScoped<IExtractTransactionEntityUseCase, ExtractTransactionEntityUseCase>();
-            services.AddScoped<IGetConsolidatedChargesByIdUseCase, GetChargesByIdUseCase>();
             services.AddScoped<ITransformTransactionEntityUseCase, TransformTransactionEntityUseCase>();
-            services.AddScoped<IIndexAccountEntityUseCase, IndexAccountEntityUseCase>();
-            services.AddScoped<IExtractAccountEntityUseCase, ExtractAccountEntityUseCase>();
+            services.AddScoped<IIndexTransactionEntityUseCase, IndexTransactionEntityUseCase>();
             services.AddScoped<ILoadTransactionEntityUseCase, LoadTransactionEntityUseCase>();
+
             services.AddScoped<IGetTenureByPrnUseCase, GetTenureByPrnUseCase>();
             services.AddScoped<IGetPersonByIdUseCase, GetPersonByIdUseCase>();
-            services.AddScoped<IIndexTransactionEntityUseCase, IndexTransactionEntityUseCase>();
+
+            services.AddScoped<IExtractAccountEntityUseCase, ExtractAccountEntityUseCase>();
+            services.AddScoped<IIndexAccountEntityUseCase, IndexAccountEntityUseCase>();
+            services.AddScoped<ITransformAccountsUseCase, TransformAccountsUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

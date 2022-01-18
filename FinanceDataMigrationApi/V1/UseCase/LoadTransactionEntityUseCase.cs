@@ -13,7 +13,7 @@ namespace FinanceDataMigrationApi
     {
         private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IDMTransactionEntityGateway _dMTransactionEntityGateway;
-        private readonly ITransactionGateway _transactionGateway;
+        private readonly ITransactionAPIGateway _transactionGateway;
         private readonly IEsGateway _esGateway;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
 
@@ -22,7 +22,7 @@ namespace FinanceDataMigrationApi
         public LoadTransactionEntityUseCase(
             IDMRunLogGateway dMRunLogGateway,
             IDMTransactionEntityGateway dMTransactionEntityGateway,
-            ITransactionGateway transactionGateway,
+            ITransactionAPIGateway transactionGateway,
             IEsGateway esGateway)
         {
             _dMRunLogGateway = dMRunLogGateway;

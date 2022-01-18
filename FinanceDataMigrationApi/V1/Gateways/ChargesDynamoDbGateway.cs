@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
-    public class DynamoDbGateway : IConsolidatedChargesApiGateway
+    public class ChargesDynamoDbGateway : IConsolidatedChargesApiGateway
     {
         private readonly IAmazonDynamoDB _amazonDynamoDb;
 
-        public DynamoDbGateway(IAmazonDynamoDB amazonDynamoDb)
+        public ChargesDynamoDbGateway(IAmazonDynamoDB amazonDynamoDb)
         {
             _amazonDynamoDb = amazonDynamoDb;
         }
@@ -33,11 +33,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
             var chargesLists = await _amazonDynamoDb.QueryAsync(request).ConfigureAwait(false);
 
             return chargesLists?.ToConsolidatedChargeDomain();
-        }
-
-        public async Task<TenureInformation> GetTenureInformationByPrnAsync(string prn)
-        {
-           
         }
     }
 }

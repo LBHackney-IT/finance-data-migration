@@ -2,12 +2,11 @@ using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
+using Hackney.Shared.HousingSearch.Domain.Transactions;
 using Newtonsoft.Json;
 using System;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Hackney.Shared.HousingSearch.Domain.Transactions;
 using TransactionPerson = FinanceDataMigrationApi.V1.Domain.TransactionPerson;
 
 namespace FinanceDataMigrationApi
@@ -16,7 +15,7 @@ namespace FinanceDataMigrationApi
     {
         private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IDMTransactionEntityGateway _dMTransactionEntityGateway;
-        private readonly ITenureGateway _tenureGateway;
+        private readonly ITenureAPIGateway _tenureGateway;
         private readonly IPersonGateway _personGateway;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
         private const string DataMigrationTask = "TRANSFORM";
@@ -25,7 +24,7 @@ namespace FinanceDataMigrationApi
         public TransformTransactionEntityUseCase(
             IDMRunLogGateway dMRunLogGateway,
             IDMTransactionEntityGateway dMTransactionEntityGateway,
-            ITenureGateway tenureGateway,
+            ITenureAPIGateway tenureGateway,
             IPersonGateway personGateway)
         {
             _dMRunLogGateway = dMRunLogGateway;
@@ -84,11 +83,9 @@ namespace FinanceDataMigrationApi
                     Continue = true,
                     NextStepTime = DateTime.Now.AddSeconds(int.Parse(_waitDuration))
                 };
-
             }
             catch (Exception exc)
             {
-
                 var namespaceLabel = $"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ExecuteAsync)}";
 
                 LoggingHandler.LogError($"{namespaceLabel} Application error");
@@ -134,7 +131,6 @@ namespace FinanceDataMigrationApi
 
             if (householdMember.Count == 1 )
             {
-              
                 var transactionPerson = new TransactionPerson { Id = householdMember[0].Id, FullName = householdMember[0].FullName };
                 return await Task.FromResult(JsonConvert.SerializeObject(transactionPerson)).ConfigureAwait(false);
             }

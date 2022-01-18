@@ -1,5 +1,6 @@
 using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Accounts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -15,13 +16,16 @@ namespace FinanceDataMigrationApi.V1.Controllers
     {
         private readonly IExtractAccountEntityUseCase _extractAccountEntityUseCase;
         private readonly IIndexAccountEntityUseCase _indexAccountEntityUseCase;
+        private readonly ITransformAccountsUseCase _transformAccountsUseCase;
 
         public AccountDataMigrationController(
             IIndexAccountEntityUseCase indexAccountEntityUseCase,
-            IExtractAccountEntityUseCase extractAccountEntityUseCase)
+            IExtractAccountEntityUseCase extractAccountEntityUseCase,
+            ITransformAccountsUseCase transformAccountsUseCase)
         {
             _indexAccountEntityUseCase = indexAccountEntityUseCase;
             _extractAccountEntityUseCase = extractAccountEntityUseCase;
+            _transformAccountsUseCase = transformAccountsUseCase;
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -37,6 +41,24 @@ namespace FinanceDataMigrationApi.V1.Controllers
             if (runExtractTransactionEntity.Continue == false)
             {
                 return NotFound(new BaseErrorResponse((int) HttpStatusCode.InternalServerError, "Extract Account Entity Task Failed!!"));
+            }
+
+            return Ok();
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status500InternalServerError)]
+        [HttpGet]
+        [Route("accounts-entity/transform")]
+        public async Task<IActionResult> TransformAccountEntity()
+        {
+            var runTransformTransactionEntity = await _transformAccountsUseCase.ExecuteAsync().ConfigureAwait(false);
+
+            if (runTransformTransactionEntity.Continue == false)
+            {
+                return StatusCode((int) HttpStatusCode.InternalServerError, new BaseErrorResponse((int) HttpStatusCode.InternalServerError, "Transform Account Entity Task Failed!!"));
             }
 
             return Ok();
