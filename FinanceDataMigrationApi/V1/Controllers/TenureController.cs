@@ -11,27 +11,42 @@ namespace FinanceDataMigrationApi.V1.Controllers
     public class TenureController : BaseController
     {
         private readonly IGetTenureByPrnUseCase _tenureByPrnUseCase;
+        private readonly ILoadTenuresUseCase _loadTenuresUseCase;
 
-        public TenureController(IGetTenureByPrnUseCase tenureByPrnUseCase)
+        public TenureController(IGetTenureByPrnUseCase tenureByPrnUseCase, ILoadTenuresUseCase loadTenuresUseCase)
         {
             _tenureByPrnUseCase = tenureByPrnUseCase;
+            _loadTenuresUseCase = loadTenuresUseCase;
         }
 
         [HttpGet("{prn}")]
         public async Task<IActionResult> Get(string prn)
         {
             if (prn == null)
-                return BadRequest($"{nameof(prn)} shouldn't be null.");
-            if (string.IsNullOrEmpty(prn))
-                return BadRequest($"{nameof(prn)} cannot be null or empty.");
-            if (string.IsNullOrWhiteSpace(prn))
-                return BadRequest($"{nameof(prn)} cannot be null or whitespace.");
+            {
+                return BadRequest($"{nameof(prn)} should be provided.");
+            }
 
             var result = await _tenureByPrnUseCase.ExecuteAsync(prn).ConfigureAwait(false);
+
             if (result.Count == 0)
+            {
                 return NotFound(prn);
+            }
 
             return Ok(result);
+        }
+
+        /// <summary>
+        /// This endpoint will load all Tenures from HousingSearchAPI source and save it in DM SQL database
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("load")]
+        public async Task<IActionResult> LoadToTemporaryStorageAsync()
+        {
+            await _loadTenuresUseCase.ExecuteAsync().ConfigureAwait(false);
+
+            return Ok();
         }
     }
 }

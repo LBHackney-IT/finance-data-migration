@@ -153,7 +153,7 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IPersonGateway, PersonGateway>();
             services.AddScoped<IEsGateway, EsGateway>();
 
-            /*var transactionApiUrl = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_URL") ?? "";
+            var transactionApiUrl = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_URL") ?? "";
             var transactionApiToken = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_TOKEN") ?? "";
 
             services.AddHttpClient<ITransactionGateway, TransactionGateway>(c =>
@@ -183,7 +183,7 @@ namespace FinanceDataMigrationApi
                     c.BaseAddress = new Uri(personApiUrl);
                     c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", personApiToken);
                 })
-                .AddHttpMessageHandler<LoggingDelegatingHandler>();*/
+                .AddHttpMessageHandler<LoggingDelegatingHandler>();
 
         }
 
@@ -196,6 +196,7 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IGetPersonByIdUseCase, GetPersonByIdUseCase>();
             services.AddScoped<IIndexTransactionEntityUseCase, IndexTransactionEntityUseCase>();
             services.AddScoped<IBatchInsertUseCase, BatchInsertUseCase>();
+            services.AddScoped<ILoadTenuresUseCase, LoadTenuresUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
