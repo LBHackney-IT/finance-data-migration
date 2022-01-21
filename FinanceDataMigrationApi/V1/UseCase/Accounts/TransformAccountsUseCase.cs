@@ -67,7 +67,12 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
                         account.IsIndexed = false;
                     }
 
+                    // Update batched rows to staging table DMTransactionEntity.
+                    await _dMAccountEntityGateway.UpdateDMAccountEntityItems(dMAccountEntities).ConfigureAwait(false);
 
+                    // Update migrationrun item with set status to "TransformCompleted"
+                    dmRunLogDomain.LastRunStatus = MigrationRunStatus.TransformCompleted.ToString();
+                    await _dMRunLogGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
                 }
 
                 LoggingHandler.LogInfo($"End of {DataMigrationTask} task for {DMEntityNames.Accounts} Entity");
@@ -119,18 +124,17 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
 
                 account.ConsolidatedCharges = JsonConvert.SerializeObject(accountCharges);
             }
-
-            var transactions = _transactionsDynamoDbGateway
-                .GetTenureByTenureId(tenureFromDynamoDb.Id)
-                .ConfigureAwait(false);
-
-            account.AccountBalance = await CalculateBalanse().ConfigureAwait(false);
+            account.AccountBalance = await CalculateBalanse(tenureFromDynamoDb.Id).ConfigureAwait(false);
             account.ConsolidatedBalance = account.AccountBalance;
         }
 
-        private Task<decimal> CalculateBalanse()
+        private async Task<decimal> CalculateBalanse(Guid tenureId)
         {
-            throw new NotImplementedException();
+            var transactions = await _transactionsDynamoDbGateway
+                .GetTenureByTenureId(tenureId)
+                .ConfigureAwait(false);
+
+            return transactions.Sum(t => t.TransactionAmount);
         }
 
         private static QueryableTenure ConstructTenure(TenureInformationDb tenureEntity)

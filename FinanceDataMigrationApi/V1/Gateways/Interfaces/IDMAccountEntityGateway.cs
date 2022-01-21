@@ -8,8 +8,13 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
     public interface IDMAccountEntityGateway
     {
         Task<IList<DMAccountEntity>> GetLoadedListAsync();
+
         Task<int> ExtractAsync(DateTimeOffset? processingDate);
+
         Task<IList<DMAccountEntity>> ListAsync();
+
+        Task<IList<DMAccountEntity>> GetTransformedListAsync();
+
         Task UpdateDMAccountEntityItems(IList<DMAccountEntity> dMAccountEntities);
     }
 }

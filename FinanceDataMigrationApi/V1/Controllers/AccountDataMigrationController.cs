@@ -15,17 +15,20 @@ namespace FinanceDataMigrationApi.V1.Controllers
     public class AccountDataMigrationController : BaseController
     {
         private readonly IExtractAccountEntityUseCase _extractAccountEntityUseCase;
-        private readonly IIndexAccountEntityUseCase _indexAccountEntityUseCase;
         private readonly ITransformAccountsUseCase _transformAccountsUseCase;
+        private readonly ILoadAccountsUseCase _loadAccountsUseCase;
+        private readonly IIndexAccountEntityUseCase _indexAccountEntityUseCase;
 
         public AccountDataMigrationController(
             IIndexAccountEntityUseCase indexAccountEntityUseCase,
             IExtractAccountEntityUseCase extractAccountEntityUseCase,
-            ITransformAccountsUseCase transformAccountsUseCase)
+            ITransformAccountsUseCase transformAccountsUseCase,
+            ILoadAccountsUseCase loadAccountsUseCase)
         {
             _indexAccountEntityUseCase = indexAccountEntityUseCase;
             _extractAccountEntityUseCase = extractAccountEntityUseCase;
             _transformAccountsUseCase = transformAccountsUseCase;
+            _loadAccountsUseCase = loadAccountsUseCase;
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -59,6 +62,24 @@ namespace FinanceDataMigrationApi.V1.Controllers
             if (runTransformTransactionEntity.Continue == false)
             {
                 return StatusCode((int) HttpStatusCode.InternalServerError, new BaseErrorResponse((int) HttpStatusCode.InternalServerError, "Transform Account Entity Task Failed!!"));
+            }
+
+            return Ok();
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status500InternalServerError)]
+        [HttpGet]
+        [Route("accounts-entity/load")]
+        public async Task<IActionResult> LoadAccountEntity()
+        {
+            var runLoadTransactionEntity = await _loadAccountsUseCase.ExecuteAsync().ConfigureAwait(false);
+
+            if (runLoadTransactionEntity.Continue == false)
+            {
+                return StatusCode((int) HttpStatusCode.InternalServerError, new BaseErrorResponse((int) HttpStatusCode.InternalServerError, "Load Account Entity Task Failed!!"));
             }
 
             return Ok();

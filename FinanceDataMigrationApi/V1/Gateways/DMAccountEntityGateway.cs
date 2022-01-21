@@ -67,6 +67,25 @@ namespace FinanceDataMigrationApi.V1.Gateways
             }
         }
 
+        public async Task<IList<DMAccountEntity>> GetTransformedListAsync()
+        {
+            try
+            {
+                var results = await _context.DMAccountEntities
+                                .Where(x => x.IsTransformed && !x.IsLoaded)
+                                .ToListAsync()
+                                .ConfigureAwait(false);
+
+                return results;
+            }
+            catch (Exception e)
+            {
+                LoggingHandler.LogError(e.Message);
+                LoggingHandler.LogError(e.StackTrace);
+                throw;
+            }
+        }
+
         public async Task<IList<DMAccountEntity>> GetLoadedListAsync()
         {
             try

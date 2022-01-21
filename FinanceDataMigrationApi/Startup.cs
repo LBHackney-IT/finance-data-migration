@@ -169,6 +169,7 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IEsGateway, EsGateway>();
             services.AddScoped<ITenureDynamoDbGateway, TenureDynamoDbGateway>();
             services.AddScoped<ITransactionsDynamoDbGateway, TransactionsDynamoDbGateway>();
+            services.AddScoped<IAccountsDynamoDbGateway, AccountsDynamoDbGateway>();
 
             var transactionApiUrl = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_URL");
             var transactionApiToken = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_TOKEN");
@@ -212,8 +213,9 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IGetPersonByIdUseCase, GetPersonByIdUseCase>();
 
             services.AddScoped<IExtractAccountEntityUseCase, ExtractAccountEntityUseCase>();
-            services.AddScoped<IIndexAccountEntityUseCase, IndexAccountEntityUseCase>();
             services.AddScoped<ITransformAccountsUseCase, TransformAccountsUseCase>();
+            services.AddScoped<ILoadAccountsUseCase, LoadAccountsUseCase>();
+            services.AddScoped<IIndexAccountEntityUseCase, IndexAccountEntityUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
