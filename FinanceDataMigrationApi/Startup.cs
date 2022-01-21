@@ -245,7 +245,6 @@ namespace FinanceDataMigrationApi
             });
             app.UseSwagger();
             app.UseRouting();
-
             app.UseEndpoints(endpoints =>
             {
                 // SwaggerGen won't find controllers that are routed via this technique.

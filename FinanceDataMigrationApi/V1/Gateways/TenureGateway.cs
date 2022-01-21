@@ -1,38 +1,29 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
-using FinanceDataMigrationApi.V1.Boundary.Response;
-using FinanceDataMigrationApi.V1.Boundary.Response.MetaData;
-using FinanceDataMigrationApi.V1.Gateways.Extensions;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
-using FinanceDataMigrationApi.V1.Infrastructure.Enums;
-using FinanceDataMigrationApi.V1.Infrastructure.Interfaces;
 using Hackney.Shared.Tenure.Domain;
-using Newtonsoft.Json;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
     public class TenureGateway: ITenureGateway
     {
-        private readonly HttpClient _client;
+        private readonly IDynamoDBContext _dbContext;
+        private readonly IAmazonDynamoDB _dynamoDb;
 
-        public TenureGateway(HttpClient client)
+        public TenureGateway(IDynamoDBContext dbContext, IAmazonDynamoDB dynamoDb)
         {
-            _client = client;
+            _dbContext = dbContext;
+            _dynamoDb = dynamoDb;
         }
 
         public async Task<List<TenureInformation>> GetByPrnAsync(string prn)
         {
             if (prn == null) throw new ArgumentNullException(nameof(prn));
 
-            var uri = new Uri($"api/v1/search/tenures?searchText={prn}", UriKind.Relative);
-
-            var response = await _client.GetAsync(uri).ConfigureAwait(true);
-            var tenureResponse = await response.ReadContentAs<APIResponse<TenureResponse>>().ConfigureAwait(true);
-
-            return tenureResponse?.Results.Tenures;
+            return await Task.Run(()=>new List<TenureInformation>(5)).ConfigureAwait(false);
         }
     }
 }
