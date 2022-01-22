@@ -17,17 +17,17 @@ namespace FinanceDataMigrationApi.V1.Controllers
     [ApiVersion("1.0")]
     public class TransactionController : BaseController
     {
-        private readonly IBatchInsertUseCase _batchInsertUseCase;
+        private readonly ITransactionBatchInsertUseCase _transactionBatchInsertUseCase;
 
-        public TransactionController(IBatchInsertUseCase batchInsertUseCase)
+        public TransactionController(ITransactionBatchInsertUseCase transactionBatchInsertUseCase)
         {
-            _batchInsertUseCase = batchInsertUseCase;
+            _transactionBatchInsertUseCase = transactionBatchInsertUseCase;
         }
 
         [HttpPost]
         public async Task<IActionResult> BatchInsert(List<Transaction> transactions)
         {
-            await _batchInsertUseCase.ExecuteAsync(transactions).ConfigureAwait(false);
+            await _transactionBatchInsertUseCase.ExecuteAsync(transactions).ConfigureAwait(false);
             return Ok("True");
         }
 
@@ -42,7 +42,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
                 Fixture fixture = new Fixture();
                 List<Transaction> transactions = fixture.CreateMany<Transaction>(25).ToList();
                 DateTime startDateTime = DateTime.Now;
-                await _batchInsertUseCase.ExecuteAsync(transactions).ConfigureAwait(false);
+                await _transactionBatchInsertUseCase.ExecuteAsync(transactions).ConfigureAwait(false);
                 totlaSeconds += DateTime.Now.Subtract(startDateTime).TotalSeconds;
             }
             return Ok($"Elapsed time: {totlaSeconds}");
@@ -57,7 +57,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
             {
                 Fixture fixture = new Fixture();
                 List<Transaction> transactions = fixture.CreateMany<Transaction>(25).ToList();
-                tasks.Add(_batchInsertUseCase.ExecuteAsync(transactions));
+                tasks.Add(_transactionBatchInsertUseCase.ExecuteAsync(transactions));
             }
             DateTime startDateTime = DateTime.Now;
             await Task.WhenAll(tasks).ConfigureAwait(false);

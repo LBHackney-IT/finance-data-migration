@@ -4,7 +4,7 @@ using Hackney.Shared.HousingSearch.Domain.Transactions;
 
 namespace FinanceDataMigrationApi.V1.UseCase.Interfaces
 {
-    public interface IBatchInsertUseCase
+    public interface ITransactionBatchInsertUseCase
     {
         Task<bool> ExecuteAsync(List<Transaction> transactions);
     }

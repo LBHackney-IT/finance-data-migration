@@ -6,11 +6,11 @@ using Hackney.Shared.HousingSearch.Domain.Transactions;
 
 namespace FinanceDataMigrationApi.V1.UseCase
 {
-    public class BatchInsertUseCase: IBatchInsertUseCase
+    public class TransactionBatchInsertUseCase: ITransactionBatchInsertUseCase
     {
         private readonly ITransactionGateway _gateway;
 
-        public BatchInsertUseCase(ITransactionGateway gateway)
+        public TransactionBatchInsertUseCase(ITransactionGateway gateway)
         {
             _gateway = gateway;
         }

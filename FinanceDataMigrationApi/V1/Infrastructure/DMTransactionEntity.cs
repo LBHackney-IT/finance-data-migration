@@ -26,7 +26,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public string TargetType { get; set; }
 
         [Column("period_no")]
-        public int PeriodNo { get; set; }
+        public decimal PeriodNo { get; set; }
 
         [Column("financial_year")]
         public int FinancialYear { get; set; }

@@ -1,7 +1,7 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using Amazon.DynamoDBv2.Model;
+using FinanceDataMigrationApi.V1.Boundary.Response;
 using Hackney.Shared.Tenure.Domain;
 
 namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
@@ -9,5 +9,8 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
     public interface ITenureGateway
     {
         public Task<List<TenureInformation>> GetByPrnAsync(string prn);
+        public Task<List<TenureInformation>> GetByPrnAsync(List<string> prn);
+        public Task<bool> BatchInsert(List<TenureInformation> tenures);
+        public Task<TenurePaginationResponse> GetAll(string paginationToken);
     }
 }
