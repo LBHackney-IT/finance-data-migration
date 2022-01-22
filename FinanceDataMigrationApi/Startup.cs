@@ -152,6 +152,17 @@ namespace FinanceDataMigrationApi
             services.AddScoped<ITenureGateway, TenureGateway>();
             services.AddScoped<IPersonGateway, PersonGateway>();
             services.AddScoped<IEsGateway, EsGateway>();
+            services.AddScoped<IAssetGateway, AssetGateway>();
+
+            var searchApiUrl = Environment.GetEnvironmentVariable("SEARCH_API_URL") ?? "";
+            var searchApiToken = Environment.GetEnvironmentVariable("SEARCH_API_TOKEN") ?? "";
+
+            services.AddHttpClient<IAssetGateway, AssetGateway>(c =>
+                {
+                    c.BaseAddress = new Uri(searchApiUrl);
+                    c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(searchApiToken);
+                })
+                .AddHttpMessageHandler<LoggingDelegatingHandler>();
 
             /*var transactionApiUrl = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_URL") ?? "";
             var transactionApiToken = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_TOKEN") ?? "";
@@ -162,18 +173,6 @@ namespace FinanceDataMigrationApi
                     c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(transactionApiToken);
                 })
                 .AddHttpMessageHandler<LoggingDelegatingHandler>();
-
-
-            var searchApiUrl = Environment.GetEnvironmentVariable("SEARCH_API_URL") ?? "";
-            var searchApiToken = Environment.GetEnvironmentVariable("SEARCH_API_TOKEN") ?? "";
-
-            services.AddHttpClient<ITenureGateway, TenureGateway>(c =>
-                {
-                    c.BaseAddress = new Uri(searchApiUrl);
-                    c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(searchApiToken);
-                })
-                .AddHttpMessageHandler<LoggingDelegatingHandler>();
-
 
             var personApiUrl = Environment.GetEnvironmentVariable("PERSON_API_URL") ?? "";
             var personApiToken = Environment.GetEnvironmentVariable("PERSON_API_TOKEN") ?? "";
@@ -198,6 +197,7 @@ namespace FinanceDataMigrationApi
             services.AddScoped<ITransactionBatchInsertUseCase, TransactionBatchInsertUseCase>();
             services.AddScoped<ITenureBatchInsertUseCase, TenureBatchInsertUseCase>();
             services.AddScoped<ITenureGetAllUseCase, TenureGetAllUseCase>();
+            services.AddScoped<IAssetGetAllUseCase, AssetGetAllUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
