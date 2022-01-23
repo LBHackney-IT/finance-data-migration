@@ -17,13 +17,14 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.BalanceAmount).HasColumnType("decimal"); 
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.ChargedAmount).HasColumnType("decimal"); 
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.HousingBenefitAmount).HasColumnType("decimal"); 
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PaidAmount).HasColumnType("decimal"); 
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PeriodNo).HasColumnType("decimal"); 
+            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.BalanceAmount).HasColumnType("decimal");
+            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.ChargedAmount).HasColumnType("decimal");
+            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.HousingBenefitAmount).HasColumnType("decimal");
+            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PaidAmount).HasColumnType("decimal");
+            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PeriodNo).HasColumnType("decimal");
             //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.TransactionAmount).HasColumnType("decimal");
             modelBuilder.Entity<DMTransactionEntity>().Property(x => x.TargetId).HasDefaultValueSql("NEWID()");
+            modelBuilder.Entity<DMDetailedChargesEntity>().HasNoKey();
         }
 
 
@@ -47,6 +48,91 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// Get or sets the Data Migration Transaction Entities
         /// </summary>
         public DbSet<DMTransactionEntity> DMTransactionEntities { get; set; }
+
+        /// <summary>
+        /// Get or sets the Data Migration Charge Entity
+        /// </summary>
+        public DbSet<DMChargesEntity> DMChargeEntities { get; set; }
+
+        /// <summary>
+        /// Get Data Migration Detailed Charges Entities
+        /// </summary>
+        public DbSet<DMDetailedChargesEntity> DMDetailedChargesEntities { get; set; }
+
+
+        #region Charges Entity Specific
+
+
+        /// <summary>
+        /// Get the Data Migration Charge Entities
+        /// </summary>
+        /// <returns>The Transactions to migrate</returns>
+        public async Task<IList<DMChargesEntity>> GetDMChargeEntitiesAsync()
+            => await DMChargeEntities
+                .Where(x => x.IsTransformed == false)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+
+        /// <summary>
+        /// Extract the data migration charges entities
+        /// </summary>
+        /// <returns>the charges to migrate</returns>
+        public async Task<int> ExtractDMChargesAsync()
+        {
+            //TODO: StoredProc does not have processingDate parameters, need to clarify with Felipe, keep it consistent
+
+            return await ExecuteStoredProcedure(
+                $"EXEC @returnValue = [dbo].[usp_ExtractChargesEntity]", 600)
+                .ConfigureAwait(false);
+        }
+
+        public async Task<IList<DMChargesEntity>> GetTransformedChargeListAsync()
+            => await DMChargeEntities
+                .Where(x => x.IsTransformed && !x.IsLoaded)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+        public async Task<IList<DMChargesEntity>> GetLoadedChargeListAsync()
+            => await DMChargeEntities
+                .Where(x => x.IsTransformed && x.IsLoaded)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+        /// <summary>
+        /// Get Detailed Charge from Database Query
+        /// </summary>
+        /// <param name="paymentReference"></param>
+        /// <returns>List of Details Charges</returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<List<DMDetailedChargesEntity>> GetDetailChargesListAsync(string paymentReference)
+        {
+
+            var param = new SqlParameter("@payment_reference", paymentReference.TrimEnd());
+
+            try
+            {
+                var result =  await DMDetailedChargesEntities
+                    .FromSqlRaw("[dbo].[usp_ExtractDetailedChargesEntity] @payment_reference",param)
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+
+                return result;
+
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+
+        }
+
+
+
+        #endregion
+
+        #region Transaction Entity Specific
+
 
         /// <summary>
         /// Get the Data Migration Transaction Entities.
@@ -76,6 +162,21 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             return affectedRows;
         }
 
+
+
+        public async Task<IList<DMTransactionEntity>> GetTransformedListAsync()
+            => await DMTransactionEntities
+                .Where(x => x.IsTransformed && !x.IsLoaded)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+        public async Task<IList<DMTransactionEntity>> GetLoadedListAsync()
+            => await DMTransactionEntities
+                .Where(x => x.IsTransformed && x.IsLoaded)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+        #endregion
         private async Task<int> ExecuteStoredProcedure(string procedureRawString, int timeout = 0)
         {
             if (timeout != 0)
@@ -104,16 +205,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             }
         }
 
-        public async Task<IList<DMTransactionEntity>> GetTransformedListAsync()
-            => await DMTransactionEntities
-                .Where(x => x.IsTransformed && !x.IsLoaded)
-                .ToListAsync()
-                .ConfigureAwait(false);
 
-        public async Task<IList<DMTransactionEntity>> GetLoadedListAsync()
-            => await DMTransactionEntities
-                .Where(x => x.IsTransformed && x.IsLoaded)
-                .ToListAsync()
-                .ConfigureAwait(false);
     }
 }

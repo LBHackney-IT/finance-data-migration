@@ -142,6 +142,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             }
             while (!string.Equals(paginationToken, "{}", StringComparison.Ordinal));
 
+            /*return tenureResponse?.Results?.Tenures;*/
             return new TenurePaginationResponse()
             {
                 TenureInformations = dbTransactions,

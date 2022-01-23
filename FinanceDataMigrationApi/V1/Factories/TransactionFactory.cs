@@ -6,6 +6,7 @@ using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Handlers;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
 using Newtonsoft.Json;
+using TargetType = Hackney.Shared.HousingSearch.Domain.Transactions.TargetType;
 
 namespace FinanceDataMigrationApi.V1.Factories
 {

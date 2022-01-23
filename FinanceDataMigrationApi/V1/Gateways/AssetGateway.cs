@@ -10,6 +10,7 @@ using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace FinanceDataMigrationApi.V1.Gateways
 {
     public class AssetGateway: IAssetGateway

@@ -146,6 +146,7 @@ namespace FinanceDataMigrationApi
         {
             services.AddTransient<LoggingDelegatingHandler>();
 
+            services.AddScoped<IDMChargeEntityGateway, DMChargeEntityGateway>();
             services.AddScoped<IDMTransactionEntityGateway, DMTransactionEntityGateway>();
             services.AddScoped<ITransactionGateway, TransactionGateway>();
             services.AddScoped<IDMRunLogGateway, DMRunLogGateway>();
@@ -174,6 +175,17 @@ namespace FinanceDataMigrationApi
                 })
                 .AddHttpMessageHandler<LoggingDelegatingHandler>();
 
+            var assetApiUrl = Environment.GetEnvironmentVariable("ASSET_INFO_API_URL");
+            var assetApiToken = Environment.GetEnvironmentVariable("ASSET_INFO_API_TOKEN");
+
+            services.AddHttpClient<IAssetGateway, AssetGateway>(c =>
+                {
+                    c.BaseAddress = new Uri(assetApiUrl);
+                    c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", assetApiToken);
+                })
+                .AddHttpMessageHandler<LoggingDelegatingHandler>();
+
+
             var personApiUrl = Environment.GetEnvironmentVariable("PERSON_API_URL") ?? "";
             var personApiToken = Environment.GetEnvironmentVariable("PERSON_API_TOKEN") ?? "";
 
@@ -181,9 +193,9 @@ namespace FinanceDataMigrationApi
                 {
                     c.BaseAddress = new Uri(personApiUrl);
                     c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", personApiToken);
-                })
-                .AddHttpMessageHandler<LoggingDelegatingHandler>();*/
-
+                }) 
+                .AddHttpMessageHandler<LoggingDelegatingHandler>();
+ 
         }
 
         private static void RegisterUseCases(IServiceCollection services)
@@ -194,12 +206,16 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IGetTenureByPrnUseCase, GetTenureByPrnUseCase>();
             services.AddScoped<IGetPersonByIdUseCase, GetPersonByIdUseCase>();
             services.AddScoped<IIndexTransactionEntityUseCase, IndexTransactionEntityUseCase>();
+            services.AddScoped<IExtractChargeEntityUseCase, ExtractChargeEntityUseCase>();
+            services.AddScoped<ITransformChargeEntityUseCase, TransformChargeEntityUseCase>();
+            //services.AddScoped<ILoadChargeEntityUseCase, LoadChargeEntityUseCase>(); 
             services.AddScoped<ITransactionBatchInsertUseCase, TransactionBatchInsertUseCase>();
             services.AddScoped<ITenureBatchInsertUseCase, TenureBatchInsertUseCase>();
             services.AddScoped<ITenureGetAllUseCase, TenureGetAllUseCase>();
             services.AddScoped<IAssetGetAllUseCase, AssetGetAllUseCase>();
             services.AddScoped<IAssetSaveToSqlUseCase, AssetSaveToSqlUseCase>();
             services.AddScoped<IAssetGetLastHintUseCase, AssetGetLastHintUseCase>();
+ 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
