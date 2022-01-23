@@ -14,7 +14,7 @@ namespace FinanceDataMigrationApi.V1.UseCase
         {
             _gateway = gateway;
         }
-        public Task<APIResponse<GetAllAssetListResponse>> ExecuteAsync(string lastHintStr)
+        public Task<APIResponse<GetAssetListResponse>> ExecuteAsync(string lastHintStr)
         {
             return _gateway.DownloadAsync(lastHintStr);
         }

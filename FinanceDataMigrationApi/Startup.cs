@@ -198,6 +198,8 @@ namespace FinanceDataMigrationApi
             services.AddScoped<ITenureBatchInsertUseCase, TenureBatchInsertUseCase>();
             services.AddScoped<ITenureGetAllUseCase, TenureGetAllUseCase>();
             services.AddScoped<IAssetGetAllUseCase, AssetGetAllUseCase>();
+            services.AddScoped<IAssetSaveToSqlUseCase, AssetSaveToSqlUseCase>();
+            services.AddScoped<IAssetGetLastHintUseCase, AssetGetLastHintUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
