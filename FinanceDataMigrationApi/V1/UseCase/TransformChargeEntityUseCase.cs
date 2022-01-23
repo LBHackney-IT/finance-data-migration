@@ -51,7 +51,7 @@ namespace FinanceDataMigrationApi.V1.UseCase
                 // Iterate through each row (or batched) and enrich with missing information for subsets
                 foreach (var charge in dMCharges)
                 {
-                    charge.TargetId = await GetAssetTargetId(charge.PropertyReference).ConfigureAwait(false);
+                    //charge.TargetId = await GetAssetTargetId(charge.PropertyReference).ConfigureAwait(false);
                     var detailedCharge = await _dMChargeEntityGateway
                         .GetDetailChargesListAsync(charge.PaymentReference).ConfigureAwait(false);
                     charge.DetailedCharges = JsonSerializer.Serialize(detailedCharge);
@@ -74,14 +74,6 @@ namespace FinanceDataMigrationApi.V1.UseCase
                 Continue = true,
                 NextStepTime = DateTime.Now.AddSeconds(int.Parse(_waitDuration))
             };
-        }
-
-        public async Task<Guid> GetAssetTargetId(string assetId)
-        {
-            var asset = await _assetGateway.GetById(assetId).ConfigureAwait(false);
-            return Guid.TryParse(asset?.Id.ToCharArray(), out var targetId)
-                ? targetId
-                : throw new Exception($"{nameof(assetId)}: {assetId} return no id from asset information api");
         }
     }
 }

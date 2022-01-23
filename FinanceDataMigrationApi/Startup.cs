@@ -194,7 +194,7 @@ namespace FinanceDataMigrationApi
                     c.BaseAddress = new Uri(personApiUrl);
                     c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", personApiToken);
                 }) 
-                .AddHttpMessageHandler<LoggingDelegatingHandler>();
+                .AddHttpMessageHandler<LoggingDelegatingHandler>();*/
  
         }
 

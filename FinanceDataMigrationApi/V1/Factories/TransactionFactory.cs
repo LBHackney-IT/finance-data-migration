@@ -34,7 +34,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                             JsonConvert.DeserializeObject<Sender>(dMTransactionEntityDomain.Person), // TODO FIX PERSON
                         Address = null,
                         TargetId = dMTransactionEntityDomain.TargetId,
-                        TargetType = dMTransactionEntityDomain.TargetType.TargetTypeEnumValue(),
+                        TargetType = Enum.Parse<TargetType>(dMTransactionEntityDomain.TargetType),
                         TransactionAmount = dMTransactionEntityDomain.TransactionAmount,
                         TransactionDate = dMTransactionEntityDomain.TransactionDate,
                         TransactionSource = dMTransactionEntityDomain.TransactionSource,
