@@ -27,5 +27,6 @@ namespace FinanceDataMigrationApi.V1.Factories
                 CreatedAt = entity.CreatedAt
             };
         }
+
     }
 }

@@ -25,6 +25,7 @@ using FinanceDataMigrationApi.V1.Common;
 using Microsoft.Extensions.Options;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Infrastructure.Interfaces;
+using Hackney.Core.DynamoDb;
 
 namespace FinanceDataMigrationApi
 {
@@ -120,7 +121,6 @@ namespace FinanceDataMigrationApi
 
             ConfigureDbContext(services);
             services.ConfigureDynamoDB();
-
             services.ConfigureElasticSearch(Configuration);
 
             RegisterGateways(services);
@@ -155,8 +155,18 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IEsGateway, EsGateway>();
             services.AddScoped<IAssetGateway, AssetGateway>();
 
-            var transactionApiUrl = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_URL");
-            var transactionApiToken = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_TOKEN");
+            var searchApiUrl = Environment.GetEnvironmentVariable("SEARCH_API_URL") ?? "";
+            var searchApiToken = Environment.GetEnvironmentVariable("SEARCH_API_TOKEN") ?? "";
+
+            services.AddHttpClient<IAssetGateway, AssetGateway>(c =>
+                {
+                    c.BaseAddress = new Uri(searchApiUrl);
+                    c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(searchApiToken);
+                })
+                .AddHttpMessageHandler<LoggingDelegatingHandler>();
+
+            /*var transactionApiUrl = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_URL") ?? "";
+            var transactionApiToken = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_TOKEN") ?? "";
 
             services.AddHttpClient<ITransactionGateway, TransactionGateway>(c =>
                 {
@@ -164,18 +174,6 @@ namespace FinanceDataMigrationApi
                     c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(transactionApiToken);
                 })
                 .AddHttpMessageHandler<LoggingDelegatingHandler>();
-
-
-            var searchApiUrl = Environment.GetEnvironmentVariable("SEARCH_API_URL");
-            var searchApiToken = Environment.GetEnvironmentVariable("SEARCH_API_TOKEN");
-
-            services.AddHttpClient<ITenureGateway, TenureGateway>(c =>
-                {
-                    c.BaseAddress = new Uri(searchApiUrl);
-                    c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(searchApiToken);
-                })
-                .AddHttpMessageHandler<LoggingDelegatingHandler>();
-
 
             var assetApiUrl = Environment.GetEnvironmentVariable("ASSET_INFO_API_URL");
             var assetApiToken = Environment.GetEnvironmentVariable("ASSET_INFO_API_TOKEN");
@@ -188,15 +186,16 @@ namespace FinanceDataMigrationApi
                 .AddHttpMessageHandler<LoggingDelegatingHandler>();
 
 
-            var personApiUrl = Environment.GetEnvironmentVariable("PERSON_API_URL");
-            var personApiToken = Environment.GetEnvironmentVariable("PERSON_API_TOKEN");
+            var personApiUrl = Environment.GetEnvironmentVariable("PERSON_API_URL") ?? "";
+            var personApiToken = Environment.GetEnvironmentVariable("PERSON_API_TOKEN") ?? "";
 
             services.AddHttpClient<IPersonGateway, PersonGateway>(c =>
                 {
                     c.BaseAddress = new Uri(personApiUrl);
                     c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", personApiToken);
-                })
+                }) 
                 .AddHttpMessageHandler<LoggingDelegatingHandler>();
+ 
         }
 
         private static void RegisterUseCases(IServiceCollection services)
@@ -209,7 +208,14 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IIndexTransactionEntityUseCase, IndexTransactionEntityUseCase>();
             services.AddScoped<IExtractChargeEntityUseCase, ExtractChargeEntityUseCase>();
             services.AddScoped<ITransformChargeEntityUseCase, TransformChargeEntityUseCase>();
-            //services.AddScoped<ILoadChargeEntityUseCase, LoadChargeEntityUseCase>();
+            //services.AddScoped<ILoadChargeEntityUseCase, LoadChargeEntityUseCase>(); 
+            services.AddScoped<ITransactionBatchInsertUseCase, TransactionBatchInsertUseCase>();
+            services.AddScoped<ITenureBatchInsertUseCase, TenureBatchInsertUseCase>();
+            services.AddScoped<ITenureGetAllUseCase, TenureGetAllUseCase>();
+            services.AddScoped<IAssetGetAllUseCase, AssetGetAllUseCase>();
+            services.AddScoped<IAssetSaveToSqlUseCase, AssetSaveToSqlUseCase>();
+            services.AddScoped<IAssetGetLastHintUseCase, AssetGetLastHintUseCase>();
+ 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -259,7 +265,6 @@ namespace FinanceDataMigrationApi
             });
             app.UseSwagger();
             app.UseRouting();
-
             app.UseEndpoints(endpoints =>
             {
                 // SwaggerGen won't find controllers that are routed via this technique.

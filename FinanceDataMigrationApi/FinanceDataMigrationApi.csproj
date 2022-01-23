@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="5.1.1" />
+    <PackageReference Include="AutoFixture" Version="4.11.0" />
     <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.2" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.0.1" />

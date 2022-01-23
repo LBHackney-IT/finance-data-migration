@@ -5,8 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using FinanceDataMigrationApi.V1.Domain;
-using Nest;
+using System.Xml.Linq;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure
 {
@@ -43,6 +42,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// </summary>
         public DbSet<DMRunLog> DMRunLogs { get; set; }
 
+        public DbSet<DmDynamoAssetLastHInt> DmDynamoAssetLastHInt { get; set; }
 
         /// <summary>
         /// Get or sets the Data Migration Transaction Entities
@@ -143,6 +143,12 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .Where(x => x.IsTransformed == false)
                 .ToListAsync()
                 .ConfigureAwait(false);
+
+        public async Task<int> InsertDynamoAsset(string lastHint,XElement xml)
+        {
+            var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_InsertDynamoAsset] '{lastHint}','{xml}'", 600).ConfigureAwait(false);
+            return affectedRows;
+        }
 
         /// <summary>
         /// Extract the data migration transaction entities.

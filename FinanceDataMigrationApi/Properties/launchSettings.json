@@ -1,4 +1,5 @@
 {
+  "$schema": "http://json.schemastore.org/launchsettings.json",
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
@@ -7,18 +8,20 @@
       "sslPort": 44394
     }
   },
-  "$schema": "http://json.schemastore.org/launchsettings.json",
   "profiles": {
     "finance-data-migration-api": {
       "commandName": "Project",
       "launchUrl": "api/v1/healthcheck/ping",
       "environmentVariables": {
-        "FINANCIAL_TRANSACTION_API_URL": "",
+        "SEARCH_API_URL": "https://y1e46yws9c.execute-api.eu-west-2.amazonaws.com/development/",
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "WAIT_DURATION": "5",
         "DynamoDb_LocalServiceUrl": "http://localhost:8000",
-        "ACCEPTED_ORIGINS": "True",
-        "FINANCIAL_TRANSACTION_API_TOKEN": "",
         "DynamoDb_LocalMode": "true",
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "FINANCIAL_TRANSACTION_API_TOKEN": "",
+        "SEARCH_API_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTc2ODcwMzYyODczNTU5MDUwMDMiLCJlbWFpbCI6ImhhbWlkLmpvbGFueUBoYWNrbmV5Lmdvdi51ayIsImlzcyI6IkhhY2tuZXkiLCJuYW1lIjoiSGFtaWQgSm9sYW55IiwiZ3JvdXBzIjpbIkhhY2tuZXlBbGwiLCJtbWgtZ2VuZXJhbC11c2VyLWFjY2VzcyIsInNhbWwtYXdzLWRhc2hib2FyZC1hY2Nlc3MiLCJzYW1sLWF3cy1kZXZlbG9wZXIiLCJzYW1sLWF3cy1tdGZoLWRldmVsb3BlciJdLCJpYXQiOjE2Mzk1MDEwNzZ9.yF24YnyTODyHZGReHSNdyTVhhXBdlL2qkhEUEbkKrlM",
+        "ACCEPTED_ORIGINS": "True",
+        "FINANCIAL_TRANSACTION_API_URL": ""
       },
       "applicationUrl": "http://localhost:5000"
     }

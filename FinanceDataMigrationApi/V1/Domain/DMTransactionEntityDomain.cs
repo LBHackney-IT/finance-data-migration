@@ -13,11 +13,11 @@ namespace FinanceDataMigrationApi.V1.Domain
 
         public string TargetType { get; set; }
 
-        public int PeriodNo { get; set; }
+        public decimal PeriodNo { get; set; }
 
-        public short FinancialYear { get; set; }
+        public int FinancialYear { get; set; }
 
-        public short FinancialMonth { get; set; }
+        public int FinancialMonth { get; set; }
 
         public string TransactionSource { get; set; }
 

@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.UseCase.Interfaces
 {
-    public interface IGetAllUseCase
+    public interface ITenureGetAllUseCase
     {
-       public Task<TransactionPerson> ExecuteAsync();
+       public Task<TenurePaginationResponse> ExecuteAsync(string paginationToken);
     }
 }
