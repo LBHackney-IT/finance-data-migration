@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Amazon.DynamoDBv2.Model;
 using Amazon.Runtime.Internal;
 using AutoFixture;
 using FinanceDataMigrationApi.V1.Boundary.Response;
@@ -67,15 +68,23 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            TenurePaginationResponse response = new TenurePaginationResponse()
+            /*TenurePaginationResponse response = new TenurePaginationResponse()
             {
                 PaginationToken = "{}"
             };
             int index = 0;
-            while ((response.TenureInformations?.Count??0)>0 || index++==0)
+            while ((response.TenureInformation?.Count??0)>0 || index++==0)
             {
                 response = await _tenureGetAllUseCase.ExecuteAsync(response.PaginationToken).ConfigureAwait(false);
-            }
+            }*/
+            Dictionary<string, AttributeValue> lastEvaluatedKey = null;
+            do
+            {
+                var response = await _tenureGetAllUseCase.ExecuteAsync(lastEvaluatedKey).ConfigureAwait(false);
+                lastEvaluatedKey = response.LastKey;
+                if (response.TenureInformation.Count == 0)
+                    break;
+            } while (true);
             return Ok(response);
         }
     }

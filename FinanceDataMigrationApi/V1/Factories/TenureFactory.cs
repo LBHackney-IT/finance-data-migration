@@ -1,12 +1,29 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 using Hackney.Shared.Tenure.Domain;
 using Amazon.DynamoDBv2.Model;
+using Hackney.Shared.HousingSearch.Domain.Asset;
 
 namespace FinanceDataMigrationApi.V1.Factories
 {
     public static class TenureFactory
     {
+
+        public static XElement ToXElement(this List<TenureInformation> tenures)
+        {
+            var xEle = new XElement("Tenures",
+                tenures.Select(a => new XElement("Tenure",
+                    new XElement("id", a.Id),
+                    new XElement("assetId", a.AssetId),
+                    new XElement("assetType", a.AssetType),
+                    new XElement("tenure_id", a.Tenure?.Id),
+                    new XElement("tenure_paymentReference", a.Tenure?.PaymentReference)
+                )));
+
+            return xEle;
+        }
+
         public static Dictionary<string, AttributeValue> ToQueryRequest(this TenureInformation tenure)
         {
             return new Dictionary<string, AttributeValue>()

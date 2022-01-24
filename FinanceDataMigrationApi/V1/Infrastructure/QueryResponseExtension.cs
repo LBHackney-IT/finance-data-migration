@@ -7,7 +7,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
 {
     public static class QueryResponseExtension
     {
-        public static IEnumerable<TenureInformation> ToTenureInformations(this QueryResponse response)
+        public static IEnumerable<TenureInformation> ToTenureInformation(this QueryResponse response)
         {
             foreach (Dictionary<string, AttributeValue> item in response.Items)
             {
@@ -22,6 +22,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 };
             }
         }
+
         /*public static List<Transaction> ToTransactions(this QueryResponse response)
         {
             List<Transaction> transactions = new List<Transaction>();

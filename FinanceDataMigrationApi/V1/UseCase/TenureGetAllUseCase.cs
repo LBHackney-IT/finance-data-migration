@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
@@ -13,9 +15,9 @@ namespace FinanceDataMigrationApi.V1.UseCase
         {
             _tenureGateway = tenureGateway;
         }
-        public Task<TenurePaginationResponse> ExecuteAsync(string paginationToken = "{}")
+        public async Task<TenurePaginationResponse> ExecuteAsync(Dictionary<string, AttributeValue> lastEvaluatedKey = null)
         {
-            return _tenureGateway.GetAll(paginationToken);
+            return await _tenureGateway.GetAll(lastEvaluatedKey).ConfigureAwait(false);
         }
     }
 }

@@ -88,8 +88,21 @@ namespace FinanceDataMigrationApi.V1.Gateways
             return result;
         }
 
-        public async Task<TenurePaginationResponse> GetAll(string paginationToken = "{}")
+        public async Task<TenurePaginationResponse> GetAll(Dictionary<string, AttributeValue> lastEvaluatedKey=null)
         {
+            ScanRequest request = new ScanRequest("TenureInformation")
+            {
+                Limit = 1000,
+                ExclusiveStartKey = lastEvaluatedKey
+            };
+            ScanResponse response =await _dynamoDb.ScanAsync(request).ConfigureAwait(false);
+
+            return new TenurePaginationResponse()
+            {
+                LastKey = response.LastEvaluatedKey,
+                TenureInformation = response.ToTenureInformation().ToList()
+            };
+
             /*#region Query Execution
 
             QueryRequest queryRequest = new QueryRequest
@@ -116,7 +129,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 TenureInformations = result.ToTenureInformations().ToList()
             };*/
 
-            var dbTransactions = new List<TenureInformationDb>();
+            /*var dbTransactions = new List<TenureInformationDb>();
             
             var table = _dbContext.GetTargetTable<TenureInformationDb>();
 
@@ -142,12 +155,12 @@ namespace FinanceDataMigrationApi.V1.Gateways
             }
             while (!string.Equals(paginationToken, "{}", StringComparison.Ordinal));
 
-            /*return tenureResponse?.Results?.Tenures;*/
+            */ /*return tenureResponse?.Results?.Tenures;*/ /*
             return new TenurePaginationResponse()
             {
                 TenureInformations = dbTransactions,
                 PaginationToken = paginationToken
-            };
+            };*/
         }
     }
 }
