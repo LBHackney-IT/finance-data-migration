@@ -61,7 +61,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                 IsTransformed = dMTransactionEntity.IsTransformed,
                 PaidAmount = dMTransactionEntity.PaidAmount,
                 PaymentReference = dMTransactionEntity.PaymentReference,
-                PeriodNo = dMTransactionEntity.PeriodNo,
+                PeriodNo = (int)dMTransactionEntity.PeriodNo,
                 Person = dMTransactionEntity.Person,
                 SuspenseResolutionInfo = dMTransactionEntity.SuspenseResolutionInfo,
                 TargetId = dMTransactionEntity.TargetId?? Guid.Empty,

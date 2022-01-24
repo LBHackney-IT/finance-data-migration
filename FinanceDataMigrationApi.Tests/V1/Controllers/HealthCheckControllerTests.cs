@@ -26,11 +26,5 @@ namespace FinanceDataMigrationApi.Tests.V1.Controllers
             response.StatusCode.Should().Be(200);
             response.Value.Should().BeEquivalentTo(expected);
         }
-
-        [Fact]
-        public void ThrowErrorThrows()
-        {
-            Assert.Throws<TestOpsErrorException>(_classUnderTest.ThrowError);
-        }
     }
 }

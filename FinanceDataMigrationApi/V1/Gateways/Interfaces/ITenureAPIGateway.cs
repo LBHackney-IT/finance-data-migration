@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
 {
-    public interface ITenureGateway
+    public interface ITenureAPIGateway
     {
         public Task<List<TenureInformation>> GetByPrnAsync(string prn);
 

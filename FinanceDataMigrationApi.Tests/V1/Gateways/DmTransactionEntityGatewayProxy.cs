@@ -10,7 +10,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Gateways
     {
         public Task<int> NumberOfRowsExtractedResult { get; private set; }
 
-        public DmTransactionEntityGatewayProxy(DatabaseContext context) : base(context)
+        public DmTransactionEntityGatewayProxy(DbTransactionsContext context) : base(context)
         {
         }
 

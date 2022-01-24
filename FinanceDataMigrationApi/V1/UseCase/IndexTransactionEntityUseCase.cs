@@ -30,10 +30,10 @@ namespace FinanceDataMigrationApi.V1.UseCase
             LoggingHandler.LogInfo($"Starting {DataMigrationTask} task for {DMEntityNames.Transactions} entity");
             try
             {
-                // Get latest successfull migrationrun item from DynamoDB Table MigrationRuns. where is_feature_enabled flag is TRUE and set status is "TransformCompleted"
+                // Get latest successfull migrationrun item from DynamoDB Table MigrationRuns. where is_feature_enabled flag is TRUE and set status is "IndexInprogress"
                 var dmRunLogDomain = await _dMRunLogGateway.GetDMRunLogByEntityNameAsync(DMEntityNames.Transactions).ConfigureAwait(false);
 
-                //      Update migrationrun item with set status to "LoadInprogress". 
+                //      Update migrationrun item with set status to "IndexInprogress". 
                 dmRunLogDomain.LastRunStatus = MigrationRunStatus.IndexInprogress.ToString();
                 await _dMRunLogGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
 

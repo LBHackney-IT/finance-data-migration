@@ -12,9 +12,9 @@ namespace FinanceDataMigrationApi.V1.Gateways
 {
     public class DMRunLogGateway : IDMRunLogGateway
     {
-        private readonly DatabaseContext _context;
+        private readonly DbTransactionsContext _context;
 
-        public DMRunLogGateway(DatabaseContext context)
+        public DMRunLogGateway(DbTransactionsContext context)
         {
             _context = context;
         }

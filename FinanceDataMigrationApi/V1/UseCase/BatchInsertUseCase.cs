@@ -8,9 +8,9 @@ namespace FinanceDataMigrationApi.V1.UseCase
 {
     public class BatchInsertUseCase: IBatchInsertUseCase
     {
-        private readonly ITransactionGateway _gateway;
+        private readonly ITransactionAPIGateway _gateway;
 
-        public BatchInsertUseCase(ITransactionGateway gateway)
+        public BatchInsertUseCase(ITransactionAPIGateway gateway)
         {
             _gateway = gateway;
         }

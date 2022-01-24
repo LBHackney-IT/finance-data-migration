@@ -12,8 +12,6 @@
         <UserSecretsId>c1dc564e-5883-4ecf-963b-a8a865566aa2</UserSecretsId>
     </PropertyGroup>
     <ItemGroup>
-      <Compile Remove="V1\Factories\ResponseFactory.cs" />
-      <Compile Remove="V1\Gateways\DynamoDbGateway.cs" />
       <Compile Remove="V1\Gateways\DynamoDbGateway_OLD.cs" />
       <Compile Remove="V1\Gateways\ExampleGateway.cs" />
       <Compile Remove="V1\Gateways\Interfaces\IExampleDynamoGateway.cs" />
@@ -39,11 +37,14 @@
     <PackageReference Include="AWSXRayRecorder.Handlers.EntityFramework" Version="1.1.0" />
     <PackageReference Include="EFCore.BulkExtensions" Version="5.3.8" />
     <PackageReference Include="Hackney.Core.DynamoDb" Version="1.51.0" />
+    <PackageReference Include="Hackney.Core.ElasticSearch" Version="1.49.0" />
     <PackageReference Include="Hackney.Core.HealthCheck" Version="1.49.0" />
     <PackageReference Include="Hackney.Core.Logging" Version="1.49.0" />
     <PackageReference Include="Hackney.Core.Middleware" Version="1.49.0" />
     <PackageReference Include="Hackney.Core.Validation" Version="1.56.0" />
-    <PackageReference Include="Hackney.Shared.Person" Version="0.10.0" />
+    <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.24.0" />
+    <PackageReference Include="Hackney.Shared.Person" Version="0.11.0" />
+    <PackageReference Include="Hackney.Shared.Tenure" Version="0.9.0" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.HealthChecks" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="4.1.1" />
@@ -55,7 +56,6 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.4.1" />
     <PackageReference Include="NEST" Version="7.15.0" />
-    <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.22.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -63,9 +63,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Hackney.Shared.Tenure">
-      <HintPath>..\..\tenure-shared\Hackney.Shared.Tenure\bin\Debug\netstandard2.1\Hackney.Shared.Tenure.dll</HintPath>
+    <Reference Include="Hackney.Shared.HousingSearch">
+      <HintPath>..\..\housing-search-shared\Hackney.Shared.HousingSearch\bin\Debug\netstandard2.1\Hackney.Shared.HousingSearch.dll</HintPath>
     </Reference>
+	<Reference Include="Hackney.Shared.Tenure">
+		<HintPath>..\..\tenure-shared\Hackney.Shared.Tenure\bin\Debug\netstandard2.1\Hackney.Shared.Tenure.dll</HintPath>
+	</Reference>
   </ItemGroup>
 
   <ItemGroup>

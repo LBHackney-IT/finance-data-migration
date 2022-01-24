@@ -1,11 +1,10 @@
 using FinanceDataMigrationApi.V1.Boundary.Response;
-using System;
 using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.UseCase.Interfaces
 {
-    public interface IGetMigrationRunByIdUseCase
+    public interface IExtractAccountEntityUseCase
     {
-        public Task<MigrationRunResponse> ExecuteAsync(Guid id);
+        public Task<StepResponse> ExecuteAsync();
     }
 }

@@ -9,9 +9,9 @@ namespace FinanceDataMigrationApi.V1.UseCase
 {
     public class GetTenureByPrnUseCase: IGetTenureByPrnUseCase
     {
-        private readonly ITenureGateway _gateway;
+        private readonly ITenureAPIGateway _gateway;
 
-        public GetTenureByPrnUseCase(ITenureGateway gateway)
+        public GetTenureByPrnUseCase(ITenureAPIGateway gateway)
         {
             _gateway = gateway;
         }

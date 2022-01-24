@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
-    public class TenureGateway: ITenureGateway
+    public class TenureAPIGateway : ITenureAPIGateway
     {
         private readonly HttpClient _client;
 
-        public TenureGateway(HttpClient client)
+        public TenureAPIGateway(HttpClient client)
         {
             _client = client;
         }

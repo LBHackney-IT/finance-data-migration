@@ -20,4 +20,17 @@ namespace FinanceDataMigrationApi.V1.Domain
         IndexCompleted,
         IndexFailed
     }
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum ChargeType
+    {
+        Estate,
+        Block,
+        Property
+    }
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum ChargeGroup
+    {
+        Tenants,
+        Leaseholders
+    }
 }

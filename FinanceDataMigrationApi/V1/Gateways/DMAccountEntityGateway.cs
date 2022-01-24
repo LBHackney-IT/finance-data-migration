@@ -1,40 +1,38 @@
 using EFCore.BulkExtensions;
-using FinanceDataMigrationApi.V1.Domain;
-using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
-using FinanceDataMigrationApi.V1.Infrastructure;
+using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
-    public class DMTransactionEntityGateway : IDMTransactionEntityGateway
+    public class DMAccountEntityGateway : IDMAccountEntityGateway
     {
-        private readonly DbTransactionsContext _context;
+        private readonly DbAccountsContext _context;
 
         private readonly int _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE"));
 
-        public DMTransactionEntityGateway(DbTransactionsContext context)
+        public DMAccountEntityGateway(DbAccountsContext context)
         {
             _context = context;
         }
 
         /// <summary>
-        /// Extract the Transaction Entities to migrate asynchronous.
+        /// Extract the Accounts Entities to migrate asynchronous.
         /// </summary>
         /// <returns>
-        /// The list of Transaction Entities.
+        /// The list of Accounts Entities.
         /// </returns>
         //public async Task<int> ExtractAsync(DateTime? processingDate)
         public async Task<int> ExtractAsync(DateTimeOffset? processingDate)
         {
             try
             {
-                return await _context.ExtractDMTransactionsAsync(processingDate).ConfigureAwait(false);
+                return await _context.ExtractDMAccountsAsync().ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -45,21 +43,21 @@ namespace FinanceDataMigrationApi.V1.Gateways
         }
 
         /// <summary>
-        /// Lists the Transaction Entities to migrate asynchronous.
+        /// Lists the Account Entities to migrate.
         /// </summary>
         /// <returns>
-        /// The list of Transaction Entities.
+        /// The list of Account Entities.
         /// </returns>
-        public async Task<IList<DMTransactionEntityDomain>> ListAsync()
+        public async Task<IList<DMAccountEntity>> ListAsync()
         {
             try
             {
-                var results = await _context.DMTransactionEntities
+                var results = await _context.DMAccountEntities
                     .Where(x => x.IsTransformed == false)
                     .ToListAsync()
                     .ConfigureAwait(false);
-              
-                return results.ToDomain();
+
+                return results;
             }
             catch (Exception e)
             {
@@ -69,11 +67,16 @@ namespace FinanceDataMigrationApi.V1.Gateways
             }
         }
 
-        public async Task UpdateDMTransactionEntityItems(IList<DMTransactionEntityDomain> dMTransactionEntityDomainItems)
+        public async Task<IList<DMAccountEntity>> GetTransformedListAsync()
         {
             try
             {
-                await _context.BulkUpdateAsync(dMTransactionEntityDomainItems.ToDatabase(), new BulkConfig { BatchSize = _batchSize }).ConfigureAwait(false);
+                var results = await _context.DMAccountEntities
+                                .Where(x => x.IsTransformed && !x.IsLoaded)
+                                .ToListAsync()
+                                .ConfigureAwait(false);
+
+                return results;
             }
             catch (Exception e)
             {
@@ -83,29 +86,13 @@ namespace FinanceDataMigrationApi.V1.Gateways
             }
         }
 
-        public async Task<IList<DMTransactionEntityDomain>> GetTransformedListAsync()
-        {
-            try
-            {
-                var results = await _context.GetTransformedListAsync().ConfigureAwait(false);
-
-                return results.ToDomain();
-            }
-            catch (Exception e)
-            {
-                LoggingHandler.LogError(e.Message);
-                LoggingHandler.LogError(e.StackTrace);
-                throw;
-            }
-        }
-
-        public async Task<IList<DMTransactionEntityDomain>> GetLoadedListAsync()
+        public async Task<IList<DMAccountEntity>> GetLoadedListAsync()
         {
             try
             {
                 var results = await _context.GetLoadedListAsync().ConfigureAwait(false);
 
-                return results.ToDomain();
+                return results;
             }
             catch (Exception e)
             {
@@ -115,13 +102,11 @@ namespace FinanceDataMigrationApi.V1.Gateways
             }
         }
 
-        public async Task<int> AddTransactionAsync(DMTransactionEntityDomain dmEntity)
+        public async Task UpdateDMAccountEntityItems(IList<DMAccountEntity> dMAccountEntities)
         {
-            // TODO
             try
             {
-                await Task.Delay(0).ConfigureAwait(false);
-                return -1;
+                await _context.BulkUpdateAsync(dMAccountEntities, new BulkConfig { BatchSize = _batchSize }).ConfigureAwait(false);
             }
             catch (Exception e)
             {

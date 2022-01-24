@@ -1,24 +1,21 @@
-using FinanceDataMigrationApi.V1.Gateways.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Factories;
-using FinanceDataMigrationApi.V1.Gateways.Extensions;
+using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
-using Hackney.Shared.Tenure.Boundary.Requests;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
-    public class TransactionGateway : ITransactionGateway
+    public class TransactionAPIGateway : ITransactionAPIGateway
     {
         private readonly IAmazonDynamoDB _amazonDynamoDb;
-        private readonly ILogger<ITransactionGateway> _logger;
+        private readonly ILogger<TransactionAPIGateway> _logger;
 
-        public TransactionGateway(IAmazonDynamoDB amazonDynamoDb,ILogger<ITransactionGateway> logger)
+        public TransactionAPIGateway(IAmazonDynamoDB amazonDynamoDb,ILogger<TransactionAPIGateway> logger)
         {
             _amazonDynamoDb = amazonDynamoDb;
             _logger = logger;

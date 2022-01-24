@@ -7,9 +7,9 @@ namespace FinanceDataMigrationApi.V1.UseCase
 {
     public class LoadTenuresUseCase : ILoadTenuresUseCase
     {
-        private readonly ITenureGateway _tenureGateway;
+        private readonly ITenureAPIGateway _tenureGateway;
 
-        public LoadTenuresUseCase(ITenureGateway tenureGateway)
+        public LoadTenuresUseCase(ITenureAPIGateway tenureGateway)
         {
             _tenureGateway = tenureGateway;
         }

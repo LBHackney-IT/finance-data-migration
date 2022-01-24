@@ -1,11 +1,7 @@
-using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Handlers;
+using Hackney.Shared.HousingSearch.Domain.Transactions;
 using System;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Reflection;
-using Hackney.Shared.HousingSearch.Domain.Transactions;
 
 namespace FinanceDataMigrationApi
 {

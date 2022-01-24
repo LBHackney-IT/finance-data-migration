@@ -15,7 +15,7 @@ namespace FinanceDataMigrationApi.Tests.V1.UseCase
     {
         private Mock<IDMRunLogGateway> _dMRunLogGateway;
         private Mock<IDMTransactionEntityGateway> _dMTransactionEntityGateway;
-        private Mock<ITenureGateway> _tenureGateway;
+        private Mock<ITenureAPIGateway> _tenureGateway;
         private Mock<IPersonGateway> _personGateway;
         private static readonly Guid _householdmemberId = Guid.NewGuid();
 
@@ -25,7 +25,7 @@ namespace FinanceDataMigrationApi.Tests.V1.UseCase
              //setup defaults as mocks
              _dMRunLogGateway = new Mock<IDMRunLogGateway>();
              _dMTransactionEntityGateway = new Mock<IDMTransactionEntityGateway>();
-             _tenureGateway = new Mock<ITenureGateway>();
+             _tenureGateway = new Mock<ITenureAPIGateway>();
              _personGateway = new Mock<IPersonGateway>();
         }
 
