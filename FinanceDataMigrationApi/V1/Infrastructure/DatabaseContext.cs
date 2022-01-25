@@ -150,6 +150,12 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             return affectedRows;
         }
 
+        public async Task<int> InsertDynamoTenure(string lastHint, XElement xml)
+        {
+            var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_InsertDynamoTenure] '{lastHint}','{xml}'", 600).ConfigureAwait(false);
+            return affectedRows;
+        }
+
         /// <summary>
         /// Extract the data migration transaction entities.
         /// </summary>

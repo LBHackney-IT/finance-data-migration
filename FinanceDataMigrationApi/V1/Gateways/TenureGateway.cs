@@ -2,27 +2,25 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using Hackney.Shared.Tenure.Domain;
-using Hackney.Shared.Tenure.Infrastructure;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
     public class TenureGateway : ITenureGateway
     {
-        private readonly IDynamoDBContext _dbContext;
+        private readonly DatabaseContext _dbContext;
         private readonly IAmazonDynamoDB _dynamoDb;
         private readonly ILogger<ITenureGateway> _logger;
 
-        public TenureGateway(IDynamoDBContext dbContext, IAmazonDynamoDB dynamoDb, ILogger<ITenureGateway> logger)
+        public TenureGateway(DatabaseContext dbContext, IAmazonDynamoDB dynamoDb, ILogger<ITenureGateway> logger)
         {
             _dbContext = dbContext;
             _dynamoDb = dynamoDb;
@@ -102,65 +100,11 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 LastKey = response.LastEvaluatedKey,
                 TenureInformation = response.ToTenureInformation().ToList()
             };
+        }
 
-            /*#region Query Execution
-
-            QueryRequest queryRequest = new QueryRequest
-            {
-                Limit = 1000,
-                ExclusiveStartKey = lastKeyEvaluated,
-                TableName = "TenureInformation",
-                //IndexName = "id",
-                KeyConditionExpression = "id > :V_id",
-                ExpressionAttributeValues = new Dictionary<string, AttributeValue>
-                {
-                    {":V_id", new AttributeValue {S = Guid.Empty.ToString()}}
-                }
-            };
-
-            var result = await _dynamoDb.QueryAsync(queryRequest).ConfigureAwait(false);
-            lastKeyEvaluated = result.LastEvaluatedKey;
-
-            #endregion
-
-            return new TenurePaginationResponse
-            {
-                LastKey = result.LastEvaluatedKey,
-                TenureInformations = result.ToTenureInformations().ToList()
-            };*/
-
-            /*var dbTransactions = new List<TenureInformationDb>();
-            
-            var table = _dbContext.GetTargetTable<TenureInformationDb>();
-
-            var queryConfig = new QueryOperationConfig
-            {
-                BackwardSearch = true,
-                ConsistentRead = true,
-                Filter = new QueryFilter("id", QueryOperator.GreaterThan, Guid.Empty),
-                PaginationToken = paginationToken
-            };
-
-            do
-            {
-                var search = table.Query(queryConfig);
-                paginationToken = search.PaginationToken;
-                //_logger.LogDebug($"Querying {queryConfig.IndexName} index for targetId {query.TargetId}");
-                var resultsSet = await search.GetNextSetAsync().ConfigureAwait(false);
-                if (resultsSet.Any())
-                {
-                    dbTransactions.AddRange(_dbContext.FromDocuments<TenureInformationDb>(resultsSet));
-
-                }
-            }
-            while (!string.Equals(paginationToken, "{}", StringComparison.Ordinal));
-
-            */ /*return tenureResponse?.Results?.Tenures;*/ /*
-            return new TenurePaginationResponse()
-            {
-                TenureInformations = dbTransactions,
-                PaginationToken = paginationToken
-            };*/
+        public Task<int> SaveTenuresIntoSql(string lastHint, XElement xml)
+        {
+            return _dbContext.InsertDynamoTenure(lastHint, xml);
         }
     }
 }

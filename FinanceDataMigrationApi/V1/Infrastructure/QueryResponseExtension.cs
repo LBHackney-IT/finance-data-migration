@@ -39,7 +39,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                         IsResolve = bool.Parse(innerItem["isResolve"].S),
                         Note = innerItem["note"].S,
                         ResolutionDate = DateTime.Parse(innerItem["resolutionDate"].S)
-                    };
+                    };  
                 }
 
                 if (item.Keys.Any(p => p == "person"))

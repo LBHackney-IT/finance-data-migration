@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Amazon.DynamoDBv2.Model;
 using Hackney.Shared.Tenure.Domain;
 
@@ -14,11 +15,23 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 yield return new TenureInformation
                 {
                     Id = Guid.Parse(item["id"].S),
-                    TenuredAsset = null,
-                    TenureType = null,
-                    InformHousingBenefitsForChanges = false,
-                    HouseholdMembers = null,
-                    PaymentReference = item["paymentReference"].S
+                    TenuredAsset = new TenuredAsset()
+                    {
+                        FullAddress = item["tenuredAsset"].M["fullAddress"].S
+                    },
+                    TenureType = new TenureType()
+                    {
+                        Code = item["tenureType"].M["code"].S,
+                        Description = item["tenureType"].M["description"].S
+                    },
+                    PaymentReference = item["paymentReference"].S,
+                    HouseholdMembers = item["householdMembers"].L.ToArray().Select(m=>
+                        new HouseholdMembers
+                        {
+                            Id = Guid.Parse(m.M["id"].S),
+                            FullName = m.M["fullName"].S,
+                            IsResponsible = m.M["isResponsible"].BOOL
+                        })
                 };
             }
         }

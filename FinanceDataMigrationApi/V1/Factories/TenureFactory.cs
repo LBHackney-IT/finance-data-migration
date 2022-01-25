@@ -15,10 +15,16 @@ namespace FinanceDataMigrationApi.V1.Factories
             var xEle = new XElement("Tenures",
                 tenures.Select(a => new XElement("Tenure",
                     new XElement("id", a.Id),
-                    new XElement("assetId", a.AssetId),
-                    new XElement("assetType", a.AssetType),
-                    new XElement("tenure_id", a.Tenure?.Id),
-                    new XElement("tenure_paymentReference", a.Tenure?.PaymentReference)
+                    new XElement("payment_reference", a.PaymentReference),
+                    new XElement("tenure_type_code", a.TenureType.Code),
+                    new XElement("tenure_type_desc", a.TenureType.Description),
+                    new XElement("tenured_asset_full_address", a.TenuredAsset.FullAddress),
+                    a.HouseholdMembers?.Select(h =>
+                        new XElement("HouseHoldMembers",
+                            new XElement("id", h.Id),
+                            new XElement("fullname", h.FullName),
+                            new XElement("is_responsible", h.IsResponsible))
+                    )
                 )));
 
             return xEle;

@@ -4,14 +4,11 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2.Model;
-using Amazon.Runtime.Internal;
 using AutoFixture;
-using FinanceDataMigrationApi.V1.Boundary.Response;
+using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
-using Hackney.Shared.HousingSearch.Domain.Transactions;
 using Hackney.Shared.Tenure.Domain;
 using Microsoft.VisualBasic;
-using Nest;
 
 namespace FinanceDataMigrationApi.V1.Controllers
 {
@@ -24,12 +21,14 @@ namespace FinanceDataMigrationApi.V1.Controllers
         private readonly IGetTenureByPrnUseCase _tenureByPrnUseCase;
         private readonly ITenureBatchInsertUseCase _batchInsertUseCase;
         private readonly ITenureGetAllUseCase _tenureGetAllUseCase;
+        private readonly ITenureSaveToSqlUseCase _saveToSqlUseCase;
 
-        public TenureController(IGetTenureByPrnUseCase tenureByPrnUseCase,ITenureBatchInsertUseCase batchInsertUseCase,ITenureGetAllUseCase tenureGetAllUseCase)
+        public TenureController(IGetTenureByPrnUseCase tenureByPrnUseCase,ITenureBatchInsertUseCase batchInsertUseCase,ITenureGetAllUseCase tenureGetAllUseCase,ITenureSaveToSqlUseCase saveToSqlUseCase)
         {
             _tenureByPrnUseCase = tenureByPrnUseCase;
             _batchInsertUseCase = batchInsertUseCase;
             _tenureGetAllUseCase = tenureGetAllUseCase;
+            _saveToSqlUseCase = saveToSqlUseCase;
         }
 
         [HttpGet("{prn}")]
@@ -84,8 +83,9 @@ namespace FinanceDataMigrationApi.V1.Controllers
                 lastEvaluatedKey = response.LastKey;
                 if (response.TenureInformation.Count == 0)
                     break;
+                await _saveToSqlUseCase.ExecuteAsync(lastEvaluatedKey["id"].S, response.TenureInformation.ToXElement()).ConfigureAwait(false);
             } while (true);
-            return Ok(response);
+            return Ok("Done");
         }
     }
 }
