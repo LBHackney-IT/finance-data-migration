@@ -22,13 +22,19 @@ namespace FinanceDataMigrationApi.V1.Controllers
         private readonly ITenureBatchInsertUseCase _batchInsertUseCase;
         private readonly ITenureGetAllUseCase _tenureGetAllUseCase;
         private readonly ITenureSaveToSqlUseCase _saveToSqlUseCase;
+        private readonly ITenureGetLastHintUseCase _getLastHintUseCase;
 
-        public TenureController(IGetTenureByPrnUseCase tenureByPrnUseCase,ITenureBatchInsertUseCase batchInsertUseCase,ITenureGetAllUseCase tenureGetAllUseCase,ITenureSaveToSqlUseCase saveToSqlUseCase)
+        public TenureController(IGetTenureByPrnUseCase tenureByPrnUseCase
+            ,ITenureBatchInsertUseCase batchInsertUseCase
+            ,ITenureGetAllUseCase tenureGetAllUseCase
+            ,ITenureSaveToSqlUseCase saveToSqlUseCase
+            ,ITenureGetLastHintUseCase getLastHintUseCase)
         {
             _tenureByPrnUseCase = tenureByPrnUseCase;
             _batchInsertUseCase = batchInsertUseCase;
             _tenureGetAllUseCase = tenureGetAllUseCase;
             _saveToSqlUseCase = saveToSqlUseCase;
+            _getLastHintUseCase = getLastHintUseCase;
         }
 
         [HttpGet("{prn}")]
@@ -67,18 +73,13 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            /*TenurePaginationResponse response = new TenurePaginationResponse()
-            {
-                PaginationToken = "{}"
-            };
-            int index = 0;
-            while ((response.TenureInformation?.Count??0)>0 || index++==0)
-            {
-                response = await _tenureGetAllUseCase.ExecuteAsync(response.PaginationToken).ConfigureAwait(false);
-            }*/
-            Dictionary<string, AttributeValue> lastEvaluatedKey = null;
             do
             {
+                var lastKey = await _getLastHintUseCase.ExecuteAsync().ConfigureAwait(false);
+                Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
+                {
+                    {"id",new AttributeValue{S = lastKey.ToString()}}
+                };
                 var response = await _tenureGetAllUseCase.ExecuteAsync(lastEvaluatedKey).ConfigureAwait(false);
                 lastEvaluatedKey = response.LastKey;
                 if (response.TenureInformation.Count == 0)

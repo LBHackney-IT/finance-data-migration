@@ -42,7 +42,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// </summary>
         public DbSet<DMRunLog> DMRunLogs { get; set; }
 
-        public DbSet<DmDynamoAssetLastHInt> DmDynamoAssetLastHInt { get; set; }
+        public DbSet<DmDynamoLastHInt> DmDynamoLastHInt { get; set; }
 
         /// <summary>
         /// Get or sets the Data Migration Transaction Entities

@@ -10,6 +10,7 @@ using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using Hackney.Shared.Tenure.Domain;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceDataMigrationApi.V1.Gateways
@@ -105,6 +106,14 @@ namespace FinanceDataMigrationApi.V1.Gateways
         public Task<int> SaveTenuresIntoSql(string lastHint, XElement xml)
         {
             return _dbContext.InsertDynamoTenure(lastHint, xml);
+        }
+
+        public async Task<Guid> GetLastHint()
+        {
+            var result = await _dbContext.DmDynamoLastHInt
+                .Where(p => p.TableName.ToLower() == "tenure")
+                .OrderBy(p => p.Timex).LastOrDefaultAsync().ConfigureAwait(false);
+            return result?.Id ?? Guid.Empty;
         }
     }
 }

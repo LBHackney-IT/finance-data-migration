@@ -39,7 +39,9 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public async Task<Guid> GetLastHint()
         {
-            var result = await _dbContext.DmDynamoAssetLastHInt.OrderBy(p=>p.Timex).LastOrDefaultAsync().ConfigureAwait(false);
+            var result = await _dbContext.DmDynamoLastHInt
+                .Where(p=>p.TableName.ToLower()== "asset")
+                .OrderBy(p=>p.Timex).LastOrDefaultAsync().ConfigureAwait(false);
             return result?.Id??Guid.Empty;
         }
     }
