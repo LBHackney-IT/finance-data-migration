@@ -59,7 +59,7 @@ bin/
 .idea/
 tmp/
 .vs/
-/base-api.Tests/Properties/launchSettings.json
+/finance-data-migration-api.Tests/Properties/launchSettings.json
 
 .fake
 .ionide
