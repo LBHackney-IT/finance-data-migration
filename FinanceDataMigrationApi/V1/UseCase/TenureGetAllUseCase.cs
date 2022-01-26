@@ -7,7 +7,7 @@ using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 
 namespace FinanceDataMigrationApi.V1.UseCase
 {
-    public class TenureGetAllUseCase: ITenureGetAllUseCase
+    public class TenureGetAllUseCase : ITenureGetAllUseCase
     {
         private readonly ITenureGateway _tenureGateway;
 

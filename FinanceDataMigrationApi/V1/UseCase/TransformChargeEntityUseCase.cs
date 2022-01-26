@@ -10,7 +10,7 @@ using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 
 namespace FinanceDataMigrationApi.V1.UseCase
 {
-    public class TransformChargeEntityUseCase: ITransformChargeEntityUseCase
+    public class TransformChargeEntityUseCase : ITransformChargeEntityUseCase
     {
         private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IDMChargeEntityGateway _dMChargeEntityGateway;

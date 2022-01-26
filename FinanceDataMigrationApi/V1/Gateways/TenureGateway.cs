@@ -87,14 +87,14 @@ namespace FinanceDataMigrationApi.V1.Gateways
             return result;
         }
 
-        public async Task<TenurePaginationResponse> GetAll(Dictionary<string, AttributeValue> lastEvaluatedKey=null)
+        public async Task<TenurePaginationResponse> GetAll(Dictionary<string, AttributeValue> lastEvaluatedKey = null)
         {
             ScanRequest request = new ScanRequest("TenureInformation")
             {
                 Limit = 1000,
                 ExclusiveStartKey = lastEvaluatedKey
             };
-            ScanResponse response =await _dynamoDb.ScanAsync(request).ConfigureAwait(false);
+            ScanResponse response = await _dynamoDb.ScanAsync(request).ConfigureAwait(false);
 
             return new TenurePaginationResponse()
             {

@@ -18,7 +18,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
         private readonly IAmazonDynamoDB _amazonDynamoDb;
         private readonly ILogger<ITransactionGateway> _logger;
 
-        public TransactionGateway(IAmazonDynamoDB amazonDynamoDb,ILogger<ITransactionGateway> logger)
+        public TransactionGateway(IAmazonDynamoDB amazonDynamoDb, ILogger<ITransactionGateway> logger)
         {
             _amazonDynamoDb = amazonDynamoDb;
             _logger = logger;

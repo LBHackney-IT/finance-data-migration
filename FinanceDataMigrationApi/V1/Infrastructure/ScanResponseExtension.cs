@@ -25,7 +25,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                         Description = item["tenureType"].M["description"].S
                     },
                     PaymentReference = item["paymentReference"].S,
-                    HouseholdMembers = item["householdMembers"].L.ToArray().Select(m=>
+                    HouseholdMembers = item["householdMembers"].L.ToArray().Select(m =>
                         new HouseholdMembers
                         {
                             Id = Guid.Parse(m.M["id"].S),

@@ -6,7 +6,7 @@ using Hackney.Shared.HousingSearch.Domain.Transactions;
 
 namespace FinanceDataMigrationApi.V1.UseCase
 {
-    public class TransactionBatchInsertUseCase: ITransactionBatchInsertUseCase
+    public class TransactionBatchInsertUseCase : ITransactionBatchInsertUseCase
     {
         private readonly ITransactionGateway _gateway;
 

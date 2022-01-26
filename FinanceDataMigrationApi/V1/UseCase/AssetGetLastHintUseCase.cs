@@ -5,7 +5,7 @@ using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 
 namespace FinanceDataMigrationApi.V1.UseCase
 {
-    public class AssetGetLastHintUseCase: IAssetGetLastHintUseCase
+    public class AssetGetLastHintUseCase : IAssetGetLastHintUseCase
     {
         private readonly IAssetGateway _gateway;
 

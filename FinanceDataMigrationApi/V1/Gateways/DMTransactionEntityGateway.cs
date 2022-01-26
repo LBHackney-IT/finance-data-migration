@@ -58,7 +58,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
                     .Where(x => x.IsTransformed == false)
                     .ToListAsync()
                     .ConfigureAwait(false);
-              
+
                 return results.ToDomain();
             }
             catch (Exception e)

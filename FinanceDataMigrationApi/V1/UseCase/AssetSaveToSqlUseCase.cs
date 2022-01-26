@@ -5,7 +5,7 @@ using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 
 namespace FinanceDataMigrationApi.V1.UseCase
 {
-    public class AssetSaveToSqlUseCase: IAssetSaveToSqlUseCase
+    public class AssetSaveToSqlUseCase : IAssetSaveToSqlUseCase
     {
         private readonly IAssetGateway _gateway;
 
@@ -13,9 +13,9 @@ namespace FinanceDataMigrationApi.V1.UseCase
         {
             _gateway = gateway;
         }
-        public Task<int> ExecuteAsync(string lastHint,XElement xml)
+        public Task<int> ExecuteAsync(string lastHint, XElement xml)
         {
-            return _gateway.SaveAssetsIntoSql(lastHint,xml);
+            return _gateway.SaveAssetsIntoSql(lastHint, xml);
         }
     }
 }

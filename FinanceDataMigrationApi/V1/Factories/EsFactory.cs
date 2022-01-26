@@ -34,14 +34,14 @@ namespace FinanceDataMigrationApi.V1.Factories
                 {
                     FullName = transaction.Sender.FullName,
                     Id = transaction.Sender.Id
-                }: null,
-                SuspenseResolutionInfo = transaction.SuspenseResolutionInfo != null? new QueryableSuspenseResolutionInfo
+                } : null,
+                SuspenseResolutionInfo = transaction.SuspenseResolutionInfo != null ? new QueryableSuspenseResolutionInfo
                 {
                     IsApproved = transaction.SuspenseResolutionInfo.IsApproved,
                     IsConfirmed = transaction.SuspenseResolutionInfo.IsConfirmed,
                     Note = transaction.SuspenseResolutionInfo.Note,
                     ResolutionDate = transaction.SuspenseResolutionInfo.ResolutionDate
-                }: null,
+                } : null,
                 TargetId = transaction.TargetId,
                 TargetType = transaction.TargetType,
                 TransactionAmount = transaction.TransactionAmount,

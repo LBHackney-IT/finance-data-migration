@@ -58,7 +58,7 @@ namespace FinanceDataMigrationApi.V1.UseCase
 
                         // we need to update the corresponding rows isLoaded flag in the staging table.
                         loadedList.ToList().ForEach(item => item.IsIndexed = true);
-                       
+
                         // Update batched rows to staging table DMTransactionEntity. 
                         await _dMTransactionEntityGateway.UpdateDMTransactionEntityItems(loadedList).ConfigureAwait(false);
 

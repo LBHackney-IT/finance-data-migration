@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
-    public class AssetGateway: IAssetGateway
+    public class AssetGateway : IAssetGateway
     {
         private readonly HttpClient _client;
         private readonly DatabaseContext _dbContext;
@@ -32,17 +32,17 @@ namespace FinanceDataMigrationApi.V1.Gateways
             return assetsResponse;
         }
 
-        public Task<int> SaveAssetsIntoSql(string lastHint,XElement xml)
+        public Task<int> SaveAssetsIntoSql(string lastHint, XElement xml)
         {
-            return _dbContext.InsertDynamoAsset(lastHint,xml);
+            return _dbContext.InsertDynamoAsset(lastHint, xml);
         }
 
         public async Task<Guid> GetLastHint()
         {
             var result = await _dbContext.DmDynamoLastHInt
-                .Where(p=>p.TableName.ToLower()== "asset")
-                .OrderBy(p=>p.Timex).LastOrDefaultAsync().ConfigureAwait(false);
-            return result?.Id??Guid.Empty;
+                .Where(p => p.TableName.ToLower() == "asset")
+                .OrderBy(p => p.Timex).LastOrDefaultAsync().ConfigureAwait(false);
+            return result?.Id ?? Guid.Empty;
         }
     }
 }

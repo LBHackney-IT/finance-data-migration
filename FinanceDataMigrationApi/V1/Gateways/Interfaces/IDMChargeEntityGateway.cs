@@ -11,7 +11,7 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
 
         Task<IList<DMChargeEntityDomain>> ListAsync();
 
-        Task <int> ExtractAsync(DateTimeOffset? processingDate);
+        Task<int> ExtractAsync(DateTimeOffset? processingDate);
 
         Task<List<DMDetailedChargesEntity>> GetDetailChargesListAsync(string paymentReference);
 

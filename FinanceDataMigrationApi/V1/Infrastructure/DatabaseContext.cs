@@ -112,8 +112,8 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
 
             try
             {
-                var result =  await DMDetailedChargesEntities
-                    .FromSqlRaw("[dbo].[usp_ExtractDetailedChargesEntity] @payment_reference",param)
+                var result = await DMDetailedChargesEntities
+                    .FromSqlRaw("[dbo].[usp_ExtractDetailedChargesEntity] @payment_reference", param)
                     .ToListAsync()
                     .ConfigureAwait(false);
 
@@ -144,7 +144,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-        public async Task<int> InsertDynamoAsset(string lastHint,XElement xml)
+        public async Task<int> InsertDynamoAsset(string lastHint, XElement xml)
         {
             var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_InsertDynamoAsset] '{lastHint}','{xml}'", 600).ConfigureAwait(false);
             return affectedRows;

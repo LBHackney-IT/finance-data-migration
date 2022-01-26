@@ -25,10 +25,10 @@ namespace FinanceDataMigrationApi.V1.Controllers
         private readonly ITenureGetLastHintUseCase _getLastHintUseCase;
 
         public TenureController(IGetTenureByPrnUseCase tenureByPrnUseCase
-            ,ITenureBatchInsertUseCase batchInsertUseCase
-            ,ITenureGetAllUseCase tenureGetAllUseCase
-            ,ITenureSaveToSqlUseCase saveToSqlUseCase
-            ,ITenureGetLastHintUseCase getLastHintUseCase)
+            , ITenureBatchInsertUseCase batchInsertUseCase
+            , ITenureGetAllUseCase tenureGetAllUseCase
+            , ITenureSaveToSqlUseCase saveToSqlUseCase
+            , ITenureGetLastHintUseCase getLastHintUseCase)
         {
             _tenureByPrnUseCase = tenureByPrnUseCase;
             _batchInsertUseCase = batchInsertUseCase;

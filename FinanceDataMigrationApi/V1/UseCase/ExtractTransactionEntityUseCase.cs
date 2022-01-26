@@ -30,7 +30,7 @@ namespace FinanceDataMigrationApi
             try
             {
                 // Get latest successfull migrationrun item from Table MigrationRuns. where is_feature_enabled flag is TRUE.
-                var dmRunLogDomain = await _dMRunLogGateway.GetDMRunLogByEntityNameAsync(DMEntityNames.Transactions).ConfigureAwait(false)??
+                var dmRunLogDomain = await _dMRunLogGateway.GetDMRunLogByEntityNameAsync(DMEntityNames.Transactions).ConfigureAwait(false) ??
                                      new DMRunLogDomain()
                                      {
                                          DynamoDbTableName = DMEntityNames.Transactions

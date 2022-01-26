@@ -17,7 +17,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Gateways
 
         public new Task<DMRunLogDomain> GetDMRunLogByEntityNameAsync(string dynamoDbTableName)
         {
-            DmRunLogDomainResult =  base.GetDMRunLogByEntityNameAsync(dynamoDbTableName);
+            DmRunLogDomainResult = base.GetDMRunLogByEntityNameAsync(dynamoDbTableName);
             GetDmRunLogByEntityNameHasBeenCalled = true;
             return DmRunLogDomainResult;
         }

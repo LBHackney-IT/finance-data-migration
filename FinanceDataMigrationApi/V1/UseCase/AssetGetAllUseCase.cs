@@ -6,7 +6,7 @@ using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 
 namespace FinanceDataMigrationApi.V1.UseCase
 {
-    public class AssetGetAllUseCase: IAssetGetAllUseCase
+    public class AssetGetAllUseCase : IAssetGetAllUseCase
     {
         private readonly IAssetGateway _gateway;
 

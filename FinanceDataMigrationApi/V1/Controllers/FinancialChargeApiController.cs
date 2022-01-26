@@ -21,7 +21,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
         public FinancialChargeApiController(
             IExtractChargeEntityUseCase extractChargeEntityUseCase,
             ITransformChargeEntityUseCase transformChargeEntityUseCase
-            //,ILoadChargeEntityUseCase loadChargeEntityUseCase
+        //,ILoadChargeEntityUseCase loadChargeEntityUseCase
         )
         {
             _extractChargeEntityUseCase = extractChargeEntityUseCase;

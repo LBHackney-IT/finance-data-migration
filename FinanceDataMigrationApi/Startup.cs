@@ -163,8 +163,8 @@ namespace FinanceDataMigrationApi
                     c.BaseAddress = new Uri(searchApiUrl);
                     c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(searchApiToken);
                 })
-                .AddHttpMessageHandler<LoggingDelegatingHandler>(); 
- 
+                .AddHttpMessageHandler<LoggingDelegatingHandler>();
+
         }
 
         private static void RegisterUseCases(IServiceCollection services)

@@ -10,7 +10,7 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
     {
 
         public Task<APIResponse<GetAssetListResponse>> DownloadAsync(string lastHintStr);
-        public Task<int> SaveAssetsIntoSql(string lastHint,XElement xml);
+        public Task<int> SaveAssetsIntoSql(string lastHint, XElement xml);
         public Task<Guid> GetLastHint();
     }
 }

@@ -36,7 +36,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
         {
             double totlaSeconds = 0;
             List<Task> tasks = new List<Task>();
-            for (int i = 0; i < count/25; i++)
+            for (int i = 0; i < count / 25; i++)
             {
                 Fixture fixture = new Fixture();
                 List<Transaction> transactions = fixture.CreateMany<Transaction>(25).ToList();

@@ -22,11 +22,11 @@ namespace FinanceDataMigrationApi.Tests.V1.UseCase
 
         public TransformTransactionEntityUseCaseTests()
         {
-             //setup defaults as mocks
-             _dMRunLogGateway = new Mock<IDMRunLogGateway>();
-             _dMTransactionEntityGateway = new Mock<IDMTransactionEntityGateway>();
-             _tenureGateway = new Mock<ITenureGateway>();
-             _personGateway = new Mock<IPersonGateway>();
+            //setup defaults as mocks
+            _dMRunLogGateway = new Mock<IDMRunLogGateway>();
+            _dMTransactionEntityGateway = new Mock<IDMTransactionEntityGateway>();
+            _tenureGateway = new Mock<ITenureGateway>();
+            _personGateway = new Mock<IPersonGateway>();
         }
 
 

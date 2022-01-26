@@ -6,7 +6,7 @@ using FinanceDataMigrationApi.V1.Infrastructure;
 
 namespace FinanceDataMigrationApi.V1.Factories
 {
-   public static class ChargeFactory
+    public static class ChargeFactory
     {
         public static Charge ToDomain(this ChargeDbEntity chargeEntity)
         {

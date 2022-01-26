@@ -22,7 +22,9 @@ namespace FinanceDataMigrationApi.V1.Gateways.Extensions
         }
         public static async Task<bool> PostAsJsonAsyncType<T>(this HttpClient httpClient, Uri url, T data)
         {
-            var formatter = new JsonMediaTypeFormatter {SerializerSettings = new JsonSerializerSettings
+            var formatter = new JsonMediaTypeFormatter
+            {
+                SerializerSettings = new JsonSerializerSettings
                 {
                     Formatting = Formatting.Indented,
                     ContractResolver = new CamelCasePropertyNamesContractResolver()

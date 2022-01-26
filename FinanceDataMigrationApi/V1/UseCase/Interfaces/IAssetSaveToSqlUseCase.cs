@@ -5,6 +5,6 @@ namespace FinanceDataMigrationApi.V1.UseCase.Interfaces
 {
     public interface IAssetSaveToSqlUseCase
     {
-        public  Task<int> ExecuteAsync(string lastHint,XElement xml);
+        public Task<int> ExecuteAsync(string lastHint, XElement xml);
     }
 }

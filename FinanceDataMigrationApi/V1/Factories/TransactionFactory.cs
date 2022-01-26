@@ -39,8 +39,8 @@ namespace FinanceDataMigrationApi.V1.Factories
                         TransactionDate = dMTransactionEntityDomain.TransactionDate,
                         TransactionSource = dMTransactionEntityDomain.TransactionSource,
                         TransactionType = dMTransactionEntityDomain.TransactionType.TransactionTypeEnumValue(),
-                        FinancialYear = (short)dMTransactionEntityDomain.FinancialYear,
-                        FinancialMonth = (short)dMTransactionEntityDomain.FinancialMonth
+                        FinancialYear = (short) dMTransactionEntityDomain.FinancialYear,
+                        FinancialMonth = (short) dMTransactionEntityDomain.FinancialMonth
                     };
             }
             catch (Exception e)

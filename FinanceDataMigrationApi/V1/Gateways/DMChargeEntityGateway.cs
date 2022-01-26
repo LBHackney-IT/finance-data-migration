@@ -86,7 +86,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             try
             {
                 await _context
-                    .BulkUpdateAsync(dMChargeEntityDomainItems.ToDatabase(), new BulkConfig {BatchSize = _batchSize})
+                    .BulkUpdateAsync(dMChargeEntityDomainItems.ToDatabase(), new BulkConfig { BatchSize = _batchSize })
                     .ConfigureAwait(false);
             }
             catch (Exception e)

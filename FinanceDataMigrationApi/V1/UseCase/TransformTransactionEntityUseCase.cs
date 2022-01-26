@@ -127,14 +127,14 @@ namespace FinanceDataMigrationApi
             var tenure = tenureList.FirstOrDefault();
             _targetId = tenure.Id;
 
-           
+
             var householdMembers = tenureList.SelectMany(x => x.HouseholdMembers).ToList();
 
             var householdMember = householdMembers.Where(x => x.IsResponsible).ToList();
 
-            if (householdMember.Count == 1 )
+            if (householdMember.Count == 1)
             {
-              
+
                 var transactionPerson = new TransactionPerson { Id = householdMember[0].Id, FullName = householdMember[0].FullName };
                 return await Task.FromResult(JsonConvert.SerializeObject(transactionPerson)).ConfigureAwait(false);
             }
