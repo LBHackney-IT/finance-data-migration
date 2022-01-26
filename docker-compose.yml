@@ -28,8 +28,8 @@ services:
   finance-data-migration-api-test:
     image: finance-data-migration-api-test
     build:
-      context: .
-      dockerfile: Finance_Data_Migration_Api.Tests/Dockerfile
+      context: Finance_Data_Migration_Api.Tests/
+      dockerfile: ./Dockerfile
       args:
       - LBHPACKAGESTOKEN=${LBHPACKAGESTOKEN}
     environment:
