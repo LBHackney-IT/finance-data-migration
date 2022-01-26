@@ -49,7 +49,7 @@ services:
     links:
       - test-database
 # TODO: If using DynamoDb remove the line above and uncomment the line below.
-#      - dynamodb-database
+      - dynamodb-database
 
 #  test-database:
 #    image: test-database
