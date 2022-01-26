@@ -199,8 +199,8 @@ namespace FinanceDataMigrationApi
                 app.UseHsts();
             }
 
-            var origins = Environment.GetEnvironmentVariable("ACCEPTED_ORIGINS").Split(",");
-            app.UseCors(options => options.WithOrigins(origins)
+            /*var origins = Environment.GetEnvironmentVariable("ACCEPTED_ORIGINS")?.Split(",");*/
+            app.UseCors(options => options.AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader());
 
