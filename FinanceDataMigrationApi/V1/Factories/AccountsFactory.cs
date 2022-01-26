@@ -13,7 +13,7 @@ namespace FinanceDataMigrationApi.V1.Factories
             var accountModel = new Dictionary<string, AttributeValue>()
             {
                 {"id", new AttributeValue {S = account.Id.ToString()}},
-                {"account_balance", new AttributeValue {N = account.AccountBalance.HasValue ? account.AccountBalance.Value.ToString("F") : "0"}},
+                {"account_balance", new AttributeValue {N = account.AccountBalance.HasValue ? account.AccountBalance.Value.ToString("F").Replace(',', '.') : "0"}},
                 {"target_id", new AttributeValue {S = account.TargetId.ToString()}},
                 {"target_type", new AttributeValue {S = account.TargetType.ToString()}},
                 {"account_type", new AttributeValue {S = account.AccountType.ToString()}},

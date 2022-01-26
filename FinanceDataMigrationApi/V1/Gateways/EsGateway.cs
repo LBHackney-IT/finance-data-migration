@@ -1,15 +1,11 @@
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
-using Hackney.Core.ElasticSearch.Interfaces;
 using Hackney.Shared.HousingSearch.Gateways.Models.Accounts;
 using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Nest;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using QueryableTenure = Hackney.Shared.HousingSearch.Gateways.Models.Tenures.QueryableTenure;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
@@ -67,32 +63,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 });
 
             return Task.CompletedTask;
-        }
-
-        public async Task<QueryableTenure> GetTenureByPrn(string prn)
-        {
-            var querybuilder = _serviceProvider.GetService<IQueryBuilder<QueryableTenure>>();
-
-            var tenures = await _esClient.SearchAsync<QueryableTenure>(x =>
-                x.Index(Indices.Index(new List<IndexName> { "tenures" }))
-                .Query(q => querybuilder.WithWildstarQuery(prn, new List<string>
-                {
-                    "paymentReference"
-                }).Build(q))).ConfigureAwait(false);
-
-            if (tenures == null || tenures.Documents == null || !tenures.Documents.Any())
-            {
-                throw new ArgumentException("Cannot find any tenures by PRN " + prn);
-            }
-
-            var tenure = tenures.Documents.FirstOrDefault(t => string.Equals(t.PaymentReference, prn));
-
-            if (tenure == null)
-            {
-                throw new ArgumentException($"Tenure with provided PRN {prn} was not found");
-            }
-
-            return tenure;
         }
     }
 }

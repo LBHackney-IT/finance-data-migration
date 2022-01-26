@@ -13,7 +13,5 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
         Task BulkIndexTransaction(List<QueryableTransaction> transactions);
 
         Task BulkIndexAccounts(List<QueryableAccount> accounts);
-
-        Task<Hackney.Shared.HousingSearch.Gateways.Models.Tenures.QueryableTenure> GetTenureByPrn(string prn);
     }
 }

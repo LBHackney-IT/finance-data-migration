@@ -50,7 +50,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
                 List<Task> tasks = new List<Task>();
                 for (int i = 0; i <= transformedList.Count / 25; i++)
                 {
-                    var accountsToInsert = transformedList.Skip(i).Take(25).ToList();
+                    var accountsToInsert = transformedList.Skip(i * 25).Take(25).ToList();
 
                     tasks.Add(_accountsDynamoDbGateway.BatchInsert(accountsToInsert));
                 }

@@ -96,12 +96,12 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
 
         private async Task PopulateAccount(Infrastructure.Accounts.DMAccountEntity account)
         {
-            var esTenure = await _esGateway.GetTenureByPrn(account.PaymentReference.Trim()).ConfigureAwait(false);
-
-            account.TargetId = Guid.Parse(esTenure.Id);
-            account.TargetType = Hackney.Shared.HousingSearch.Domain.Accounts.Enum.TargetType.Tenure.ToString();
-
             var tenureFromDynamoDb = await _tenureDynamoDbGateway.GetTenureById(account.TargetId.Value).ConfigureAwait(false);
+
+            if (tenureFromDynamoDb == null)
+            {
+                throw new ArgumentException("Cannot load item from Tenures DynamoDB table. TargetId: " + account.TargetId.Value);
+            }
 
             account.EndReasonCode = tenureFromDynamoDb.Terminated?.ReasonForTermination;
             account.AgreementType = "Master Account";
