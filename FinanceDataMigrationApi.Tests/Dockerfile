@@ -3,14 +3,14 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.1
 # disable microsoft telematry
 ENV DOTNET_CLI_TELEMETRY_OPTOUT='true'
 
+ENV DynamoDb_LocalMode='true'
 ARG LBHPACKAGESTOKEN
 ENV LBHPACKAGESTOKEN=$LBHPACKAGESTOKEN
-
 WORKDIR /app
 
 # Copy csproj and nuget config and restore as distinct layers
-# COPY ./FinanceDataMigrationApi.sln ./
-# COPY ./FinanceDataMigrationApi/FinanceDataMigrationApi.csproj ./FinanceDataMigrationApi/
+COPY ./FinanceDataMigrationApi.sln ./
+COPY ./FinanceDataMigrationApi/FinanceDataMigrationApi.csproj ./FinanceDataMigrationApi/
 COPY ./FinanceDataMigrationApi.Tests/FinanceDataMigrationApi.Tests.csproj ./FinanceDataMigrationApi.Tests/
 COPY /NuGet.Config /root/.nuget/NuGet/NuGet.Config
 
