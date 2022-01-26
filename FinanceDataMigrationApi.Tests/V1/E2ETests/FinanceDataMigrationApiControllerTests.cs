@@ -42,7 +42,7 @@ namespace FinanceDataMigrationApi.Tests.V1.E2ETests
 
         }
 
-        [Fact]
+        /*[Fact]
         public async Task TransformTransitionEntityReturnsOkResponseWhenDataToMigrate()
         {
             //arrange cause data to be populated for testing
@@ -57,7 +57,7 @@ namespace FinanceDataMigrationApi.Tests.V1.E2ETests
             //assert
             result.Should().Be(HttpStatusCode.OK);
 
-        }
+        }*/
 
         [Fact]
         public async Task LoadTransactionEntityReturnsOkResponseWhenDataToMigrate()
