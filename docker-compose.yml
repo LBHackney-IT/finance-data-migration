@@ -16,14 +16,14 @@ services:
       - AWS_REGION=eu-west-2
       - AWS_ACCESS_KEY_ID=local
       - AWS_SECRET_ACCESS_KEY=local
-    links:
-      - dev-database
-  dev-database:
-    env_file:
-      - database.env
-    image: postgres:12
-    volumes:
-      - ./database:/docker-entrypoint-initdb.d
+  #  links:
+  #    - dev-database
+  #dev-database:
+  #  env_file:
+  #    - database.env
+  #  image: postgres:12
+  #  volumes:
+  #    - ./database:/docker-entrypoint-initdb.d
 
   finance-data-migration-api-test:
     image: finance-data-migration-api-test
