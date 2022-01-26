@@ -209,7 +209,7 @@ workflows:
           filters:
             branches:
               only: master
-       - deploy-to-staging:
+      - deploy-to-staging:
           context: api-nuget-token-context
           requires:
             - terraform-init-and-apply-to-staging
