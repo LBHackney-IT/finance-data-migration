@@ -115,5 +115,19 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 throw;
             }
         }
+
+        public async Task SaveTenureListAsync(IList<DMTenureEntity> tenureEntities)
+        {
+            try
+            {
+                await _context.BulkInsertAsync(tenureEntities, new BulkConfig { BatchSize = _batchSize }).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                LoggingHandler.LogError(e.Message);
+                LoggingHandler.LogError(e.StackTrace);
+                throw;
+            }
+        }
     }
 }

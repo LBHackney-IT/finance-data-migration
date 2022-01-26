@@ -16,5 +16,7 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
         Task<IList<DMAccountEntity>> GetTransformedListAsync();
 
         Task UpdateDMAccountEntityItems(IList<DMAccountEntity> dMAccountEntities);
+
+        Task SaveTenureListAsync(IList<DMTenureEntity> tenureEntities);
     }
 }

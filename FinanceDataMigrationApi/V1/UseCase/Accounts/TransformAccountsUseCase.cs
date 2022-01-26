@@ -103,6 +103,11 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
 
             var tenureFromDynamoDb = await _tenureDynamoDbGateway.GetTenureById(account.TargetId.Value).ConfigureAwait(false);
 
+            if (tenureFromDynamoDb == null)
+            {
+                throw new ArgumentException("Cannot load item from Tenures DynamoDB table. TargetId: " + account.TargetId.Value);
+            }
+
             account.EndReasonCode = tenureFromDynamoDb.Terminated?.ReasonForTermination;
             account.AgreementType = "Master Account";
             account.ParentAccountId = null;

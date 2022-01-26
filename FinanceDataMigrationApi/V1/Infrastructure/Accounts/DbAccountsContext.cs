@@ -25,6 +25,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
         /// </summary>
         public DbSet<DMAccountEntity> DMAccountEntities { get; set; }
 
+        public DbSet<DMTenureEntity> DMTenureEntities { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="DbAccountsContext"/> class.
         /// </summary>
