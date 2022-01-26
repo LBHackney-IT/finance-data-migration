@@ -1,29 +1,15 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using FinanceDataMigrationApi.V1.Boundary.Request;
+using System.Text.Json;
+using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Infrastructure;
 
 namespace FinanceDataMigrationApi.V1.Factories
 {
-    public static class ChargeFactory
+    public static partial class ChargeFactory
     {
-        public static Charge ToDomain(this ChargeDbEntity chargeEntity)
-        {
-            if (chargeEntity == null)
-            {
-                return null;
-            }
-
-            return new Charge
-            {
-                Id = chargeEntity.Id,
-                TargetId = chargeEntity.TargetId,
-                TargetType = chargeEntity.TargetType,
-                ChargeGroup = chargeEntity.ChargeGroup,
-                DetailedCharges = chargeEntity.DetailedCharges
-            };
-        }
 
         public static ChargeDbEntity ToDatabase(this Charge charge)
         {
@@ -41,46 +27,107 @@ namespace FinanceDataMigrationApi.V1.Factories
                 DetailedCharges = charge.DetailedCharges
             };
         }
-
-        public static Charge ToDomain(this AddChargeRequest chargeRequest)
+        public static DMChargesEntity ToDatabase(this DMChargeEntityDomain dMChargeEntityDomain)
         {
-            if (chargeRequest == null)
-            {
-                return null;
-            }
+            return dMChargeEntityDomain == null
+                ? null
+                : new DMChargesEntity()
+                {
+                    Id = dMChargeEntityDomain.Id,
+                    IdDynamodb = dMChargeEntityDomain.IdDynamodb,
+                    TargetId = dMChargeEntityDomain.TargetId,
+                    PaymentReference = dMChargeEntityDomain.PaymentReference,
+                    PropertyReference = dMChargeEntityDomain.PropertyReference,
+                    TargetType = dMChargeEntityDomain.TargetType,
+                    ChargeGroup = dMChargeEntityDomain.ChargeGroup,
+                    DetailedCharges = dMChargeEntityDomain.DetailedCharges,
+                    IsTransformed = dMChargeEntityDomain.IsTransformed,
+                    IsLoaded = dMChargeEntityDomain.IsLoaded,
+                    CreatedAt = dMChargeEntityDomain.CreatedAt
+                };
+        }
 
-            return new Charge
+        public static DMChargeEntityDomain ToDomain(this DMChargesEntity dMChargesEntity)
+        {
+            return dMChargesEntity == null
+                ? null
+                : new DMChargeEntityDomain()
+                {
+                    Id = dMChargesEntity.Id,
+                    IdDynamodb = dMChargesEntity.IdDynamodb,
+                    TargetId = dMChargesEntity.TargetId ?? Guid.Empty,
+                    PaymentReference = dMChargesEntity.PaymentReference,
+                    PropertyReference = dMChargesEntity.PropertyReference,
+                    TargetType = dMChargesEntity.TargetType,
+                    ChargeGroup = dMChargesEntity.ChargeGroup,
+                    DetailedCharges = dMChargesEntity.DetailedCharges,
+                    IsTransformed = dMChargesEntity.IsTransformed,
+                    IsLoaded = dMChargesEntity.IsLoaded,
+                    CreatedAt = dMChargesEntity.CreatedAt
+                };
+        }
+
+        public static List<DMChargeEntityDomain> ToDomain(this IList<DMChargesEntity> databaseEntity)
+        {
+            return databaseEntity.Select(p => p.ToDomain()).ToList();
+        }
+
+        public static List<DMChargesEntity> ToDatabase(this IList<DMChargeEntityDomain> dMChargeEntityDomainItems)
+        {
+            return dMChargeEntityDomainItems.Select(p => p.ToDatabase()).ToList();
+        }
+
+        public static Charge ToAddChargeRequest(this DMChargeEntityDomain dmChargesEntityDomain)
+        {
+
+            return new Charge()
             {
-                TargetId = chargeRequest.TargetId,
-                TargetType = chargeRequest.TargetType,
-                ChargeGroup = chargeRequest.ChargeGroup,
-                DetailedCharges = chargeRequest.DetailedCharges
+                Id = dmChargesEntityDomain.IdDynamodb,
+                TargetId = dmChargesEntityDomain.TargetId,
+                ChargeGroup = JsonSerializer.Deserialize<ChargeGroup>(dmChargesEntityDomain.ChargeGroup),
+                DetailedCharges =
+                    JsonSerializer.Deserialize<List<DetailedCharges>>(dmChargesEntityDomain.DetailedCharges),
+                TargetType = JsonSerializer.Deserialize<TargetType>(dmChargesEntityDomain.TargetType)
             };
         }
 
-        public static Charge ToDomain(this UpdateChargeRequest chargeRequest)
+        public static List<Charge> ToAddChargeRequestList(this IList<DMChargeEntityDomain> dmChargesEntityDomains)
         {
-            if (chargeRequest == null)
-            {
-                return null;
-            }
+            return dmChargesEntityDomains.Select(item => item.ToAddChargeRequest()).ToList();
+        }
 
-            return new Charge
+        public static Dictionary<string, AttributeValue> ToQueryRequest(this Charge charge)
+        {
+            return new Dictionary<string, AttributeValue>()
             {
-                Id = chargeRequest.Id,
-                TargetId = chargeRequest.TargetId,
-                TargetType = chargeRequest.TargetType,
-                ChargeGroup = chargeRequest.ChargeGroup,
-                DetailedCharges = chargeRequest.DetailedCharges
+                {"id", new AttributeValue {S = charge.Id.ToString()}},
+                {"target_id", new AttributeValue {S = charge.TargetId.ToString()}},
+                {"target_type", new AttributeValue {N = charge.TargetType.ToString()}},
+                {"charge_group", new AttributeValue {S = charge.ChargeGroup.ToString()}},
+                {"charge_year", new AttributeValue {N = charge.ChargeYear.ToString()}},
+                {
+                    "detailed_charges",
+                    new AttributeValue
+                    {
+                        L=
+                            charge.DetailedCharges.Select(p=>
+                            new AttributeValue
+                            {
+                                M = new Dictionary<string, AttributeValue>
+                                {
+                                    {"chargeCode", new AttributeValue {S = p.ChargeCode}},
+                                    {"frequency", new AttributeValue {S = p.Frequency}},
+                                    {"amount", new AttributeValue {N = p.Amount.ToString("F")}},
+                                    {"endDate", new AttributeValue {S = p.EndDate.ToString("F")}},
+                                    {"chargeType", new AttributeValue {S = p.ChargeType.ToString()}},
+                                    {"subType", new AttributeValue {S = p.SubType.ToString()}},
+                                    {"type", new AttributeValue {S = p.Type.ToString()}},
+                                    {"startDate", new AttributeValue {S = p.StartDate.ToString("F")}},
+                                }
+                            }).ToList()
+                    }
+                }
             };
-        }
-        public static List<ChargeDbEntity> ToDatabaseList(this List<Charge> charges)
-        {
-            return charges.Select(item => item.ToDatabase()).ToList();
-        }
-        public static List<Charge> ToDomainList(this List<AddChargeRequest> charges)
-        {
-            return charges.Select(item => item.ToDomain()).ToList();
         }
 
     }

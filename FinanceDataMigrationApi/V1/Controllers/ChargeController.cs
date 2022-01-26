@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 
 namespace FinanceDataMigrationApi.V1.Controllers
 {
@@ -12,21 +14,24 @@ namespace FinanceDataMigrationApi.V1.Controllers
     [Route("api/v1/data-migration")]
     [Produces("application/json")]
     [ApiVersion("1.0")]
-    public class FinancialChargeApiController : BaseController
+    public class ChargeController : BaseController
     {
         private readonly IExtractChargeEntityUseCase _extractChargeEntityUseCase;
         private readonly ITransformChargeEntityUseCase _transformChargeEntityUseCase;
-        //private readonly ILoadChargeEntityUseCase _loadChargeEntityUseCase;
+        private readonly ILoadChargeEntityUseCase _loadChargeEntityUseCase;
+        private readonly IChargeBatchInsertUseCase _batchInsertUseCase;
 
-        public FinancialChargeApiController(
+        public ChargeController(
             IExtractChargeEntityUseCase extractChargeEntityUseCase,
-            ITransformChargeEntityUseCase transformChargeEntityUseCase
-        //,ILoadChargeEntityUseCase loadChargeEntityUseCase
+            ITransformChargeEntityUseCase transformChargeEntityUseCase,
+            ILoadChargeEntityUseCase loadChargeEntityUseCase,
+            IChargeBatchInsertUseCase batchInsertUseCase
         )
         {
             _extractChargeEntityUseCase = extractChargeEntityUseCase;
             _transformChargeEntityUseCase = transformChargeEntityUseCase;
-            //_loadChargeEntityUseCase = loadChargeEntityUseCase;
+            _loadChargeEntityUseCase = loadChargeEntityUseCase;
+            _batchInsertUseCase = batchInsertUseCase;
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -73,8 +78,12 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status500InternalServerError)]
         [HttpGet]
         [Route("charge-entity/load")]
-        public Task<IActionResult> LoadChargeEntity()
+        public async Task<IActionResult> LoadChargeEntity()
         {
+
+            var runLoadChargeEntity = await _loadChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
+            /*return Ok($"Elapsed time: {DateAndTime.Now.Subtract(startDateTime).TotalSeconds}");*/
+            return Ok("Done");
             // var runLoadChargeEntity = await _loadChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
             //
             // if (runLoadChargeEntity.Continue == false)
@@ -85,7 +94,6 @@ namespace FinanceDataMigrationApi.V1.Controllers
             //
             // return Ok("Charge Entities Loaded Successfully");
 
-            throw new NotImplementedException();
         }
     }
 }

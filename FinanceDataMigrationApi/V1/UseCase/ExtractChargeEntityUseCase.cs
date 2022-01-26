@@ -12,7 +12,7 @@ namespace FinanceDataMigrationApi.V1.UseCase
     {
 
         private readonly IDMRunLogGateway _dMRunLogGateway;
-        private readonly IDMChargeEntityGateway _dMChargeEntityGateway;
+        private readonly IChargeGateway _dMChargeGateway;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
 
 
@@ -20,10 +20,10 @@ namespace FinanceDataMigrationApi.V1.UseCase
 
         public ExtractChargeEntityUseCase(
             IDMRunLogGateway dmRunLogGateway,
-            IDMChargeEntityGateway dMChargeEntityGateway)
+            IChargeGateway dMChargeGateway)
         {
             _dMRunLogGateway = dmRunLogGateway;
-            _dMChargeEntityGateway = dMChargeEntityGateway;
+            _dMChargeGateway = dMChargeGateway;
         }
 
         public async Task<StepResponse> ExecuteAsync()
@@ -46,7 +46,7 @@ namespace FinanceDataMigrationApi.V1.UseCase
                 var newDMRunLogDomain = await _dMRunLogGateway.AddAsync(dmRunLogDomain).ConfigureAwait(false);
 
                 // Call stored procedure usp_ExtractTransactionEntity in SOW2b database to kick off the extract of data to staging table using
-                var numberOfRowsExtracted = await _dMChargeEntityGateway.ExtractAsync(lastRunTimestamp).ConfigureAwait(false);
+                var numberOfRowsExtracted = await _dMChargeGateway.ExtractAsync(lastRunTimestamp).ConfigureAwait(false);
 
                 // if return value from usp is >0 (success), then capture how many rows to migrate from return value.
                 // if return value from usp is =0 (success), but no rows to migrate.

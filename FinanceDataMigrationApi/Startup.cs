@@ -146,7 +146,7 @@ namespace FinanceDataMigrationApi
         {
             services.AddTransient<LoggingDelegatingHandler>();
 
-            services.AddScoped<IDMChargeEntityGateway, DMChargeEntityGateway>();
+            services.AddScoped<IChargeGateway, ChargeGateway>();
             services.AddScoped<IDMTransactionEntityGateway, DMTransactionEntityGateway>();
             services.AddScoped<ITransactionGateway, TransactionGateway>();
             services.AddScoped<IDMRunLogGateway, DMRunLogGateway>();
@@ -185,6 +185,8 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IAssetGetLastHintUseCase, AssetGetLastHintUseCase>();
             services.AddScoped<ITenureSaveToSqlUseCase, TenureSaveToSqlUseCase>();
             services.AddScoped<ITenureGetLastHintUseCase, TenureGetLastHintUseCase>();
+            services.AddScoped<IChargeBatchInsertUseCase, ChargeBatchInsertUseCase>();
+            services.AddScoped<ILoadChargeEntityUseCase, LoadChargeEntityUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -13,19 +13,19 @@ namespace FinanceDataMigrationApi.V1.UseCase
     public class TransformChargeEntityUseCase : ITransformChargeEntityUseCase
     {
         private readonly IDMRunLogGateway _dMRunLogGateway;
-        private readonly IDMChargeEntityGateway _dMChargeEntityGateway;
+        private readonly IChargeGateway _dMChargeGateway;
         private readonly IAssetGateway _assetGateway;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
         private const string DataMigrationTask = "TRANSFORM";
 
         public TransformChargeEntityUseCase(
             IDMRunLogGateway dMRunLogGateway,
-            IDMChargeEntityGateway dMChargeEntityGateway,
+            IChargeGateway dMChargeGateway,
             IAssetGateway assetGateway
             )
         {
             _dMRunLogGateway = dMRunLogGateway;
-            _dMChargeEntityGateway = dMChargeEntityGateway;
+            _dMChargeGateway = dMChargeGateway;
             _assetGateway = assetGateway;
         }
 
@@ -46,13 +46,13 @@ namespace FinanceDataMigrationApi.V1.UseCase
 
                 // Get all the Charge entity extracted data from the SOW2b SQL Server database table DMChargeEntity,
                 //      where isTransformed flag is FALSE and isLoaded flag is FALSE
-                var dMCharges = await _dMChargeEntityGateway.ListAsync().ConfigureAwait(false);
+                var dMCharges = await _dMChargeGateway.ListAsync().ConfigureAwait(false);
 
                 // Iterate through each row (or batched) and enrich with missing information for subsets
                 foreach (var charge in dMCharges)
                 {
                     //charge.TargetId = await GetAssetTargetId(charge.PropertyReference).ConfigureAwait(false);
-                    var detailedCharge = await _dMChargeEntityGateway
+                    var detailedCharge = await _dMChargeGateway
                         .GetDetailChargesListAsync(charge.PaymentReference).ConfigureAwait(false);
                     charge.DetailedCharges = JsonSerializer.Serialize(detailedCharge);
                     charge.IsTransformed = true;
@@ -61,7 +61,7 @@ namespace FinanceDataMigrationApi.V1.UseCase
 
 
                 // Update batched rows to staging table DMTChargeEntity.
-                await _dMChargeEntityGateway.UpdateDMChargeEntityItems(dMCharges).ConfigureAwait(false);
+                await _dMChargeGateway.UpdateDMChargeEntityItems(dMCharges).ConfigureAwait(false);
 
                 // Update migrationrun item with set status to "TransformCompleted"
                 dmRunLogDomain.LastRunStatus = MigrationRunStatus.TransformCompleted.ToString();
