@@ -56,7 +56,7 @@ module "development" {
     ASPNETCORE_ENVIRONMENT = "staging"
   }
   task_definition_environment_variable_count = number # This number needs to reflect the number of environment variables provided
-  cost_code = your project's cost code
+  cost_code = "your project's cost code"
   task_definition_secrets      = {}
   task_definition_secret_count = number # This number needs to reflect the number of environment variables provided
 }
