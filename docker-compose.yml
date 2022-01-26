@@ -47,7 +47,7 @@ services:
       - AWS_ACCESS_KEY_ID=local
       - AWS_SECRET_ACCESS_KEY=local
     links:
-#      - test-database
+      - test-database
 # TODO: If using DynamoDb remove the line above and uncomment the line below.
 #      - dynamodb-database
 
