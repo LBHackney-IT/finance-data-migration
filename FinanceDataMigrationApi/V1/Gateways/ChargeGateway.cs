@@ -23,7 +23,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         private readonly int _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE"));
 
-        public ChargeGateway(DatabaseContext context,IAmazonDynamoDB amazonDynamoDb,ILogger<IChargeGateway> logger)
+        public ChargeGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb, ILogger<IChargeGateway> logger)
         {
             _context = context;
             _amazonDynamoDb = amazonDynamoDb;

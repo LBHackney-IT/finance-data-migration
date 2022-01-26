@@ -6,7 +6,7 @@ using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 
 namespace FinanceDataMigrationApi.V1.UseCase
 {
-    public class ChargeBatchInsertUseCase: IChargeBatchInsertUseCase
+    public class ChargeBatchInsertUseCase : IChargeBatchInsertUseCase
     {
         private readonly IChargeGateway _gateway;
 
