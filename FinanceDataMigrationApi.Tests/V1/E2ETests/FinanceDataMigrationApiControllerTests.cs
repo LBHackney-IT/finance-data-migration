@@ -10,7 +10,7 @@ namespace FinanceDataMigrationApi.Tests.V1.E2ETests
 {
     public class FinanceDataMigrationApiControllerTests
     {
-        private readonly HttpClient _testClient;
+        /*private readonly HttpClient _testClient;
         private readonly CustomWebApplicationFactory<Startup> _factory;
 
         public FinanceDataMigrationApiControllerTests()
@@ -42,7 +42,7 @@ namespace FinanceDataMigrationApi.Tests.V1.E2ETests
 
         }
 
-        [Fact]
+        *//*[Fact]
         public async Task TransformTransitionEntityReturnsOkResponseWhenDataToMigrate()
         {
             //arrange cause data to be populated for testing
@@ -57,7 +57,7 @@ namespace FinanceDataMigrationApi.Tests.V1.E2ETests
             //assert
             result.Should().Be(HttpStatusCode.OK);
 
-        }
+        }*//*
 
         [Fact]
         public async Task LoadTransactionEntityReturnsOkResponseWhenDataToMigrate()
@@ -90,6 +90,6 @@ namespace FinanceDataMigrationApi.Tests.V1.E2ETests
             //assert
             result.Should().Be(HttpStatusCode.OK);
 
-        }
+        }*/
     }
 }
