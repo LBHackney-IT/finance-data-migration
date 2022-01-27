@@ -237,6 +237,7 @@ namespace FinanceDataMigrationApi
             app.UseSwagger();
             app.UseRouting();
             //app.UseGoogleGroupAuthorization();
+            app.UseMiddleware<ExceptionMiddleware>();
             app.UseEndpoints(endpoints =>
             {
                 // SwaggerGen won't find controllers that are routed via this technique.
