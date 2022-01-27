@@ -127,6 +127,7 @@ resources:
                 - Effect: Allow
                   Action:
                     - "dynamodb:BatchGet*"
+                    - "dynamodb:PutItem*"
                     - "dynamodb:DescribeStream"
                     - "dynamodb:DescribeTable"
                     - "dynamodb:Get*"
@@ -163,6 +164,7 @@ resources:
                 - Effect: Allow
                   Action:
                     - "dynamodb:BatchGet*"
+                    - "dynamodb:PutItem*"
                     - "dynamodb:DescribeStream"
                     - "dynamodb:DescribeTable"
                     - "dynamodb:Get*"
@@ -193,6 +195,7 @@ resources:
                 - Effect: Allow
                   Action:
                     - "dynamodb:BatchGet*"
+                    - "dynamodb:PutItem*"
                     - "dynamodb:DescribeStream"
                     - "dynamodb:DescribeTable"
                     - "dynamodb:Get*"
