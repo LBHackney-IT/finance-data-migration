@@ -18,8 +18,8 @@ terraform {
 
 provider "aws" {
   region  = "eu-west-2"
-  version = "~> 2.0"
 }
+
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 locals {
