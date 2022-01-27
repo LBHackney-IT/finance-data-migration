@@ -1,6 +1,8 @@
+using Amazon.XRay.Recorder.Core.Internal.Entities;
 using AutoFixture;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Infrastructure;
+using System;
 
 namespace FinanceDataMigrationApi.Tests.V1.Helper
 {
@@ -17,8 +19,8 @@ namespace FinanceDataMigrationApi.Tests.V1.Helper
         {
             return new DatabaseEntity
             {
-                Id = entity.Id,
-                CreatedAt = entity.CreatedAt,
+                Id = int.Parse(entity.Id),
+                //CreatedAt = entity.CreatedAt,
             };
         }
     }

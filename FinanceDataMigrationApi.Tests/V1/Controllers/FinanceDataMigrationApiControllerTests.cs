@@ -23,17 +23,20 @@ namespace FinanceDataMigrationApi.Tests.V1.Controllers
         private readonly Mock<IExtractTransactionEntityUseCase> _mockExtractTransactionEntityUseCase;
         private readonly Mock<ITransformTransactionEntityUseCase> _mockTransformTransactionEntityUse;
         private readonly Mock<ILoadTransactionEntityUseCase> _mockLoadTransactionEntityUseCase;
+        private readonly Mock<IIndexTransactionEntityUseCase> _mockIndexTransactionEntityUseCaseCase;
 
         public FinanceDataMigrationApiControllerTests()
         {
             _mockExtractTransactionEntityUseCase = new Mock<IExtractTransactionEntityUseCase>();
             _mockTransformTransactionEntityUse = new Mock<ITransformTransactionEntityUseCase>();
             _mockLoadTransactionEntityUseCase = new Mock<ILoadTransactionEntityUseCase>();
+            _mockIndexTransactionEntityUseCaseCase = new Mock<IIndexTransactionEntityUseCase>();
 
             _controller = new FinanceDataMigrationApiController(
                 _mockExtractTransactionEntityUseCase.Object,
                 _mockTransformTransactionEntityUse.Object,
-                _mockLoadTransactionEntityUseCase.Object);
+                _mockLoadTransactionEntityUseCase.Object,
+                _mockIndexTransactionEntityUseCaseCase.Object);
         }
 
         [Fact]

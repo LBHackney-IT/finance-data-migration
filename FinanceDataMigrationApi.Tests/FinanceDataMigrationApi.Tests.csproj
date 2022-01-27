@@ -51,7 +51,6 @@
 
   <ItemGroup>
     <Folder Include="V1\E2ETests\" />
-    <Folder Include="V1\Factories\" />
     <Folder Include="V1\Gateways\" />
     <Folder Include="V1\Infrastructure\" />
   </ItemGroup>
