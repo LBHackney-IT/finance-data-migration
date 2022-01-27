@@ -3,9 +3,9 @@ using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
-using Hackney.Shared.HousingSearch.Gateways.Models.Accounts;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.Gateways
@@ -24,6 +24,12 @@ namespace FinanceDataMigrationApi.V1.Gateways
         public async Task<bool> BatchInsert(List<DMAccountEntity> accounts)
         {
             bool result = false;
+
+            if (accounts == null || !accounts.Any())
+            {
+                _logger.LogInformation("There is no accounts to save in DynamoDm");
+                return true;
+            }
 
             List<TransactWriteItem> actions = new List<TransactWriteItem>(accounts.Count);
 
@@ -56,15 +62,15 @@ namespace FinanceDataMigrationApi.V1.Gateways
             }
             catch (ResourceNotFoundException rnf)
             {
-                _logger.LogDebug($"One of the table involved in the account is not found: {rnf.Message}");
+                _logger.LogError($"One of the table involved in the account is not found: {rnf.Message}");
             }
             catch (InternalServerErrorException ise)
             {
-                _logger.LogDebug($"Internal Server Error: {ise.Message}");
+                _logger.LogError($"Internal Server Error: {ise.Message}");
             }
             catch (TransactionCanceledException tce)
             {
-                _logger.LogDebug($"Transaction Canceled: {tce.Message}");
+                _logger.LogError($"Transaction Canceled: {tce.Message}");
             }
 
             return result;

@@ -156,8 +156,6 @@ namespace FinanceDataMigrationApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
-            services.AddScoped<IConsolidatedChargesApiGateway, ChargesDynamoDbGateway>();
-
             services.AddTransient<LoggingDelegatingHandler>();
 
             services.AddScoped<IDMTransactionEntityGateway, DMTransactionEntityGateway>();

@@ -4,14 +4,8 @@ using FinanceDataMigrationApi.V1.Gateways;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Accounts;
-using Hackney.Shared.HousingSearch.Gateways.Models.Accounts;
-using Hackney.Shared.Tenure.Domain;
-using Hackney.Shared.Tenure.Infrastructure;
-using Newtonsoft.Json;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
-using AccountTenureType = Hackney.Shared.HousingSearch.Domain.Accounts.TenureType;
 
 namespace FinanceDataMigrationApi.V1.UseCase.Accounts
 {
@@ -21,7 +15,6 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
         private readonly IDMAccountEntityGateway _dMAccountEntityGateway;
         private readonly IEsGateway _esGateway;
         private readonly ITenureDynamoDbGateway _tenureDynamoDbGateway;
-        private readonly IConsolidatedChargesApiGateway _consolidatedChargesApiGateway;
         private readonly ITransactionsDynamoDbGateway _transactionsDynamoDbGateway;
 
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
@@ -31,14 +24,12 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
             IDMAccountEntityGateway dMAccountEntityGateway,
             IEsGateway esGateway,
             ITenureDynamoDbGateway tenureDynamoDbGateway,
-            IConsolidatedChargesApiGateway consolidatedChargesApiGateway,
             ITransactionsDynamoDbGateway transactionsDynamoDbGateway)
         {
             _dMRunLogGateway = dMRunLogGateway;
             _dMAccountEntityGateway = dMAccountEntityGateway;
             _esGateway = esGateway;
             _tenureDynamoDbGateway = tenureDynamoDbGateway;
-            _consolidatedChargesApiGateway = consolidatedChargesApiGateway;
             _transactionsDynamoDbGateway = transactionsDynamoDbGateway;
         }
 
@@ -107,65 +98,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
             account.AgreementType = "Master Account";
             account.ParentAccountId = null;
             account.AccountType = "Master";
-            account.Tenure = JsonConvert.SerializeObject(ConstructTenure(tenureFromDynamoDb));
-
-            if (tenureFromDynamoDb.TenuredAsset != null)
-            {
-                var colsolidateCharges = await _consolidatedChargesApiGateway
-                    .GetConsolidatedtChargesByIdAsync(tenureFromDynamoDb.TenuredAsset.Id)
-                    .ConfigureAwait(false);
-
-                var accountCharges = colsolidateCharges.Select(charge => new QueryableConsolidatedCharge()
-                {
-                    Amount = charge.Amount,
-                    Frequency = charge.Frequency,
-                    Type = charge.Type
-                }).ToList();
-
-                account.ConsolidatedCharges = JsonConvert.SerializeObject(accountCharges);
-            }
-            account.AccountBalance = await CalculateBalanse(tenureFromDynamoDb.Id).ConfigureAwait(false);
             account.ConsolidatedBalance = account.AccountBalance;
-        }
-
-        private async Task<decimal> CalculateBalanse(Guid tenureId)
-        {
-            var transactions = await _transactionsDynamoDbGateway
-                .GetTenureByTenureId(tenureId)
-                .ConfigureAwait(false);
-
-            return transactions.Sum(t => t.TransactionAmount);
-        }
-
-        private static QueryableTenure ConstructTenure(TenureInformationDb tenureEntity)
-        {
-            var accountTenure = new QueryableTenure()
-            {
-                FullAddress = tenureEntity.TenuredAsset?.FullAddress,
-                TenureId = tenureEntity.Id.ToString(),
-                TenureType = ConstructTenureType(tenureEntity.TenureType),
-                PrimaryTenants = tenureEntity.HouseholdMembers.Select(hm => ConstructPrimaryTenant(hm)).ToList(),
-            };
-
-            return accountTenure;
-        }
-
-        private static QueryablePrimaryTenant ConstructPrimaryTenant(HouseholdMembers householdMember)
-        {
-            var primaryTenant = new QueryablePrimaryTenant()
-            {
-                Id = householdMember.Id,
-                FullName = householdMember.FullName
-            };
-
-            return primaryTenant;
-        }
-
-        private static AccountTenureType ConstructTenureType(TenureType tenureType)
-        {
-            var accountTenureType = AccountTenureType.Create(tenureType.Code, tenureType.Description);
-
-            return accountTenureType;
         }
     }
 }

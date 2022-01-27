@@ -1,6 +1,6 @@
 using Amazon.DynamoDBv2.Model;
+using FinanceDataMigrationApi.V1.Domain.Accounts;
 using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
-using Hackney.Shared.HousingSearch.Gateways.Models.Accounts;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
@@ -32,7 +32,7 @@ namespace FinanceDataMigrationApi.V1.Factories
 
             if (!string.IsNullOrWhiteSpace(account.Tenure))
             {
-                QueryableTenure tenure = JsonConvert.DeserializeObject<QueryableTenure>(account.Tenure);
+                TenureDbEntity tenure = JsonConvert.DeserializeObject<TenureDbEntity>(account.Tenure);
 
                 var tenureAttributes = new Dictionary<string, AttributeValue>
                 {
@@ -76,7 +76,7 @@ namespace FinanceDataMigrationApi.V1.Factories
 
             if(!string.IsNullOrWhiteSpace(account.ConsolidatedCharges))
             {
-                var consolidatedCharges = JsonConvert.DeserializeObject<List<QueryableConsolidatedCharge>>(account.ConsolidatedCharges);
+                var consolidatedCharges = JsonConvert.DeserializeObject<List<ConsolidatedChargeDbEntity>>(account.ConsolidatedCharges);
 
                 var chargesAttributes = new List<AttributeValue>(consolidatedCharges.Count);
                 foreach (var charge in consolidatedCharges)
