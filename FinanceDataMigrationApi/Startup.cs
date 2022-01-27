@@ -21,6 +21,7 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
+using FinanceDataMigrationApi.V1;
 using FinanceDataMigrationApi.V1.Common;
 using Microsoft.Extensions.Options;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
