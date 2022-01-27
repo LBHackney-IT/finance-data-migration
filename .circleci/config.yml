@@ -86,6 +86,7 @@ commands:
           name: Deploy lambda
           command: |
             cd ./FinanceDataMigrationApi/
+            sls plugin install --name serverless-step-functions
             sls deploy --stage <<parameters.stage>> --account <<parameters.aws-account>> --conceal
 
 jobs:
@@ -193,6 +194,9 @@ workflows:
           context: api-nuget-token-context
       - build-and-test:
           context: api-nuget-token-context
+          filters:
+            branches:
+              only: master
       - assume-role-staging:
           context: api-assume-role-housing-staging-context
           requires:
