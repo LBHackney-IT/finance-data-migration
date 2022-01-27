@@ -6,8 +6,8 @@ provider:
   tracing:
     lambda: true
     apiGateway: true
-  vpc: ${self:custom.vpc.${opt:stage}}
-  stage: ${opt:stage}
+  vpc: ${self:custom.vpc.${self:provider.stage}}
+  stage: ${self:provider.stage}
   account: ${opt:account}
   region: eu-west-2
 
