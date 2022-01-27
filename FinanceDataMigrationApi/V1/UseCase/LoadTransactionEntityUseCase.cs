@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.Factories;
 
-namespace FinanceDataMigrationApi
+namespace FinanceDataMigrationApi.V1.UseCase
 {
     public class LoadTransactionEntityUseCase : ILoadTransactionEntityUseCase
     {

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
 using TransactionPerson = FinanceDataMigrationApi.V1.Domain.TransactionPerson;
 
-namespace FinanceDataMigrationApi
+namespace FinanceDataMigrationApi.V1.UseCase
 {
     public class TransformTransactionEntityUseCase : ITransformTransactionEntityUseCase
     {

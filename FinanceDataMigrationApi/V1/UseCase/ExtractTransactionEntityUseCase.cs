@@ -5,7 +5,7 @@ using FinanceDataMigrationApi.V1.Handlers;
 using System;
 using System.Threading.Tasks;
 
-namespace FinanceDataMigrationApi
+namespace FinanceDataMigrationApi.V1.UseCase
 {
     public class ExtractTransactionEntityUseCase : IExtractTransactionEntityUseCase
     {
