@@ -40,63 +40,44 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public async Task<DMRunLogDomain> AddAsync(DMRunLogDomain migrationRunDomain)
         {
-            try
+
+            var newDMRunLog = new DMRunLog()
             {
-                var newDMRunLog = new DMRunLog()
-                {
-                    DynamoDbTableName = migrationRunDomain.DynamoDbTableName,
-                    ExpectedRowsToMigrate = migrationRunDomain.ExpectedRowsToMigrate,
-                    ActualRowsMigrated = 0,
-                    StartRowId = 0,
-                    EndRowId = 0,
-                    LastRunDate = migrationRunDomain.LastRunDate,
-                    LastRunStatus = migrationRunDomain.LastRunStatus,
-                    UpdatedAt = DateTimeOffset.UtcNow,
-                    IsFeatureEnabled = true // not sure we need this attribute. May change to Active flag per migration run row?
-                };
+                DynamoDbTableName = migrationRunDomain.DynamoDbTableName,
+                ExpectedRowsToMigrate = migrationRunDomain.ExpectedRowsToMigrate,
+                ActualRowsMigrated = 0,
+                StartRowId = 0,
+                EndRowId = 0,
+                LastRunDate = migrationRunDomain.LastRunDate,
+                LastRunStatus = migrationRunDomain.LastRunStatus,
+                UpdatedAt = DateTimeOffset.UtcNow,
+                IsFeatureEnabled = true // not sure we need this attribute. May change to Active flag per migration run row?
+            };
 
-                await _context.DMRunLogs.AddAsync(newDMRunLog).ConfigureAwait(false);
+            await _context.DMRunLogs.AddAsync(newDMRunLog).ConfigureAwait(false);
 
-                return await _context.SaveChangesAsync().ConfigureAwait(false) == 1
-                    ? newDMRunLog.ToDomain()
-                    : null;
+            return await _context.SaveChangesAsync().ConfigureAwait(false) == 1
+                ? newDMRunLog.ToDomain()
+                : null;
 
-            }
-            catch (Exception e)
-            {
-                LoggingHandler.LogError(e.Message);
-                LoggingHandler.LogError(e.StackTrace);
-                throw;
-            }
         }
 
         public async Task<bool> UpdateAsync(DMRunLogDomain dmRunLogDomain)
         {
-            try
-            {
-                var dmLog = await _context.DMRunLogs.FirstOrDefaultAsync(x => x.Id == dmRunLogDomain.Id)
-                    .ConfigureAwait(false);
+            var dmLog = await _context.DMRunLogs.FirstOrDefaultAsync(x => x.Id == dmRunLogDomain.Id)
+                .ConfigureAwait(false);
 
-                if (dmLog == null)
-                    return false;
+            if (dmLog == null)
+                return false;
 
-                dmLog.ActualRowsMigrated = dmRunLogDomain.ActualRowsMigrated;
-                dmLog.StartRowId = dmRunLogDomain.StartRowId;
-                dmLog.EndRowId = dmRunLogDomain.EndRowId;
-                dmLog.ExpectedRowsToMigrate = dmRunLogDomain.ExpectedRowsToMigrate;
-                dmLog.LastRunStatus = dmRunLogDomain.LastRunStatus;
-                dmLog.UpdatedAt = DateTimeOffset.UtcNow;
-                dmLog.IsFeatureEnabled = dmRunLogDomain.IsFeatureEnabled; // not sure we need this attribute. May change to Active flag per migration run row?
-                return await _context.SaveChangesAsync().ConfigureAwait(false) == 1;
-
-            }
-            catch (Exception e)
-            {
-                LoggingHandler.LogError(e.Message);
-                LoggingHandler.LogError(e.StackTrace);
-                throw;
-            }
-
+            dmLog.ActualRowsMigrated = dmRunLogDomain.ActualRowsMigrated;
+            dmLog.StartRowId = dmRunLogDomain.StartRowId;
+            dmLog.EndRowId = dmRunLogDomain.EndRowId;
+            dmLog.ExpectedRowsToMigrate = dmRunLogDomain.ExpectedRowsToMigrate;
+            dmLog.LastRunStatus = dmRunLogDomain.LastRunStatus;
+            dmLog.UpdatedAt = DateTimeOffset.UtcNow;
+            dmLog.IsFeatureEnabled = dmRunLogDomain.IsFeatureEnabled; // not sure we need this attribute. May change to Active flag per migration run row?
+            return await _context.SaveChangesAsync().ConfigureAwait(false) == 1;
         }
     }
 }
