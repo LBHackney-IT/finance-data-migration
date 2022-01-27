@@ -37,32 +37,13 @@ namespace FinanceDataMigrationApi.V1.Gateways
         /// <returns>number of records extracted</returns>
         public async Task<int> ExtractAsync(DateTimeOffset? processingDate)
         {
-            try
-            {
-                return await _context.ExtractDMChargesAsync().ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                LoggingHandler.LogError(e.Message);
-                LoggingHandler.LogError(e.StackTrace);
-                throw;
-            }
+            return await _context.ExtractDMChargesAsync().ConfigureAwait(false);
         }
 
 
         public async Task<List<DMDetailedChargesEntity>> GetDetailChargesListAsync(string paymentReference)
         {
-            try
-            {
-                return await _context.GetDetailChargesListAsync(paymentReference).ConfigureAwait(false);
-
-            }
-            catch (Exception e)
-            {
-                LoggingHandler.LogError(e.Message);
-                LoggingHandler.LogError(e.StackTrace);
-                throw;
-            }
+            return await _context.GetDetailChargesListAsync(paymentReference).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -71,90 +52,41 @@ namespace FinanceDataMigrationApi.V1.Gateways
         /// <returns>List of Charge</returns>
         public async Task<IList<DMChargeEntityDomain>> ListAsync()
         {
-            try
-            {
-                var results = await _context.DMChargeEntities
-                    .Where(x => x.IsTransformed == false)
-                    .ToListAsync()
-                    .ConfigureAwait(false);
+            var results = await _context.DMChargeEntities
+                .Where(x => x.IsTransformed == false)
+                .ToListAsync()
+                .ConfigureAwait(false);
 
-                return results.ToDomain();
-            }
-            catch (Exception e)
-            {
-                LoggingHandler.LogError(e.Message);
-                LoggingHandler.LogError(e.StackTrace);
-                throw;
-            }
+            return results.ToDomain();
         }
 
         public async Task UpdateDMChargeEntityItems(IList<DMChargeEntityDomain> dMChargeEntityDomainItems)
         {
-            try
-            {
-                await _context
-                    .BulkUpdateAsync(dMChargeEntityDomainItems.ToDatabase(), new BulkConfig { BatchSize = _batchSize })
-                    .ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                LoggingHandler.LogError(e.Message);
-                LoggingHandler.LogError(e.StackTrace);
-                throw;
-            }
+            await _context
+                .BulkUpdateAsync(dMChargeEntityDomainItems.ToDatabase(), new BulkConfig { BatchSize = _batchSize })
+                .ConfigureAwait(false);
         }
 
         public async Task<IList<DMChargeEntityDomain>> GetTransformedListAsync()
         {
-            try
-            {
-                var results = await _context.GetTransformedChargeListAsync().ConfigureAwait(false);
-
-                return results.ToDomain();
-            }
-            catch (Exception e)
-            {
-                LoggingHandler.LogError(e.Message);
-                LoggingHandler.LogError(e.StackTrace);
-                throw;
-            }
+            var results = await _context.GetTransformedChargeListAsync().ConfigureAwait(false);
+            return results.ToDomain();
         }
 
         public async Task<IList<DMChargeEntityDomain>> GetLoadedListAsync()
         {
-            try
-            {
-                var results = await _context.GetLoadedChargeListAsync().ConfigureAwait(false);
-
-                return results.ToDomain();
-            }
-            catch (Exception e)
-            {
-                LoggingHandler.LogError(e.Message);
-                LoggingHandler.LogError(e.StackTrace);
-                throw;
-            }
+            var results = await _context.GetLoadedChargeListAsync().ConfigureAwait(false);
+            return results.ToDomain();
         }
 
         public async Task<int> AddChargeAsync(DMChargeEntityDomain dmEntity)
         {
-            // TODO
-            try
-            {
-                await Task.Delay(0).ConfigureAwait(false);
-                return -1;
-            }
-            catch (Exception e)
-            {
-                LoggingHandler.LogError(e.Message);
-                LoggingHandler.LogError(e.StackTrace);
-                throw;
-            }
+            await Task.Delay(0).ConfigureAwait(false);
+            return -1;
         }
 
         public async Task<bool> BatchInsert(List<Charge> charges)
         {
-            bool result = false;
             List<TransactWriteItem> actions = new List<TransactWriteItem>();
             foreach (Charge charge in charges)
             {
@@ -179,25 +111,9 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 ReturnConsumedCapacity = ReturnConsumedCapacity.TOTAL
             };
 
-            try
-            {
-                await _amazonDynamoDb.TransactWriteItemsAsync(placeOrderCharge).ConfigureAwait(false);
-                result = true;
-            }
-            catch (ResourceNotFoundException rnf)
-            {
-                _logger.LogDebug($"One of the table involved in the charge is not found: {rnf.Message}");
-            }
-            catch (InternalServerErrorException ise)
-            {
-                _logger.LogDebug($"Internal Server Error: {ise.Message}");
-            }
-            catch (TransactionCanceledException tce)
-            {
-                _logger.LogDebug($"Transaction Canceled: {tce.Message}");
-            }
+            await _amazonDynamoDb.TransactWriteItemsAsync(placeOrderCharge).ConfigureAwait(false);
 
-            return result;
+            return true;
         }
     }
 }
