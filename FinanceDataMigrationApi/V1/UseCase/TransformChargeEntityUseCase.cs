@@ -6,6 +6,7 @@ using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Gateways;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
+using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 
 namespace FinanceDataMigrationApi.V1.UseCase
@@ -49,15 +50,14 @@ namespace FinanceDataMigrationApi.V1.UseCase
                 var dMCharges = await _dMChargeGateway.ListAsync().ConfigureAwait(false);
 
                 // Iterate through each row (or batched) and enrich with missing information for subsets
-                foreach (var charge in dMCharges)
+                /*foreach (var charge in dMCharges)
                 {
                     //charge.TargetId = await GetAssetTargetId(charge.PropertyReference).ConfigureAwait(false);
                     var detailedCharge = await _dMChargeGateway
                         .GetDetailChargesListAsync(charge.PaymentReference).ConfigureAwait(false);
                     charge.DetailedCharges = JsonSerializer.Serialize(detailedCharge);
-                    charge.IsTransformed = true;
-
-                }
+                    charge.MigrationStatus = EMigrationStatus.Transformed;
+                }*/
 
 
                 // Update batched rows to staging table DMTChargeEntity.

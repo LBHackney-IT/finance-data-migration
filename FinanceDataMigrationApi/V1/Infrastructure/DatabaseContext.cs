@@ -6,6 +6,9 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using FinanceDataMigrationApi.V1.Domain;
+using FinanceDataMigrationApi.V1.Infrastructure.Entities;
+using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure
 {
@@ -24,7 +27,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PeriodNo).HasColumnType("decimal");
             //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.TransactionAmount).HasColumnType("decimal");
             modelBuilder.Entity<DMTransactionEntity>().Property(x => x.TargetId).HasDefaultValueSql("NEWID()");
-            modelBuilder.Entity<DMDetailedChargesEntity>().HasNoKey();
+            //modelBuilder.Entity<DmDetailedChargesEntity>().HasNoKey();
         }
 
 
@@ -52,12 +55,12 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// <summary>
         /// Get or sets the Data Migration Charge Entity
         /// </summary>
-        public DbSet<DMChargesEntity> DMChargeEntities { get; set; }
+        public DbSet<ChargesDbEntity> ChargesDbEntities { get; set; }
 
         /// <summary>
         /// Get Data Migration Detailed Charges Entities
         /// </summary>
-        public DbSet<DMDetailedChargesEntity> DMDetailedChargesEntities { get; set; }
+        public DbSet<DetailedChargesDbEntity> DetailedChargesDbEntities { get; set; }
 
 
         #region Charges Entity Specific
@@ -67,9 +70,9 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// Get the Data Migration Charge Entities
         /// </summary>
         /// <returns>The Transactions to migrate</returns>
-        public async Task<IList<DMChargesEntity>> GetDMChargeEntitiesAsync()
-            => await DMChargeEntities
-                .Where(x => x.IsTransformed == false)
+        public async Task<IList<ChargesDbEntity>> GetDMChargeEntitiesAsync()
+            => await ChargesDbEntities
+                .Where(x => x.MigrationStatus==EMigrationStatus.Transformed)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -87,45 +90,47 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .ConfigureAwait(false);
         }
 
-        public async Task<IList<DMChargesEntity>> GetTransformedChargeListAsync()
-            => await DMChargeEntities
-                .Where(x => x.IsTransformed && !x.IsLoaded)
+        public async Task<IList<ChargesDbEntity>> GetTransformedChargeListAsync()
+            => await ChargesDbEntities
+                .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
+                .Take(Constants.LoadCount)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-        public async Task<IList<DMChargesEntity>> GetLoadedChargeListAsync()
-            => await DMChargeEntities
-                .Where(x => x.IsTransformed && x.IsLoaded)
+        public async Task<IList<ChargesDbEntity>> GetLoadedChargeListAsync()
+            => await ChargesDbEntities
+                .Where(x => x.MigrationStatus == EMigrationStatus.Loaded)
+                .Take(Constants.LoadCount)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-        /// <summary>
-        /// Get Detailed Charge from Database Query
-        /// </summary>
-        /// <param name="paymentReference"></param>
-        /// <returns>List of Details Charges</returns>
-        /// <exception cref="Exception"></exception>
-        public async Task<List<DMDetailedChargesEntity>> GetDetailChargesListAsync(string paymentReference)
-        {
+        ///// <summary>
+        ///// Get Detailed Charge from Database Query
+        ///// </summary>
+        ///// <param name="paymentReference"></param>
+        ///// <returns>List of Details Charges</returns>
+        ///// <exception cref="Exception"></exception>
+        //public async Task<List<DmDetailedChargesEntity>> GetDetailChargesListAsync(string paymentReference)
+        //{
 
-            var param = new SqlParameter("@payment_reference", paymentReference.TrimEnd());
+        //    var param = new SqlParameter("@payment_reference", paymentReference.TrimEnd());
 
-            try
-            {
-                var result = await DMDetailedChargesEntities
-                    .FromSqlRaw("[dbo].[usp_ExtractDetailedChargesEntity] @payment_reference", param)
-                    .ToListAsync()
-                    .ConfigureAwait(false);
+        //    try
+        //    {
+        //        var result = await DMDetailedChargesEntities
+        //            .FromSqlRaw("[dbo].[usp_ExtractDetailedChargesEntity] @payment_reference", param)
+        //            .ToListAsync()
+        //            .ConfigureAwait(false);
 
-                return result;
+        //        return result;
 
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        throw new Exception(e.Message);
+        //    }
 
-        }
+        //}
 
 
 

@@ -6,26 +6,16 @@ namespace FinanceDataMigrationApi.V1.Domain
 {
     public class DetailedCharges
     {
-        [Required]
+        public decimal Id { get; set; }
+        public Guid ChargeId { get; set; }
+        public string PropertyReference { get; set; }
         public string Type { get; set; }
-
-        [Required]
         public string SubType { get; set; }
-
-        public ChargeType ChargeType { get; set; }
-
-        public string ChargeCode { get; set; }
-
-        [Required]
+        public string ChargeType { get; set; }
         public string Frequency { get; set; }
-
-        [Range(0, (double) decimal.MaxValue, ErrorMessage = "The amount value is wrong")]
         public decimal Amount { get; set; }
-
-        [RequiredDateTime]
+        public string ChargeCode { get; set; }
         public DateTime StartDate { get; set; }
-
-        [RequiredDateTime]
         public DateTime EndDate { get; set; }
     }
 }
