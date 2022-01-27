@@ -85,10 +85,10 @@ namespace FinanceDataMigrationApi.V1.Controllers
                 lastEvaluatedKey = response.LastKey;
                 if (response.TenureInformation.Count == 0)
                     break;
-                await _saveToSqlUseCase.ExecuteAsync(response.LastKey.Count>0?lastEvaluatedKey["id"].S:lastKey.ToString(),
+                await _saveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(),
                     response.TenureInformation.ToXElement()).ConfigureAwait(false);
 
-                if(response.LastKey.Count==0)
+                if (response.LastKey.Count == 0)
                     break;
 
             } while (true);
