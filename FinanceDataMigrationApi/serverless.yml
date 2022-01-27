@@ -52,8 +52,11 @@ functions:
               - X-Api-Key
               - X-Amz-Security-Token
               - X-Amz-User-Agent
-              - x-correlation-id
             allowCredentials: false
+      - http:
+          path: /swagger/{proxy+}
+          method: GET
+          private: false
   extractTransactions:
     name: ${self:service}-${self:provider.stage}-extract-transactions
     description: "The scheduler to extract source data for migration of Transaction entity. Run at 12:15 AM"
