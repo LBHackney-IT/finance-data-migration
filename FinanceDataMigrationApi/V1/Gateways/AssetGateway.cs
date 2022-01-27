@@ -20,7 +20,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
         private readonly HttpClient _client;
         private readonly DatabaseContext _dbContext;
 
-        public AssetGateway(HttpClient client, DatabaseContext dbContext,IHttpContextAccessor contextAccessor)
+        public AssetGateway(HttpClient client, DatabaseContext dbContext, IHttpContextAccessor contextAccessor)
         {
             _client = client;
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(contextAccessor.HttpContext.Request.Headers["Authorization"]);

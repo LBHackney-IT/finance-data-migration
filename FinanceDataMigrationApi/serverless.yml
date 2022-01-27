@@ -41,7 +41,7 @@ functions:
             headers:
               - Content-Type
               - If-Match
-              - X-Amz-Date
+              - X-Amz-Date`
               - Authorization
               - X-Api-Key
               - X-Amz-Security-Token
