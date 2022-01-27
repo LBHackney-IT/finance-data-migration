@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 using EFCore.BulkExtensions;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Factories;
@@ -9,18 +11,23 @@ using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
-    public class DMChargeEntityGateway : IDMChargeEntityGateway
+    public class ChargeGateway : IChargeGateway
     {
         private readonly DatabaseContext _context;
+        private readonly IAmazonDynamoDB _amazonDynamoDb;
+        private readonly ILogger<IChargeGateway> _logger;
 
         private readonly int _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE"));
 
-        public DMChargeEntityGateway(DatabaseContext context)
+        public ChargeGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb, ILogger<IChargeGateway> logger)
         {
             _context = context;
+            _amazonDynamoDb = amazonDynamoDb;
+            _logger = logger;
         }
 
         /// <summary>
@@ -143,6 +150,54 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 LoggingHandler.LogError(e.StackTrace);
                 throw;
             }
+        }
+
+        public async Task<bool> BatchInsert(List<Charge> charges)
+        {
+            bool result = false;
+            List<TransactWriteItem> actions = new List<TransactWriteItem>();
+            foreach (Charge charge in charges)
+            {
+                Dictionary<string, AttributeValue> columns = new Dictionary<string, AttributeValue>();
+                columns = charge.ToQueryRequest();
+
+                actions.Add(new TransactWriteItem
+                {
+                    Put = new Put()
+                    {
+                        TableName = "Charges",
+                        Item = columns,
+                        ReturnValuesOnConditionCheckFailure = ReturnValuesOnConditionCheckFailure.ALL_OLD,
+                        ConditionExpression = "attribute_not_exists(id)"
+                    }
+                });
+            }
+
+            TransactWriteItemsRequest placeOrderCharge = new TransactWriteItemsRequest
+            {
+                TransactItems = actions,
+                ReturnConsumedCapacity = ReturnConsumedCapacity.TOTAL
+            };
+
+            try
+            {
+                await _amazonDynamoDb.TransactWriteItemsAsync(placeOrderCharge).ConfigureAwait(false);
+                result = true;
+            }
+            catch (ResourceNotFoundException rnf)
+            {
+                _logger.LogDebug($"One of the table involved in the charge is not found: {rnf.Message}");
+            }
+            catch (InternalServerErrorException ise)
+            {
+                _logger.LogDebug($"Internal Server Error: {ise.Message}");
+            }
+            catch (TransactionCanceledException tce)
+            {
+                _logger.LogDebug($"Transaction Canceled: {tce.Message}");
+            }
+
+            return result;
         }
     }
 }

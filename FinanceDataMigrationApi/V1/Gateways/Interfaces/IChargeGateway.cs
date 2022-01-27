@@ -6,7 +6,7 @@ using FinanceDataMigrationApi.V1.Infrastructure;
 
 namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
 {
-    public interface IDMChargeEntityGateway
+    public interface IChargeGateway
     {
 
         Task<IList<DMChargeEntityDomain>> ListAsync();
@@ -22,5 +22,7 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
         Task<IList<DMChargeEntityDomain>> GetLoadedListAsync();
 
         Task<int> AddChargeAsync(DMChargeEntityDomain dmEntity);
+
+        Task<bool> BatchInsert(List<Charge> charges);
     }
 }
