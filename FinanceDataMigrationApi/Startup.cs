@@ -126,12 +126,13 @@ namespace FinanceDataMigrationApi
 
             RegisterGateways(services);
             RegisterUseCases(services);
-            #region ExtraSerives
+            services.AddHttpContextAccessor();
+            /*#region ExtraSerives
 
             services.AddScoped<ICustomeHttpClient, CustomeHttpClient>();
             services.AddScoped<IGetEnvironmentVariables, GetEnvironmentVariables>();
 
-            #endregion
+            #endregion*/
         }
 
         private static void ConfigureDbContext(IServiceCollection services)
@@ -157,12 +158,10 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IAssetGateway, AssetGateway>();
 
             var searchApiUrl = Environment.GetEnvironmentVariable("SEARCH_API_URL") ?? "";
-            var searchApiToken = Environment.GetEnvironmentVariable("SEARCH_API_TOKEN") ?? "";
 
             services.AddHttpClient<IAssetGateway, AssetGateway>(c =>
                 {
                     c.BaseAddress = new Uri(searchApiUrl);
-                    c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(searchApiToken);
                 })
                 .AddHttpMessageHandler<LoggingDelegatingHandler>();
 
