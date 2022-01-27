@@ -40,9 +40,10 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status500InternalServerError)]
         [HttpGet]
         [Route("charge-entity/extract")]
-        public async Task<IActionResult> ExtractChargeEntity()
+        public Task<IActionResult> ExtractChargeEntity()
         {
-            try
+            throw new Exception("for test");
+            /*try
             {
                 var runExtractChargeEntity = await _extractChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
 
@@ -57,7 +58,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
                 return BadRequest(ex.Message);
             }
 
-            return Ok();
+            return Ok();*/
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
