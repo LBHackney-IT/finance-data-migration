@@ -15,23 +15,23 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 yield return new TenureInformation
                 {
                     Id = Guid.Parse(item["id"].S),
-                    TenuredAsset = new TenuredAsset()
+                    TenuredAsset = item.ContainsKey("tenuredAsset") ? new TenuredAsset()
                     {
                         FullAddress = item["tenuredAsset"].M["fullAddress"].S
-                    },
-                    TenureType = new TenureType()
+                    } : null,
+                    TenureType = item.ContainsKey("tenureType") ? new TenureType()
                     {
                         Code = item["tenureType"].M["code"].S,
                         Description = item["tenureType"].M["description"].S
-                    },
-                    PaymentReference = item["paymentReference"].S,
-                    HouseholdMembers = item["householdMembers"].L.ToArray().Select(m =>
-                        new HouseholdMembers
-                        {
-                            Id = Guid.Parse(m.M["id"].S),
-                            FullName = m.M["fullName"].S,
-                            IsResponsible = m.M["isResponsible"].BOOL
-                        })
+                    } : null,
+                    PaymentReference = item.ContainsKey("paymentReference") ? item["paymentReference"].S : null,
+                    HouseholdMembers = item.ContainsKey("householdMembers") ? item["householdMembers"].L.ToArray().Select(m =>
+                           new HouseholdMembers
+                           {
+                               Id = Guid.Parse(m.M["id"].S),
+                               FullName = m.M["fullName"].S,
+                               IsResponsible = m.M["isResponsible"].BOOL
+                           }) : null
                 };
             }
         }

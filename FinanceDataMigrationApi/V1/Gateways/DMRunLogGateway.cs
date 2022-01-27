@@ -21,21 +21,12 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public async Task<DMRunLogDomain> GetDMRunLogByEntityNameAsync(string dynamoDbTableName)
         {
-            try
-            {
-                var migrationRun = await _context.DMRunLogs
-                    .Where(x => x.DynamoDbTableName == dynamoDbTableName)
-                    .OrderByDescending(x => x.Id)
-                    .FirstOrDefaultAsync().ConfigureAwait(false);
+            var migrationRun = await _context.DMRunLogs
+                .Where(x => x.DynamoDbTableName == dynamoDbTableName)
+                .OrderByDescending(x => x.Id)
+                .FirstOrDefaultAsync().ConfigureAwait(false);
 
-                return migrationRun.ToDomain();
-            }
-            catch (Exception e)
-            {
-                LoggingHandler.LogError(e.Message);
-                LoggingHandler.LogError(e.StackTrace);
-                throw;
-            }
+            return migrationRun.ToDomain();
         }
 
         public async Task<DMRunLogDomain> AddAsync(DMRunLogDomain migrationRunDomain)

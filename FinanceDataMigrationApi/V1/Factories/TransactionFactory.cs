@@ -14,41 +14,32 @@ namespace FinanceDataMigrationApi.V1.Factories
     {
         public static Transaction ToTransactionRequest(this DMTransactionEntityDomain dMTransactionEntityDomain)
         {
-            try
-            {
-                return dMTransactionEntityDomain == null
-                    ? null
-                    : new Transaction
-                    {
-                        Id = dMTransactionEntityDomain.IdDynamodb,
-                        BalanceAmount = dMTransactionEntityDomain.BalanceAmount ?? 0,
-                        BankAccountNumber = dMTransactionEntityDomain.BankAccountNumber,
-                        ChargedAmount = dMTransactionEntityDomain.ChargedAmount ?? 0,
-                        Fund = dMTransactionEntityDomain.Fund,
-                        HousingBenefitAmount = dMTransactionEntityDomain.HousingBenefitAmount ?? 0,
-                        IsSuspense = dMTransactionEntityDomain.IsSuspense,
-                        PaidAmount = dMTransactionEntityDomain.PaidAmount ?? 0,
-                        PaymentReference = dMTransactionEntityDomain.PaymentReference,
-                        PeriodNo = (short) dMTransactionEntityDomain.PeriodNo,
-                        Sender =
-                            JsonConvert.DeserializeObject<Sender>(dMTransactionEntityDomain.Person), // TODO FIX PERSON
-                        Address = null,
-                        TargetId = dMTransactionEntityDomain.TargetId,
-                        TargetType = Enum.Parse<TargetType>(dMTransactionEntityDomain.TargetType),
-                        TransactionAmount = dMTransactionEntityDomain.TransactionAmount,
-                        TransactionDate = dMTransactionEntityDomain.TransactionDate,
-                        TransactionSource = dMTransactionEntityDomain.TransactionSource,
-                        TransactionType = dMTransactionEntityDomain.TransactionType.TransactionTypeEnumValue(),
-                        FinancialYear = (short) dMTransactionEntityDomain.FinancialYear,
-                        FinancialMonth = (short) dMTransactionEntityDomain.FinancialMonth
-                    };
-            }
-            catch (Exception e)
-            {
-                LoggingHandler.LogError(e.Message);
-                LoggingHandler.LogError(e.StackTrace);
-                throw;
-            }
+            return dMTransactionEntityDomain == null
+                ? null
+                : new Transaction
+                {
+                    Id = dMTransactionEntityDomain.IdDynamodb,
+                    BalanceAmount = dMTransactionEntityDomain.BalanceAmount ?? 0,
+                    BankAccountNumber = dMTransactionEntityDomain.BankAccountNumber,
+                    ChargedAmount = dMTransactionEntityDomain.ChargedAmount ?? 0,
+                    Fund = dMTransactionEntityDomain.Fund,
+                    HousingBenefitAmount = dMTransactionEntityDomain.HousingBenefitAmount ?? 0,
+                    IsSuspense = dMTransactionEntityDomain.IsSuspense,
+                    PaidAmount = dMTransactionEntityDomain.PaidAmount ?? 0,
+                    PaymentReference = dMTransactionEntityDomain.PaymentReference,
+                    PeriodNo = (short) dMTransactionEntityDomain.PeriodNo,
+                    Sender =
+                        JsonConvert.DeserializeObject<Sender>(dMTransactionEntityDomain.Person), // TODO FIX PERSON
+                    Address = null,
+                    TargetId = dMTransactionEntityDomain.TargetId,
+                    TargetType = Enum.Parse<TargetType>(dMTransactionEntityDomain.TargetType),
+                    TransactionAmount = dMTransactionEntityDomain.TransactionAmount,
+                    TransactionDate = dMTransactionEntityDomain.TransactionDate,
+                    TransactionSource = dMTransactionEntityDomain.TransactionSource,
+                    TransactionType = dMTransactionEntityDomain.TransactionType.TransactionTypeEnumValue(),
+                    FinancialYear = (short) dMTransactionEntityDomain.FinancialYear,
+                    FinancialMonth = (short) dMTransactionEntityDomain.FinancialMonth
+                };
 
         }
 
