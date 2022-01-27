@@ -6,7 +6,7 @@ provider:
   tracing:
     lambda: true
     apiGateway: true
-  vpc: ${self:custom.vpc.${opt:stage}}
+    vpc: ${self:custom.vpc.${opt:stage}}
   stage: ${opt:stage}
   # TODO: Enable this line if DynamoDb is in use
   account: ${opt:account}
