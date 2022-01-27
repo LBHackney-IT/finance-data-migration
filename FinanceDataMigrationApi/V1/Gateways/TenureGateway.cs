@@ -42,7 +42,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public async Task<bool> BatchInsert(List<TenureInformation> tenures)
         {
-            bool result = false;
             List<TransactWriteItem> actions = new List<TransactWriteItem>();
             foreach (TenureInformation tenure in tenures)
             {
@@ -66,25 +65,8 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 ReturnConsumedCapacity = ReturnConsumedCapacity.TOTAL
             };
 
-            try
-            {
-                await _dynamoDb.TransactWriteItemsAsync(placeOrderTransaction).ConfigureAwait(false);
-                result = true;
-            }
-            catch (ResourceNotFoundException rnf)
-            {
-                _logger.LogDebug($"One of the table involved in the transaction is not found: {rnf.Message}");
-            }
-            catch (InternalServerErrorException ise)
-            {
-                _logger.LogDebug($"Internal Server Error: {ise.Message}");
-            }
-            catch (TransactionCanceledException tce)
-            {
-                _logger.LogDebug($"Transaction Canceled: {tce.Message}");
-            }
-
-            return result;
+            await _dynamoDb.TransactWriteItemsAsync(placeOrderTransaction).ConfigureAwait(false);
+            return true;
         }
 
         public async Task<TenurePaginationResponse> GetAll(Dictionary<string, AttributeValue> lastEvaluatedKey = null)
