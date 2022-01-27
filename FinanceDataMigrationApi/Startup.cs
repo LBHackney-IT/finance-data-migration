@@ -65,7 +65,7 @@ namespace FinanceDataMigrationApi
 
             services.AddSwaggerGen(swaggerSetup =>
             {
-                swaggerSetup.AddSecurityDefinition("Bearer",
+                /*swaggerSetup.AddSecurityDefinition("Bearer",
                     new OpenApiSecurityScheme
                     {
                         In = ParameterLocation.Header,
@@ -81,6 +81,26 @@ namespace FinanceDataMigrationApi
                         new OpenApiSecurityScheme
                         {
                             Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                        },
+                        new List<string>()
+                    }
+                });*/
+
+                swaggerSetup.AddSecurityDefinition("Token",
+                    new OpenApiSecurityScheme
+                    {
+                        In = ParameterLocation.Header,
+                        Description = "Your Hackney API Key",
+                        Name = "X-Api-Key",
+                        Type = SecuritySchemeType.ApiKey
+                    });
+
+                swaggerSetup.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Token" }
                         },
                         new List<string>()
                     }
