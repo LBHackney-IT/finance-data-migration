@@ -71,9 +71,9 @@ namespace FinanceDataMigrationApi.V1.Controllers
         }
 
         [HttpGet]
+        [Route("download-all")]
         public async Task<IActionResult> GetAll()
         {
-
             do
             {
                 var lastKey = await _getLastHintUseCase.ExecuteAsync().ConfigureAwait(false);
