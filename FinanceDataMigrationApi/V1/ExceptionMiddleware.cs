@@ -12,7 +12,7 @@ using FinanceDataMigrationApi.V1.Infrastructure;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 
-namespace FinanceDataMigrationApi
+namespace FinanceDataMigrationApi.V1
 {
     public class ExceptionMiddleware
     {
