@@ -25,6 +25,7 @@ using FinanceDataMigrationApi.V1.Common;
 using Microsoft.Extensions.Options;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Infrastructure.Interfaces;
+using Hackney.Core.Authorization;
 using Hackney.Core.DynamoDb;
 
 namespace FinanceDataMigrationApi
@@ -236,6 +237,7 @@ namespace FinanceDataMigrationApi
             });
             app.UseSwagger();
             app.UseRouting();
+            app.UseGoogleGroupAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 // SwaggerGen won't find controllers that are routed via this technique.
