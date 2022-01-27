@@ -3,6 +3,7 @@ using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using FluentAssertions;
 using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace FinanceDataMigrationApi.Tests.V1.Factories
@@ -13,6 +14,8 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
         private readonly DMTransactionEntityDomain _dMTransactionEntityDomainWithNull;
         private readonly DMTransactionEntity _dMTransactionEntity;
         private readonly DMTransactionEntity _dMTransactionEntityWithNull;
+        private readonly IList<DMTransactionEntity> _listOfDbEntities;
+        private readonly IList<DMTransactionEntityDomain> _listOfDbDomainEntities;
 
         public DMTransactionEntityFactoryTests()
         {
@@ -73,6 +76,15 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
                 TransactionType = string.Empty
             };
             _dMTransactionEntityWithNull = null;
+
+            _listOfDbEntities = new List<DMTransactionEntity>
+            {
+                _dMTransactionEntity
+            };
+            _listOfDbDomainEntities = new List<DMTransactionEntityDomain>
+            {
+                _dMTransactionEntityDomain
+            };
         }
 
         [Fact]
@@ -105,6 +117,22 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
             var result = _dMTransactionEntityWithNull.ToDomain();
 
             result.Should().BeNull();
+        }
+
+        [Fact]
+        public void ToDomainShouldReturnsListOfDMDomainTransactionEntityModels()
+        {
+            var result = _listOfDbEntities.ToDomain();
+
+            result.Should().BeOfType<List<DMTransactionEntityDomain>>();
+        }
+
+        [Fact]
+        public void ToDomainShouldReturnsListOfDMTransactionEntityModels()
+        {
+            var result = _listOfDbDomainEntities.ToDatabase();
+
+            result.Should().BeOfType<List<DMTransactionEntity>>();
         }
     }
 }
