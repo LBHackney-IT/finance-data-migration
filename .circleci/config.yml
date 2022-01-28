@@ -63,8 +63,6 @@ commands:
     parameters:
       stage:
         type: string
-      aws-account:
-        type: string
     steps:
       - *attach_workspace
       - checkout
@@ -87,9 +85,9 @@ commands:
           name: Deploy lambda
           command: |
             cd ./FinanceDataMigrationApi/
-            sls plugin install --name serverless-step-functions
-            sls deploy --stage <<parameters.stage>>
-#--account <<parameters.aws-account>> --conceal
+            #sls plugin install --name serverless-step-functions
+            sls deploy --stage <<parameters.stage>> --conceal
+            #--account <<parameters.aws-account>> --conceal
 jobs:
   check-code-formatting:
     executor: docker-dotnet
