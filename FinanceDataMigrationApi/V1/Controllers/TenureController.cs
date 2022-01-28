@@ -94,5 +94,13 @@ namespace FinanceDataMigrationApi.V1.Controllers
             } while (true);
             return Ok("Done");
         }
+
+        [HttpGet]
+        [Route("test-all")]
+        public async Task<IActionResult> TestAll()
+        {
+            var response = await _tenureGetAllUseCase.ExecuteAsync(null).ConfigureAwait(false);
+            return Ok(response);
+        }
     }
 }
