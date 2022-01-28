@@ -20,21 +20,5 @@ namespace FinanceDataMigrationApi.V1.Gateways
             _amazonDynamoDb = amazonDynamoDb;
             _configuration = configuration;
         }
-
-        public void AddRange(List<Charge> charges)
-        {
-            charges.ForEach(e =>
-            {
-                _dynamoDbContext.SaveAsync(e.ToDatabase());
-            });
-        }
-
-        public async Task AddRangeAsync(List<Charge> charges)
-        {
-            foreach (Charge charge in charges)
-            {
-                await _dynamoDbContext.SaveAsync(charge.ToDatabase()).ConfigureAwait(false);
-            }
-        }
     }
 }

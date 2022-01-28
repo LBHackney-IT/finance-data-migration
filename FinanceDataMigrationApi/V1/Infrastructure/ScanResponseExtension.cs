@@ -24,6 +24,11 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                         Code = item["tenureType"].M["code"].S,
                         Description = item["tenureType"].M["description"].S
                     } : null,
+                    Terminated = item.ContainsKey("terminated") ? new Terminated()
+                    {
+                        IsTerminated = item["terminated"].M["isTerminated"].BOOL,
+                        ReasonForTermination = item["terminated"].M["reasonForTermination"].S
+                    } : null,
                     PaymentReference = item.ContainsKey("paymentReference") ? item["paymentReference"].S : null,
                     HouseholdMembers = item.ContainsKey("householdMembers") ? item["householdMembers"].L.ToArray().Select(m =>
                            new HouseholdMembers

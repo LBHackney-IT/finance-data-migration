@@ -15,11 +15,11 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         [DynamoDBRangeKey(AttributeName = "id")]
         public Guid Id { get; set; }
 
-        [DynamoDBProperty(AttributeName = "target_type", Converter = typeof(DynamoDbEnumConverter<TargetType>))]
-        public TargetType TargetType { get; set; }
+        [DynamoDBProperty(AttributeName = "target_type"/*, Converter = typeof(DynamoDbEnumConverter<TargetType>)*/)]
+        public string TargetType { get; set; }
 
-        [DynamoDBProperty(AttributeName = "charge_group", Converter = typeof(DynamoDbEnumConverter<ChargeGroup>))]
-        public ChargeGroup ChargeGroup { get; set; }
+        [DynamoDBProperty(AttributeName = "charge_group"/*, Converter = typeof(DynamoDbEnumConverter<ChargeGroup>)*/)]
+        public string ChargeGroup { get; set; }
 
         [DynamoDBProperty(AttributeName = "detailed_charges", Converter = (typeof(DynamoDbObjectListConverter<DetailedCharges>)))]
         public IEnumerable<DetailedCharges> DetailedCharges { get; set; }

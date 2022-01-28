@@ -7,6 +7,7 @@ using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
+using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 
 namespace FinanceDataMigrationApi.V1.UseCase
@@ -35,30 +36,26 @@ namespace FinanceDataMigrationApi.V1.UseCase
             //      where isTransformed flag is TRUE and isLoaded flag is FALSE
             var transformedList = await _dMChargeGateway.GetTransformedListAsync().ConfigureAwait(false);
 
-            // for each row from the Transformed List make into a charge
-            var addChargeRequestList = transformedList.ToAddChargeRequestList();
-
-            if (addChargeRequestList.Any())
+            if (transformedList.Any())
             {
 
                 //await _dynamoDbGateway.AddRangeAsync(addChargeRequestList).ConfigureAwait(false);
 
                 List<Task> tasks = new List<Task>();
-                for (int i = 0; i < addChargeRequestList.Count / 25; i++)
+                for (int i = 0; i < transformedList.Count / 25; i++)
                 {
-
-                    tasks.Add(_dMChargeGateway.BatchInsert(addChargeRequestList.Skip(i).Take(25).ToList()));
+                    tasks.Add(_dMChargeGateway.BatchInsert(transformedList.Skip(i * 25).Take(25).ToList()));
                 }
                 DateTime startDateTime = DateTime.Now;
                 await Task.WhenAll(tasks).ConfigureAwait(false);
 
 
-                await UpdateIsLoadedStatusForDmChargeEntities(transformedList).ConfigureAwait(false);
+                /*await UpdateIsLoadedStatusForDmChargeEntities(transformedList).ConfigureAwait(false);
 
-                UpdateSuccessStatusForDmRunLogDomain(dmRunLogDomain, transformedList);
+                UpdateSuccessStatusForDmRunLogDomain(dmRunLogDomain, transformedList);*/
             }
 
-            if (!addChargeRequestList.Any())
+            if (!transformedList.Any())
             {
                 LoggingHandler.LogInfo($"No records to {DataMigrationTask} for {DMEntityNames.Charges} Entity");
                 dmRunLogDomain.LastRunStatus = MigrationRunStatus.NothingToMigrate.ToString();
@@ -90,7 +87,7 @@ namespace FinanceDataMigrationApi.V1.UseCase
             return dmRunLogDomain;
         }
 
-        private static void UpdateSuccessStatusForDmRunLogDomain(DMRunLogDomain dmRunLogDomain, IList<DMChargeEntityDomain> transformedList)
+        /*private static void UpdateSuccessStatusForDmRunLogDomain(DMRunLogDomain dmRunLogDomain, IList<Charge> transformedList)
         {
             // Update migrationrun item with SET start_row_id & end_row_id here.
             //      and set status to "LoadCompleted" (Data Set Migrated successfully)
@@ -100,14 +97,14 @@ namespace FinanceDataMigrationApi.V1.UseCase
             dmRunLogDomain.LastRunStatus = MigrationRunStatus.LoadCompleted.ToString();
         }
 
-        private async Task UpdateIsLoadedStatusForDmChargeEntities(IList<DMChargeEntityDomain> transformedList)
+        private async Task UpdateIsLoadedStatusForDmChargeEntities(IList<Charge> transformedList)
         {
             foreach (var dmChargeEntityDomain in transformedList)
             {
-                dmChargeEntityDomain.IsLoaded = true;
+                dmChargeEntityDomain.MigrationStatus = EMigrationStatus.Loaded;
             }
 
             await _dMChargeGateway.UpdateDMChargeEntityItems(transformedList).ConfigureAwait(false);
-        }
+        }*/
     }
 }

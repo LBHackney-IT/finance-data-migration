@@ -10,6 +10,7 @@ using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
+using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -20,8 +21,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
         private readonly DatabaseContext _context;
         private readonly IAmazonDynamoDB _amazonDynamoDb;
         private readonly ILogger<IChargeGateway> _logger;
-
-        private readonly int _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE"));
 
         public ChargeGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb, ILogger<IChargeGateway> logger)
         {
@@ -37,11 +36,12 @@ namespace FinanceDataMigrationApi.V1.Gateways
         /// <returns>number of records extracted</returns>
         public async Task<int> ExtractAsync(DateTimeOffset? processingDate)
         {
+            if (processingDate == null) throw new ArgumentNullException(nameof(processingDate));
             return await _context.ExtractDMChargesAsync().ConfigureAwait(false);
         }
 
 
-        public async Task<List<DMDetailedChargesEntity>> GetDetailChargesListAsync(string paymentReference)
+        /*public async Task<List<DmDetailedChargesEntity>> GetDetailChargesListAsync(string paymentReference)
         {
             return await _context.GetDetailChargesListAsync(paymentReference).ConfigureAwait(false);
         }
@@ -53,7 +53,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
         public async Task<IList<DMChargeEntityDomain>> ListAsync()
         {
             var results = await _context.DMChargeEntities
-                .Where(x => x.IsTransformed == false)
+                .Where(x => x.MigrationStatus==EMigrationStatus.Transformed)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -67,11 +67,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 .ConfigureAwait(false);
         }
 
-        public async Task<IList<DMChargeEntityDomain>> GetTransformedListAsync()
-        {
-            var results = await _context.GetTransformedChargeListAsync().ConfigureAwait(false);
-            return results.ToDomain();
-        }
+
 
         public async Task<IList<DMChargeEntityDomain>> GetLoadedListAsync()
         {
@@ -79,19 +75,25 @@ namespace FinanceDataMigrationApi.V1.Gateways
             return results.ToDomain();
         }
 
+
         public async Task<int> AddChargeAsync(DMChargeEntityDomain dmEntity)
         {
             await Task.Delay(0).ConfigureAwait(false);
             return -1;
+        }*/
+
+        public async Task<IList<Charge>> GetTransformedListAsync()
+        {
+            var results = await _context.GetTransformedChargeListAsync().ConfigureAwait(false);
+            return results.ToDomain();
         }
 
-        public async Task<bool> BatchInsert(List<Charge> charges)
+        public async Task BatchInsert(List<Charge> charges)
         {
             List<TransactWriteItem> actions = new List<TransactWriteItem>();
             foreach (Charge charge in charges)
             {
-                Dictionary<string, AttributeValue> columns = new Dictionary<string, AttributeValue>();
-                columns = charge.ToQueryRequest();
+                var columns = charge.ToQueryRequest();
 
                 actions.Add(new TransactWriteItem
                 {
@@ -100,7 +102,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
                         TableName = "Charges",
                         Item = columns,
                         ReturnValuesOnConditionCheckFailure = ReturnValuesOnConditionCheckFailure.ALL_OLD,
-                        ConditionExpression = "attribute_not_exists(id)"
+                        ConditionExpression = "attribute_not_exists(target_id)"
                     }
                 });
             }
@@ -112,8 +114,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
             };
 
             await _amazonDynamoDb.TransactWriteItemsAsync(placeOrderCharge).ConfigureAwait(false);
-
-            return true;
         }
     }
 }
