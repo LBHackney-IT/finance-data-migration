@@ -10,6 +10,7 @@ using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure.Entities;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure
 {
@@ -17,7 +18,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
     /// The database context class.
     /// </summary>
     /// <seealso cref="DbContext" />
-    public class DatabaseContext : DbContext
+    public sealed class DatabaseContext : DbContext
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,7 +29,14 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PeriodNo).HasColumnType("decimal");
             //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.TransactionAmount).HasColumnType("decimal");
             modelBuilder.Entity<DMTransactionEntity>().Property(x => x.TargetId).HasDefaultValueSql("NEWID()");
-            //modelBuilder.Entity<DmDetailedChargesEntity>().HasNoKey();
+            //modelBuilder.Entity<ChargesDbEntity>()
+            //    .HasMany(c => c.DetailedChargesDbEntities)
+            //    .WithOne(d => d.ChargesDbEntity)
+            //    .HasForeignKey(c => c.ChargeId);
+            modelBuilder.Entity<DetailedChargesDbEntity>()
+                .HasOne(c => c.ChargesDbEntity)
+                .WithMany(c => c.DetailedChargesDbEntities)
+                .HasForeignKey(c => c.ChargeId);
         }
 
 
@@ -39,6 +47,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public DatabaseContext(DbContextOptions options)
             : base(options)
         {
+
         }
 
         /// <summary>
@@ -61,7 +70,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// <summary>
         /// Get Data Migration Detailed Charges Entities
         /// </summary>
-        public DbSet<DetailedChargesDbEntity> DetailedChargesDbEntities { get; set; }
+        public DbSet<DetailedChargesDbEntity> DetailedChargesEntities { get; set; }
 
 
         #region Charges Entity Specific
@@ -92,16 +101,18 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         }
 
         public async Task<IList<ChargesDbEntity>> GetTransformedChargeListAsync()
-            => await ChargesDbEntities
+            => await this.Set<ChargesDbEntity>()
                 .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
                 .Take(Constants.LoadCount)
+                .Include(p=>p.DetailedChargesDbEntities)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
         public async Task<IList<ChargesDbEntity>> GetLoadedChargeListAsync()
-            => await ChargesDbEntities
+            => await this.Set<ChargesDbEntity>()
                 .Where(x => x.MigrationStatus == EMigrationStatus.Loaded)
                 .Take(Constants.LoadCount)
+                .Include(p=>p.DetailedChargesDbEntities)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -189,6 +200,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .ConfigureAwait(false);
 
         #endregion
+
         private async Task<int> ExecuteStoredProcedure(string procedureRawString, int timeout = 0)
         {
             if (timeout != 0)

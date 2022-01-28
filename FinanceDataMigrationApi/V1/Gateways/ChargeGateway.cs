@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
+using AutoMapper.Internal;
 using EFCore.BulkExtensions;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Factories;
@@ -85,6 +86,8 @@ namespace FinanceDataMigrationApi.V1.Gateways
         public async Task<IList<Charge>> GetTransformedListAsync()
         {
             var results = await _context.GetTransformedChargeListAsync().ConfigureAwait(false);
+            results.ToList().ForEach(p=>p.MigrationStatus=EMigrationStatus.Loading);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomain();
         }
 
@@ -113,7 +116,22 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 ReturnConsumedCapacity = ReturnConsumedCapacity.TOTAL
             };
 
-            await _amazonDynamoDb.TransactWriteItemsAsync(placeOrderCharge).ConfigureAwait(false);
+            try
+            {
+                await _amazonDynamoDb.TransactWriteItemsAsync(placeOrderCharge).ConfigureAwait(false);
+                _context.ChargesDbEntities.Where(p=>
+                    charges.Select(i=>i.Id).Contains(p.Id)).
+                    ForAll(p=>p.MigrationStatus=EMigrationStatus.Loaded);
+                await _context.SaveChangesAsync().ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                _context.ChargesDbEntities.Where(p =>
+                        charges.Select(i => i.Id).Contains(p.Id)).
+                    ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
+                await _context.SaveChangesAsync().ConfigureAwait(false);
+                throw;
+            }
         }
     }
 }
