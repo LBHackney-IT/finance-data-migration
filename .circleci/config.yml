@@ -4,6 +4,7 @@ orbs:
   aws-ecr: circleci/aws-ecr@3.0.0
   aws-cli: circleci/aws-cli@0.1.9
   aws_assume_role: lbh-hackit/aws_assume_role@0.1.0
+  aws-parameter-store: circleci/aws-parameter-store@1.0.0
 
 executors:
   docker-python:
@@ -11,7 +12,7 @@ executors:
       - image: circleci/python:3.7
   docker-terraform:
     docker:
-      - image: hashicorp/terraform:1.0.11
+      - image: "hashicorp/terraform:light"
   docker-dotnet:
     docker:
       - image: mcr.microsoft.com/dotnet/core/sdk:3.1
@@ -38,8 +39,8 @@ commands:
           root: *workspace_root
           paths:
             - .aws
-  terraform-init-then-plan:
-    description: "Initializes and run plan from terraform configuration"
+  terraform-init-then-apply:
+    description: "Initializes and applies terraform configuration"
     parameters:
       environment:
         type: string
@@ -56,15 +57,13 @@ commands:
           name: apply
           command: |
             cd ./terraform/<<parameters.environment>>/
-            terraform apply -auto-approve plan.out
-      - persist_to_workspace:
-          root: *workspace_root
-          paths:
-            - .aws
+            terraform apply -auto-approve
   deploy-lambda:
     description: "Deploys API via Serverless"
     parameters:
       stage:
+        type: string
+      aws-account:
         type: string
     steps:
       - *attach_workspace
@@ -126,66 +125,39 @@ jobs:
     steps:
       - assume-role-and-persist-workspace:
           aws-account: $AWS_ACCOUNT_PRODUCTION
-  terraform-init-and-plan-development:
+  terraform-init-and-apply-to-development:
     executor: docker-terraform
     steps:
-      - terraform-init-then-plan:
+      - terraform-init-then-apply:
           environment: "development"
-  terraform-compliance-development:
+  terraform-init-and-apply-to-staging:
     executor: docker-terraform
     steps:
-      - terraform-compliance:
-          environment: "development"
-  terraform-apply-development:
-    executor: docker-terraform
-    steps:
-      - terraform-apply:
-          environment: "development"
-  terraform-init-and-plan-staging:
-    executor: docker-terraform
-    steps:
-      - terraform-init-then-plan:
+      - terraform-init-then-apply:
           environment: "staging"
-  terraform-compliance-staging:
+  terraform-init-and-apply-to-production:
     executor: docker-terraform
     steps:
-      - terraform-compliance:
-          environment: "staging"
-  terraform-apply-staging:
-    executor: docker-terraform
-    steps:
-      - terraform-apply:
-          environment: "staging"
-  terraform-init-and-plan-production:
-    executor: docker-terraform
-    steps:
-      - terraform-init-then-plan:
-          environment: "production"
-  terraform-compliance-production:
-    executor: docker-terraform
-    steps:
-      - terraform-compliance:
-          environment: "production"
-  terraform-apply-production:
-    executor: docker-terraform
-    steps:
-      - terraform-apply:
+      - terraform-init-then-apply:
           environment: "production"
   deploy-to-development:
     executor: docker-dotnet
     steps:
       - deploy-lambda:
           stage: "development"
+          aws-account: $AWS_ACCOUNT_DEVELOPMENT
   deploy-to-staging:
     executor: docker-dotnet
     steps:
       - deploy-lambda:
           stage: "staging"
+          aws-account: $AWS_ACCOUNT_STAGING
   deploy-to-production:
     executor: docker-dotnet
     steps:
       - deploy-lambda:
           stage: "production"
+          aws-account: $AWS_ACCOUNT_PRODUCTION
 
 workflows:
   check-and-deploy-development:
@@ -202,28 +174,16 @@ workflows:
           filters:
             branches:
               only: development
-      - terraform-init-and-plan-development:
+      - terraform-init-and-apply-to-development:
           requires:
             - assume-role-development
-          filters:
-            branches:
-              only: development
-      - terraform-compliance-development:
-          requires:
-            - terraform-init-and-plan-development
-          filters:
-            branches:
-              only: development
-      - terraform-apply-development:
-          requires:
-            - terraform-compliance-development
           filters:
             branches:
               only: development
       - deploy-to-development:
           context: api-nuget-token-context
           requires:
-            - terraform-apply-development
+            - terraform-init-and-apply-to-development
           filters:
             branches:
               only: development
@@ -243,71 +203,39 @@ workflows:
           filters:
              branches:
                only: master
-      - terraform-init-and-plan-staging:
+      - terraform-init-and-apply-to-staging:
           requires:
             - assume-role-staging
-          filters:
-            branches:
-              only: master
-      - terraform-compliance-staging:
-          requires:
-            - terraform-init-and-plan-staging
-          filters:
-            branches:
-              only: master
-      - terraform-apply-staging:
-          requires:
-            - terraform-compliance-staging
           filters:
             branches:
               only: master
       - deploy-to-staging:
           context: api-nuget-token-context
           requires:
-            - terraform-apply-staging
-          filters:
-            branches:
-              only: master
-      - permit-production-terraform-release:
-          type: approval
-          requires:
-            - deploy-to-staging
-      - assume-role-production:
-          context: api-assume-role-housing-production-context
-          requires:
-              - permit-production-terraform-release
-          filters:
-             branches:
-               only: master
-      - terraform-init-and-plan-production:
-          requires:
-            - assume-role-production
-          filters:
-            branches:
-              only: master
-      - terraform-compliance-production:
-          requires:
-            - terraform-init-and-plan-production
-          filters:
-            branches:
-              only: master
-      - terraform-apply-production:
-          requires:
-            - terraform-compliance-production
+            - terraform-init-and-apply-to-staging
           filters:
             branches:
               only: master
       - permit-production-release:
           type: approval
           requires:
-            - terraform-apply-production
+            - deploy-to-staging
+      - assume-role-production:
+          context: api-assume-role-housing-production-context
+          requires:
+              - permit-production-release
+          filters:
+             branches:
+               only: master
+      - terraform-init-and-apply-to-production:
+          requires:
+            - assume-role-production
           filters:
             branches:
               only: master
       - deploy-to-production:
-          context: api-nuget-token-context
           requires:
-            - permit-production-release
+            - terraform-init-and-apply-to-production
           filters:
             branches:
               only: master
