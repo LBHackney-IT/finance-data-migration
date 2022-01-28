@@ -21,12 +21,15 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                     } : null,
                     TenureType = item.ContainsKey("tenureType") ? new TenureType()
                     {
-                        Code = item["tenureType"].M["code"].S,
-                        Description = item["tenureType"].M["description"].S
+                        Code = item["tenureType"].M.ContainsKey("code") ?
+                            item["tenureType"].M["code"].S : null,
+                        Description = item["tenureType"].M.ContainsKey("description") ?
+                            item["tenureType"].M["description"].S : null
                     } : null,
                     Terminated = item.ContainsKey("terminated") ? new Terminated()
                     {
-                        IsTerminated = item["terminated"].M["isTerminated"].BOOL,
+                        IsTerminated = item["terminated"].M.ContainsKey("isTerminated") ?
+                            item["terminated"].M["isTerminated"].BOOL : false,
                         ReasonForTermination = item["terminated"].M.ContainsKey("reasonForTermination") ?
                             item["terminated"].M["reasonForTermination"].S.Trim() : ""
                     } : null,
