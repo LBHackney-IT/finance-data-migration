@@ -82,30 +82,20 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public async Task<TenurePaginationResponse> GetAll(Dictionary<string, AttributeValue> lastEvaluatedKey = null)
         {
-            string step = "GetAll";
-            try
+            ScanRequest request = new ScanRequest("TenureInformation")
             {
-                ScanRequest request = new ScanRequest("TenureInformation")
-                {
-                    Limit = 1000,
-                    ExclusiveStartKey = lastEvaluatedKey
-                };
-                step = "GetAll+ScanRequest";
-                ScanResponse response = await _dynamoDb.ScanAsync(request).ConfigureAwait(false);
-                step = "GetAll+_dynamoDb.ScanAsync";
-                if (response == null || response.Items == null)
-                    throw new Exception($"_dynamoDb.ScanAsync results NULL: {response?.ToString()}");
+                Limit = 1000,
+                ExclusiveStartKey = lastEvaluatedKey
+            };
+            ScanResponse response = await _dynamoDb.ScanAsync(request).ConfigureAwait(false);
+            if (response == null || response.Items == null || response.Items.Count == 0)
+                throw new Exception($"_dynamoDb.ScanAsync results NULL: {response?.ToString()}");
 
-                return new TenurePaginationResponse()
-                {
-                    LastKey = response?.LastEvaluatedKey,
-                    TenureInformation = response?.ToTenureInformation().ToList()
-                };
-            }
-            catch (Exception exception)
+            return new TenurePaginationResponse()
             {
-                throw new Exception($"{exception}:step{step}");
-            }
+                LastKey = response?.LastEvaluatedKey,
+                TenureInformation = response?.ToTenureInformation()?.ToList()
+            };
         }
 
         public Task<int> SaveTenuresIntoSql(string lastHint, XElement xml)

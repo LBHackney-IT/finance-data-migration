@@ -11,7 +11,7 @@ using Microsoft.VisualBasic;
 namespace FinanceDataMigrationApi.V1.Controllers
 {
     [ApiController]
-    [Route("api/v1/data-migration")]
+    [Route("api/v1/charge")]
     [Produces("application/json")]
     [ApiVersion("1.0")]
     public class ChargeController : BaseController
@@ -36,7 +36,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status500InternalServerError)]
         [HttpGet]
-        [Route("charge-entity/extract")]
+        [Route("extract")]
         public async Task<IActionResult> ExtractChargeEntity()
         {
             var runExtractChargeEntity = await _extractChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
@@ -74,7 +74,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status500InternalServerError)]
         [HttpGet]
-        [Route("charge-entity/load")]
+        [Route("load")]
         public async Task<IActionResult> LoadChargeEntity()
         {
 
