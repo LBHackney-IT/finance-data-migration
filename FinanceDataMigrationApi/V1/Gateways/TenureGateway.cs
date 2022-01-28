@@ -25,7 +25,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
         private readonly IDynamoDBContext _dynamoDbContext;
         private readonly ILogger<ITenureGateway> _logger;
 
-        public TenureGateway(DatabaseContext dbContext, IAmazonDynamoDB dynamoDb,IDynamoDBContext dynamoDbContext ,ILogger<ITenureGateway> logger)
+        public TenureGateway(DatabaseContext dbContext, IAmazonDynamoDB dynamoDb, IDynamoDBContext dynamoDbContext, ILogger<ITenureGateway> logger)
         {
             _dbContext = dbContext;
             _dynamoDb = dynamoDb;
