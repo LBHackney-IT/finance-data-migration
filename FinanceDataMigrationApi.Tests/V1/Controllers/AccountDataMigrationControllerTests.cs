@@ -76,13 +76,17 @@ namespace FinanceDataMigrationApi.Tests.V1.Controllers
         {
             var stepResponse = _fixture.Create<StepResponse>();
             stepResponse.Continue = false;
+            var expectedResult = new ObjectResult(new BaseErrorResponse((int) HttpStatusCode.InternalServerError, "Transform Account Entity Task Failed!!"))
+            {
+                StatusCode = 500
+            };
 
             _mockTransformAccountsUseCase.Setup(x => x.ExecuteAsync()).ReturnsAsync(stepResponse);
 
             var result = await _controller.TransformAccountEntity().ConfigureAwait(false);
             var internalServerErrorResult = result as StatusCodeResult;
 
-            result.Should().Be(new ObjectResult(new BaseErrorResponse((int) HttpStatusCode.InternalServerError, "Transform Account Entity Task Failed!!")));
+            result.Should().BeEquivalentTo(expectedResult);
         }
 
         [Fact]
@@ -101,12 +105,15 @@ namespace FinanceDataMigrationApi.Tests.V1.Controllers
         {
             var stepResponse = _fixture.Create<StepResponse>();
             stepResponse.Continue = false;
+            var expectedResult = new ObjectResult(new BaseErrorResponse((int) HttpStatusCode.InternalServerError, "Load Account Entity Task Failed!!"))
+            {
+                StatusCode = 500
+            };
 
             _mockLoadAccountsUseCase.Setup(x => x.ExecuteAsync()).ReturnsAsync(stepResponse);
 
             var result = await _controller.LoadAccountEntity().ConfigureAwait(false);
-
-            result.Should().Be(new ObjectResult(new BaseErrorResponse((int) HttpStatusCode.InternalServerError, "Load Account Entity Task Failed!!")));
+            result.Should().BeEquivalentTo(expectedResult);
         }
 
         [Fact]
@@ -124,11 +131,13 @@ namespace FinanceDataMigrationApi.Tests.V1.Controllers
         public async Task IndexTransactionEntityUseCaseShouldReturns404()
         {
             var stepResponse = _fixture.Create<StepResponse>();
+            stepResponse.Continue = false;
+
             _mockIndexAccountEntityUseCase.Setup(x => x.ExecuteAsync()).ReturnsAsync(stepResponse);
 
             var result = await _controller.IndexAccountEntity().ConfigureAwait(false);
 
-            result.Should().Be(new BaseErrorResponse((int) HttpStatusCode.InternalServerError, "Index Account Entity Task Failed!!"));
+            result.Should().BeEquivalentTo(new NotFoundObjectResult(new BaseErrorResponse((int) HttpStatusCode.InternalServerError, "Index Account Entity Task Failed!!")));
         }
     }
 }

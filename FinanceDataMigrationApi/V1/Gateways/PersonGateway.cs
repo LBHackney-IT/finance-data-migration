@@ -1,39 +1,28 @@
 using System;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using FinanceDataMigrationApi.V1.Gateways.Extensions;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
-using FinanceDataMigrationApi.V1.Infrastructure.Interfaces;
 using Hackney.Shared.Person;
-using Newtonsoft.Json;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
-    public class PersonGateway: IPersonGateway
+    public class PersonGateway : IPersonGateway
     {
-        private readonly HttpClient _client;
+        private readonly IDynamoDBContext _dbContext;
+        private readonly IAmazonDynamoDB _dynamoDb;
 
-        public PersonGateway(HttpClient client)
+        public PersonGateway(IDynamoDBContext dbContext, IAmazonDynamoDB dynamoDb)
         {
-            _client = client;
-        }   
+            _dbContext = dbContext;
+            _dynamoDb = dynamoDb;
+        }
 
         public async Task<Person> GetById(Guid id)
         {
-            if(id==Guid.Empty)
-                throw  new ArgumentNullException(nameof(id));
+            if (id == Guid.Empty) throw new ArgumentException(nameof(id).ToString());
 
-
-            var uri = new Uri($"/api/v1/persons/{id.ToString()}", UriKind.Relative);
-
-            var response = await _client.GetAsync(uri).ConfigureAwait(true);
-            var personResponse = await response.ReadContentAs<Person>().ConfigureAwait(true);
-
-            //return tenureResponse?.Results.Tenures;
-
-
-            return personResponse;
+            return await Task.Run(() => new Person()).ConfigureAwait(false);
         }
     }
 }

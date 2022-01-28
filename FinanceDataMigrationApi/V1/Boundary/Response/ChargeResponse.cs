@@ -1,5 +1,4 @@
 using FinanceDataMigrationApi.V1.Domain;
-using Hackney.Shared.HousingSearch.Domain.Accounts.Enum;
 using System;
 using System.Collections.Generic;
 
@@ -29,7 +28,7 @@ namespace FinanceDataMigrationApi.V1.Boundary.Response
         /// <example>
         /// Asset
         /// </example>
-        public TargetType TargetType { get; set; }
+        public Domain.TargetType TargetType { get; set; }
 
         /// <summary>
         /// Charge Group - Tenants/Leaseholders

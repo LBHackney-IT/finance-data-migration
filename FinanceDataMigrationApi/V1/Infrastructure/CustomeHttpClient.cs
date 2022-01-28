@@ -2,7 +2,7 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using FinanceDataMigrationApi.V1.Infrastructure.Interfaces; 
+using FinanceDataMigrationApi.V1.Infrastructure.Interfaces;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure
 {
@@ -18,7 +18,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             DefaultRequestHeaders.Add(header.Name, header.Value);
         }
 
- 
+
         public new async Task<HttpResponseMessage> GetAsync(Uri uri)
         {
             return await base.GetAsync(uri).ConfigureAwait(false);

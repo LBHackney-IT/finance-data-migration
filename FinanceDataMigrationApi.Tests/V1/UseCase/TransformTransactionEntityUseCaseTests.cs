@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
+using FinanceDataMigrationApi.V1.UseCase;
 using FluentAssertions;
 using Hackney.Shared.Tenure.Domain;
 using Moq;
@@ -15,18 +16,18 @@ namespace FinanceDataMigrationApi.Tests.V1.UseCase
     {
         private Mock<IDMRunLogGateway> _dMRunLogGateway;
         private Mock<IDMTransactionEntityGateway> _dMTransactionEntityGateway;
-        private Mock<ITenureAPIGateway> _tenureGateway;
+        private Mock<ITenureGateway> _tenureGateway;
         private Mock<IPersonGateway> _personGateway;
         private static readonly Guid _householdmemberId = Guid.NewGuid();
 
 
         public TransformTransactionEntityUseCaseTests()
         {
-             //setup defaults as mocks
-             _dMRunLogGateway = new Mock<IDMRunLogGateway>();
-             _dMTransactionEntityGateway = new Mock<IDMTransactionEntityGateway>();
-             _tenureGateway = new Mock<ITenureAPIGateway>();
-             _personGateway = new Mock<IPersonGateway>();
+            //setup defaults as mocks
+            _dMRunLogGateway = new Mock<IDMRunLogGateway>();
+            _dMTransactionEntityGateway = new Mock<IDMTransactionEntityGateway>();
+            _tenureGateway = new Mock<ITenureGateway>();
+            _personGateway = new Mock<IPersonGateway>();
         }
 
 

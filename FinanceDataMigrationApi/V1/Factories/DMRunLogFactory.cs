@@ -27,7 +27,7 @@ namespace FinanceDataMigrationApi.V1.Factories
 
         public static DMRunLogDomain ToDomain(this DMRunLog dMRunLog)
         {
-            return dMRunLog  == null ? null : new DMRunLogDomain
+            return dMRunLog == null ? null : new DMRunLogDomain
             {
                 Id = dMRunLog.Id,
                 DynamoDbTableName = dMRunLog.DynamoDbTableName,
@@ -38,7 +38,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                 LastRunDate = dMRunLog.LastRunDate,
                 LastRunStatus = dMRunLog.LastRunStatus,
                 UpdatedAt = dMRunLog.UpdatedAt,
-                IsFeatureEnabled = dMRunLog.IsFeatureEnabled    
+                IsFeatureEnabled = dMRunLog.IsFeatureEnabled
             };
         }
 

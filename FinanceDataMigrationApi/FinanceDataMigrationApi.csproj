@@ -12,6 +12,7 @@
         <UserSecretsId>c1dc564e-5883-4ecf-963b-a8a865566aa2</UserSecretsId>
     </PropertyGroup>
     <ItemGroup>
+      <Compile Remove="V1\Factories\ResponseFactory.cs" />
       <Compile Remove="V1\Gateways\DynamoDbGateway_OLD.cs" />
       <Compile Remove="V1\Gateways\ExampleGateway.cs" />
       <Compile Remove="V1\Gateways\Interfaces\IExampleDynamoGateway.cs" />
@@ -27,6 +28,7 @@
 
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="5.1.1" />
+    <PackageReference Include="AutoFixture" Version="4.11.0" />
     <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.2" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.0.1" />
@@ -35,9 +37,11 @@
     <PackageReference Include="AWSXRayRecorder.Handlers.AwsSdk" Version="2.8.2" />
     <PackageReference Include="AWSXRayRecorder.Handlers.EntityFramework" Version="1.1.0" />
     <PackageReference Include="EFCore.BulkExtensions" Version="5.3.8" />
+    <PackageReference Include="Hackney.Core.Authorization" Version="1.66.0" />
     <PackageReference Include="Hackney.Core.DynamoDb" Version="1.51.0" />
     <PackageReference Include="Hackney.Core.ElasticSearch" Version="1.49.0" />
     <PackageReference Include="Hackney.Core.HealthCheck" Version="1.49.0" />
+    <PackageReference Include="Hackney.Core.JWT" Version="1.66.0" />
     <PackageReference Include="Hackney.Core.Logging" Version="1.49.0" />
     <PackageReference Include="Hackney.Core.Middleware" Version="1.49.0" />
     <PackageReference Include="Hackney.Core.Validation" Version="1.56.0" />
@@ -55,16 +59,11 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.4.1" />
     <PackageReference Include="NEST" Version="7.15.0" />
+    <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.25.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="terraform\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Hackney.Shared.HousingSearch">
-      <HintPath>..\..\housing-search-shared\Hackney.Shared.HousingSearch\bin\Debug\netstandard2.1\Hackney.Shared.HousingSearch.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>

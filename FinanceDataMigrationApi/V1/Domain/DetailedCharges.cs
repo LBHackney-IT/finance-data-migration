@@ -1,6 +1,6 @@
-using FinanceDataMigrationApi.V1.Infrastructure;
 using System;
 using System.ComponentModel.DataAnnotations;
+using FinanceDataMigrationApi.V1.Infrastructure;
 
 namespace FinanceDataMigrationApi.V1.Domain
 {

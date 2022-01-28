@@ -9,7 +9,7 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
     {
         Task<IList<DMTransactionEntityDomain>> ListAsync();
 
-        Task <int> ExtractAsync(DateTimeOffset? processingDate);
+        Task<int> ExtractAsync(DateTimeOffset? processingDate);
 
         Task UpdateDMTransactionEntityItems(IList<DMTransactionEntityDomain> dMTransactionEntityDomainItems);
 

@@ -12,13 +12,13 @@ using Newtonsoft.Json.Linq;
 namespace FinanceDataMigrationApi.Tests.V1
 {
     public class CustomWebApplicationFactory<TStartup>
-        : WebApplicationFactory<TStartup> where TStartup: class
+        : WebApplicationFactory<TStartup> where TStartup : class
     {
         protected override IWebHostBuilder CreateWebHostBuilder() =>
             base.CreateWebHostBuilder().UseEnvironment("Development");
 
         private JsonTextReader _jsonReader;
-        protected internal  void SetEnvironmentVariables()
+        protected internal void SetEnvironmentVariables()
         {
             using var launchSettingsFile = File.OpenText("./Properties/launchSettings.json");
             // Load environment variables from json configuration file

@@ -4,5 +4,6 @@ namespace FinanceDataMigrationApi.V1.Domain
     {
         public const string Transactions = "Transactions";
         public const string Accounts = "Accounts";
+        public const string Charges = "Charges";
     }
 }

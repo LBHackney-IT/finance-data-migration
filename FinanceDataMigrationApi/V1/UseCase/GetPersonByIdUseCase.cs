@@ -10,12 +10,12 @@ using Newtonsoft.Json;
 
 namespace FinanceDataMigrationApi.V1.UseCase
 {
-    public class GetPersonByIdUseCase: IGetPersonByIdUseCase
+    public class GetPersonByIdUseCase : IGetPersonByIdUseCase
     {
         private readonly ICustomeHttpClient _client;
         private readonly IGetEnvironmentVariables _getEnvironmentVariables;
 
-        public GetPersonByIdUseCase(ICustomeHttpClient client,IGetEnvironmentVariables getEnvironmentVariables)
+        public GetPersonByIdUseCase(ICustomeHttpClient client, IGetEnvironmentVariables getEnvironmentVariables)
         {
             _client = client;
             _getEnvironmentVariables = getEnvironmentVariables;

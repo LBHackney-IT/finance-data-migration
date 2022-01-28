@@ -7,11 +7,11 @@ using Hackney.Shared.Tenure.Domain;
 
 namespace FinanceDataMigrationApi.V1.UseCase
 {
-    public class GetTenureByPrnUseCase: IGetTenureByPrnUseCase
+    public class GetTenureByPrnUseCase : IGetTenureByPrnUseCase
     {
-        private readonly ITenureAPIGateway _gateway;
+        private readonly ITenureGateway _gateway;
 
-        public GetTenureByPrnUseCase(ITenureAPIGateway gateway)
+        public GetTenureByPrnUseCase(ITenureGateway gateway)
         {
             _gateway = gateway;
         }

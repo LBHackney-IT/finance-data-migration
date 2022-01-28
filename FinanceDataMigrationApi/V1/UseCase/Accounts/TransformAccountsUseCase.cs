@@ -1,6 +1,5 @@
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Domain;
-using FinanceDataMigrationApi.V1.Gateways;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Accounts;
@@ -15,7 +14,6 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
         private readonly IDMAccountEntityGateway _dMAccountEntityGateway;
         private readonly IEsGateway _esGateway;
         private readonly ITenureDynamoDbGateway _tenureDynamoDbGateway;
-        private readonly ITransactionsDynamoDbGateway _transactionsDynamoDbGateway;
 
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
         private const string DataMigrationTask = "TRANSFORM";
@@ -23,14 +21,12 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
         public TransformAccountsUseCase(IDMRunLogGateway dMRunLogGateway,
             IDMAccountEntityGateway dMAccountEntityGateway,
             IEsGateway esGateway,
-            ITenureDynamoDbGateway tenureDynamoDbGateway,
-            ITransactionsDynamoDbGateway transactionsDynamoDbGateway)
+            ITenureDynamoDbGateway tenureDynamoDbGateway)
         {
             _dMRunLogGateway = dMRunLogGateway;
             _dMAccountEntityGateway = dMAccountEntityGateway;
             _esGateway = esGateway;
             _tenureDynamoDbGateway = tenureDynamoDbGateway;
-            _transactionsDynamoDbGateway = transactionsDynamoDbGateway;
         }
 
         public async Task<StepResponse> ExecuteAsync()

@@ -14,11 +14,11 @@ namespace FinanceDataMigrationApi.V1.Gateways
 {
     public class DMTransactionEntityGateway : IDMTransactionEntityGateway
     {
-        private readonly DbTransactionsContext _context;
+        private readonly DatabaseContext _context;
 
         private readonly int _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE"));
 
-        public DMTransactionEntityGateway(DbTransactionsContext context)
+        public DMTransactionEntityGateway(DatabaseContext context)
         {
             _context = context;
         }
@@ -32,16 +32,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
         //public async Task<int> ExtractAsync(DateTime? processingDate)
         public async Task<int> ExtractAsync(DateTimeOffset? processingDate)
         {
-            try
-            {
-                return await _context.ExtractDMTransactionsAsync(processingDate).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                LoggingHandler.LogError(e.Message);
-                LoggingHandler.LogError(e.StackTrace);
-                throw;
-            }
+            return await _context.ExtractDMTransactionsAsync(processingDate).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -52,83 +43,35 @@ namespace FinanceDataMigrationApi.V1.Gateways
         /// </returns>
         public async Task<IList<DMTransactionEntityDomain>> ListAsync()
         {
-            try
-            {
-                var results = await _context.DMTransactionEntities
-                    .Where(x => x.IsTransformed == false)
-                    .ToListAsync()
-                    .ConfigureAwait(false);
-              
-                return results.ToDomain();
-            }
-            catch (Exception e)
-            {
-                LoggingHandler.LogError(e.Message);
-                LoggingHandler.LogError(e.StackTrace);
-                throw;
-            }
+            var results = await _context.DMTransactionEntities
+                .Where(x => x.IsTransformed == false)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+            return results.ToDomain();
         }
 
         public async Task UpdateDMTransactionEntityItems(IList<DMTransactionEntityDomain> dMTransactionEntityDomainItems)
         {
-            try
-            {
-                await _context.BulkUpdateAsync(dMTransactionEntityDomainItems.ToDatabase(), new BulkConfig { BatchSize = _batchSize }).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                LoggingHandler.LogError(e.Message);
-                LoggingHandler.LogError(e.StackTrace);
-                throw;
-            }
+            await _context.BulkUpdateAsync(dMTransactionEntityDomainItems.ToDatabase(), new BulkConfig { BatchSize = _batchSize }).ConfigureAwait(false);
         }
 
         public async Task<IList<DMTransactionEntityDomain>> GetTransformedListAsync()
         {
-            try
-            {
-                var results = await _context.GetTransformedListAsync().ConfigureAwait(false);
-
-                return results.ToDomain();
-            }
-            catch (Exception e)
-            {
-                LoggingHandler.LogError(e.Message);
-                LoggingHandler.LogError(e.StackTrace);
-                throw;
-            }
+            var results = await _context.GetTransformedListAsync().ConfigureAwait(false);
+            return results.ToDomain();
         }
 
         public async Task<IList<DMTransactionEntityDomain>> GetLoadedListAsync()
         {
-            try
-            {
-                var results = await _context.GetLoadedListAsync().ConfigureAwait(false);
-
-                return results.ToDomain();
-            }
-            catch (Exception e)
-            {
-                LoggingHandler.LogError(e.Message);
-                LoggingHandler.LogError(e.StackTrace);
-                throw;
-            }
+            var results = await _context.GetLoadedListAsync().ConfigureAwait(false);
+            return results.ToDomain();
         }
 
         public async Task<int> AddTransactionAsync(DMTransactionEntityDomain dmEntity)
         {
-            // TODO
-            try
-            {
-                await Task.Delay(0).ConfigureAwait(false);
-                return -1;
-            }
-            catch (Exception e)
-            {
-                LoggingHandler.LogError(e.Message);
-                LoggingHandler.LogError(e.StackTrace);
-                throw;
-            }
+            await Task.Delay(0).ConfigureAwait(false);
+            return -1;
         }
     }
 }

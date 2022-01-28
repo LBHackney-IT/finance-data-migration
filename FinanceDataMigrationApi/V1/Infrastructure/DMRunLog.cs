@@ -1,4 +1,3 @@
-using FinanceDataMigrationApi.V1.Domain;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -9,7 +8,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
     /// The Data Migration Run Log.
     /// </summary>
     [Table("DMRunLog")]
-    public class DMRunLog 
+    public class DMRunLog
     {
         [Key]
         public long Id { get; set; }

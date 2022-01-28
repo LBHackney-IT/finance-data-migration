@@ -1,16 +1,9 @@
 using AutoFixture;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Controllers;
-using FinanceDataMigrationApi.V1.Infrastructure;
-using FinanceDataMigrationApi.V1.UseCase;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
 using Moq;
-//using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -18,25 +11,25 @@ namespace FinanceDataMigrationApi.Tests.V1.Controllers
 {
     public class FinanceDataMigrationApiControllerTests
     {
-        private readonly Fixture _fixture = new Fixture();
+        /*private readonly Fixture _fixture = new Fixture();
         private readonly FinanceDataMigrationApiController _controller;
         private readonly Mock<IExtractTransactionEntityUseCase> _mockExtractTransactionEntityUseCase;
         private readonly Mock<ITransformTransactionEntityUseCase> _mockTransformTransactionEntityUse;
         private readonly Mock<ILoadTransactionEntityUseCase> _mockLoadTransactionEntityUseCase;
-        private readonly Mock<IIndexTransactionEntityUseCase> _mockIndexTransactionEntityUseCaseCase;
+        private readonly Mock<IIndexTransactionEntityUseCase> _mockIndexTransactionEntityUseCase;
 
         public FinanceDataMigrationApiControllerTests()
         {
             _mockExtractTransactionEntityUseCase = new Mock<IExtractTransactionEntityUseCase>();
             _mockTransformTransactionEntityUse = new Mock<ITransformTransactionEntityUseCase>();
             _mockLoadTransactionEntityUseCase = new Mock<ILoadTransactionEntityUseCase>();
-            _mockIndexTransactionEntityUseCaseCase = new Mock<IIndexTransactionEntityUseCase>();
+            _mockIndexTransactionEntityUseCase = new Mock<IIndexTransactionEntityUseCase>();
 
             _controller = new FinanceDataMigrationApiController(
                 _mockExtractTransactionEntityUseCase.Object,
                 _mockTransformTransactionEntityUse.Object,
                 _mockLoadTransactionEntityUseCase.Object,
-                _mockIndexTransactionEntityUseCaseCase.Object);
+                _mockIndexTransactionEntityUseCase.Object);
         }
 
         [Fact]
@@ -70,7 +63,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Controllers
             var result = await _controller.LoadTransactionEntity().ConfigureAwait(false);
 
             result.Should().NotBeNull();
-        }
+        }*/
 
     }
 }

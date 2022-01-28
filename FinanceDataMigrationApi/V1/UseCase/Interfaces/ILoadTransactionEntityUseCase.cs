@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi
 {
-    public interface ILoadTransactionEntityUseCase 
+    public interface ILoadTransactionEntityUseCase
     {
         public Task<StepResponse> ExecuteAsync();
     }
