@@ -39,15 +39,24 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [Route("charge-entity/extract")]
         public async Task<IActionResult> ExtractChargeEntity()
         {
-            var runExtractChargeEntity = await _extractChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
-
-            if (runExtractChargeEntity.Continue == false)
+            string step = "ExtractChargeEntity";
+            try
             {
-                return NotFound(new BaseErrorResponse((int) HttpStatusCode.InternalServerError,
-                    "Extract Charge Entity Task Failed!!"));
-            }
+                step = "ExtractChargeEntity+_extractChargeEntityUseCase.ExecuteAsync()";
+                var runExtractChargeEntity = await _extractChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
 
-            return Ok();
+                if (runExtractChargeEntity.Continue == false)
+                {
+                    return NotFound(new BaseErrorResponse((int) HttpStatusCode.InternalServerError,
+                        "Extract Charge Entity Task Failed!!"));
+                }
+
+                return Ok();
+            }
+            catch (Exception exception)
+            {
+                throw new Exception($"{exception} step:{step}");
+            }
         }
 
         //[ProducesResponseType(StatusCodes.Status200OK)]
