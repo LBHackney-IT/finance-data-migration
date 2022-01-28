@@ -209,7 +209,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 await Database.CommitTransactionAsync().ConfigureAwait(false);
                 return returnValue;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await Database.RollbackTransactionAsync().ConfigureAwait(false);
                 throw;
