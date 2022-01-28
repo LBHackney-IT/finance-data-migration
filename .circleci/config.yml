@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   aws-ecr: circleci/aws-ecr@3.0.0
-  aws-cli: circleci/aws-cli@2.0.3
+  aws-cli: circleci/aws-cli@0.1.9
   aws_assume_role: lbh-hackit/aws_assume_role@0.1.0
   aws-parameter-store: circleci/aws-parameter-store@1.0.0
 
@@ -87,9 +87,7 @@ commands:
           name: Deploy lambda
           command: |
             cd ./FinanceDataMigrationApi/
-            sls plugin install --name serverless-step-functions
-            sls deploy --stage <<parameters.stage>>
-#--account <<parameters.aws-account>> --conceal
+            sls deploy --stage <<parameters.stage>> --conceal
 jobs:
   check-code-formatting:
     executor: docker-dotnet
