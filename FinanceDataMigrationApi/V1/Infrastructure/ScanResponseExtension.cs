@@ -29,7 +29,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                     Terminated = item.ContainsKey("terminated") ? new Terminated()
                     {
                         IsTerminated = item["terminated"].M.ContainsKey("isTerminated") ?
-                            item["terminated"].M["isTerminated"].BOOL:false,
+                            item["terminated"].M["isTerminated"].BOOL : false,
                         ReasonForTermination = item["terminated"].M.ContainsKey("reasonForTermination") ?
                             item["terminated"].M["reasonForTermination"].S.Trim() : ""
                     } : null,
