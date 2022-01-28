@@ -55,7 +55,8 @@ namespace FinanceDataMigrationApi.V1.Controllers
             }
             catch (Exception exception)
             {
-                throw new Exception($"{exception} step:{step}");
+                return BadRequest($"{exception} step:{step}");
+                //throw new Exception($"{exception} step:{step}");
             }
         }
 

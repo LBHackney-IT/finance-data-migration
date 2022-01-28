@@ -98,7 +98,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
                 return new TenurePaginationResponse()
                 {
-                    LastKey = response.LastEvaluatedKey,
+                    LastKey = response?.LastEvaluatedKey,
                     TenureInformation = response?.ToTenureInformation().ToList()
                 };
             }
