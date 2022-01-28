@@ -11,27 +11,25 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
 {
     public class AccountsFactoryTests
     {
-        private readonly DMAccountEntity _dmAccountEntityWithNullTenureAndConsolidatetCharges;
-        private readonly Dictionary<string, AttributeValue> _expectedAccountModelWhenTenureIsNullAndConsolidatedChargesIsNull;
+        private readonly DMAccountEntity _dmAccountEntitySubmodelsAreNull;
+        private readonly Dictionary<string, AttributeValue> _expectedAccountModelSubmodelsAreNull;
 
-        private readonly DMAccountEntity _dmAccountEntityWithNullNotNullTenure;
-        private readonly Dictionary<string, AttributeValue> _expectedAccountModelWhenTenureIsNotNull;
-        private readonly TenureDbEntity _tenure;
+        private readonly DMAccountEntity _dmAccountEntityTenureIsNotNull;
+        private readonly Dictionary<string, AttributeValue> _expectedAccountModelTenureIsNotNull;
 
-        private readonly DMAccountEntity _dmAccountEntityWithNullNotNullTenureAndNotNullTenureType;
-        private readonly Dictionary<string, AttributeValue> _expectedAccountModelWhenTenureIsNotNullAndNotNullTenureType;
+        private readonly DMAccountEntity _dmAccountEntityPopulatedTenure;
+        private readonly Dictionary<string, AttributeValue> _expectedAccountModelPopulatedTenure;
 
-        private readonly DMAccountEntity _dmAccountEntityWithNullNotNullTenureAndNotNullPrimaryTenants;
-        private readonly Dictionary<string, AttributeValue> _expectedAccountModelWhenTenureIsNotNullAndNotNullPrimaryTenants;
-        private readonly TenureDbEntity _tenureWhenTenureIsNotNullAndNotNullPrimaryTenants;
+        private readonly DMAccountEntity _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants;
+        private readonly Dictionary<string, AttributeValue> _expectedAccountModelTenureIsNotNullAndNotNullPrimaryTenants;
 
-        private readonly DMAccountEntity _dmAccountEntityWithNullNotNullConsolidatedCharges;
-        private readonly Dictionary<string, AttributeValue> _expectedAccountModelWhenConsolidatedChargesIsNotNull;
+        private readonly DMAccountEntity _dmAccountEntityConsolidatedChargesIsNotNull;
+        private readonly Dictionary<string, AttributeValue> _expectedAccountModelConsolidatedChargesIsNotNull;
 
         public AccountsFactoryTests()
         {
-            #region ToQueryRequestTenureIsNullAndConsolidatedChargesIsNullShouldReturnsAccountModel
-            _dmAccountEntityWithNullTenureAndConsolidatetCharges = new DMAccountEntity()
+            #region SubmodelsAreNullShouldReturnsAccountModel
+            _dmAccountEntitySubmodelsAreNull = new DMAccountEntity()
             {
                 Id = long.MaxValue,
                 TargetType = string.Empty,
@@ -52,25 +50,25 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
                 ConsolidatedCharges = string.Empty
             };
 
-            _expectedAccountModelWhenTenureIsNullAndConsolidatedChargesIsNull = new Dictionary<string, AttributeValue>
+            _expectedAccountModelSubmodelsAreNull = new Dictionary<string, AttributeValue>
             {
-                {"id", new AttributeValue {S = _dmAccountEntityWithNullTenureAndConsolidatetCharges.Id.ToString()}},
-                {"account_balance", new AttributeValue {N = _dmAccountEntityWithNullTenureAndConsolidatetCharges.AccountBalance.HasValue ? _dmAccountEntityWithNullTenureAndConsolidatetCharges.AccountBalance.Value.ToString("F").Replace(',', '.') : "0"}},
-                {"target_id", new AttributeValue {S = _dmAccountEntityWithNullTenureAndConsolidatetCharges.TargetId.ToString()}},
-                {"target_type", new AttributeValue {S = _dmAccountEntityWithNullTenureAndConsolidatetCharges.TargetType.ToString()}},
-                {"account_type", new AttributeValue {S = _dmAccountEntityWithNullTenureAndConsolidatetCharges.AccountType.ToString()}},
-                {"rent_group_type", new AttributeValue {S = _dmAccountEntityWithNullTenureAndConsolidatetCharges.RentGroupType.ToString()}},
-                {"agreement_type", new AttributeValue {S = _dmAccountEntityWithNullTenureAndConsolidatetCharges.AgreementType.ToString()}},
-                {"start_date", new AttributeValue {S = _dmAccountEntityWithNullTenureAndConsolidatetCharges.StartDate.ToString()}},
-                {"end_date", new AttributeValue {S = _dmAccountEntityWithNullTenureAndConsolidatetCharges.EndDate.ToString()}},
-                {"account_status", new AttributeValue {S = _dmAccountEntityWithNullTenureAndConsolidatetCharges.AccountStatus.ToString()}},
-                {"payment_reference", new AttributeValue {S = _dmAccountEntityWithNullTenureAndConsolidatetCharges.PaymentReference}},
-                {"parent_account_id", new AttributeValue {S = _dmAccountEntityWithNullTenureAndConsolidatetCharges.ParentAccountId.ToString()}}
+                {"id", new AttributeValue {S = _dmAccountEntitySubmodelsAreNull.Id.ToString()}},
+                {"account_balance", new AttributeValue {N = _dmAccountEntitySubmodelsAreNull.AccountBalance.HasValue ? _dmAccountEntitySubmodelsAreNull.AccountBalance.Value.ToString("F").Replace(',', '.') : "0"}},
+                {"target_id", new AttributeValue {S = _dmAccountEntitySubmodelsAreNull.TargetId.ToString()}},
+                {"target_type", new AttributeValue {S = _dmAccountEntitySubmodelsAreNull.TargetType.ToString()}},
+                {"account_type", new AttributeValue {S = _dmAccountEntitySubmodelsAreNull.AccountType.ToString()}},
+                {"rent_group_type", new AttributeValue {S = _dmAccountEntitySubmodelsAreNull.RentGroupType.ToString()}},
+                {"agreement_type", new AttributeValue {S = _dmAccountEntitySubmodelsAreNull.AgreementType.ToString()}},
+                {"start_date", new AttributeValue {S = _dmAccountEntitySubmodelsAreNull.StartDate.ToString()}},
+                {"end_date", new AttributeValue {S = _dmAccountEntitySubmodelsAreNull.EndDate.ToString()}},
+                {"account_status", new AttributeValue {S = _dmAccountEntitySubmodelsAreNull.AccountStatus.ToString()}},
+                {"payment_reference", new AttributeValue {S = _dmAccountEntitySubmodelsAreNull.PaymentReference}},
+                {"parent_account_id", new AttributeValue {S = _dmAccountEntitySubmodelsAreNull.ParentAccountId.ToString()}}
             };
             #endregion ToQueryRequestTenureIsNullAndConsolidatedChargesIsNullShouldReturnsAccountModel
 
-            #region ToQueryRequestTenureIsNotNullShouldReturnsAccountModel
-            _dmAccountEntityWithNullNotNullTenure = new DMAccountEntity()
+            #region TenureIsNotNullShouldReturnsAccountModel
+            _dmAccountEntityTenureIsNotNull = new DMAccountEntity()
             {
                 Id = long.MaxValue,
                 TargetType = string.Empty,
@@ -91,45 +89,34 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
                 ConsolidatedCharges = string.Empty
             };
 
-            _tenure = new TenureDbEntity()
+            _expectedAccountModelTenureIsNotNull = new Dictionary<string, AttributeValue>
             {
-                TenureId = "318229C6-C70C-4E0F-9226-35C01BD8471F",
-                FullAddress = "sdfsdfsdfsdfsdf",
-                TenureType = new TenureTypeDbEntity()
-                {
-                    Code = "1941079102",
-                    Description = "kjdngk jfkjfnkjdfv"
-                },
-            };
-
-            _expectedAccountModelWhenTenureIsNotNull = new Dictionary<string, AttributeValue>
-            {
-                 {"id", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenure.Id.ToString()}},
-                {"account_balance", new AttributeValue {N = _dmAccountEntityWithNullNotNullTenure.AccountBalance.HasValue ? _dmAccountEntityWithNullTenureAndConsolidatetCharges.AccountBalance.Value.ToString("F").Replace(',', '.') : "0"}},
-                {"target_id", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenure.TargetId.ToString()}},
-                {"target_type", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenure.TargetType.ToString()}},
-                {"account_type", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenure.AccountType.ToString()}},
-                {"rent_group_type", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenure.RentGroupType.ToString()}},
-                {"agreement_type", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenure.AgreementType.ToString()}},
-                {"start_date", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenure.StartDate.ToString()}},
-                {"end_date", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenure.EndDate.ToString()}},
-                {"account_status", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenure.AccountStatus.ToString()}},
-                {"payment_reference", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenure.PaymentReference}},
-                {"parent_account_id", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenure.ParentAccountId.ToString()}},
+                 {"id", new AttributeValue {S = _dmAccountEntityTenureIsNotNull.Id.ToString()}},
+                {"account_balance", new AttributeValue {N = _dmAccountEntityTenureIsNotNull.AccountBalance.HasValue ? _dmAccountEntitySubmodelsAreNull.AccountBalance.Value.ToString("F").Replace(',', '.') : "0"}},
+                {"target_id", new AttributeValue {S = _dmAccountEntityTenureIsNotNull.TargetId.ToString()}},
+                {"target_type", new AttributeValue {S = _dmAccountEntityTenureIsNotNull.TargetType.ToString()}},
+                {"account_type", new AttributeValue {S = _dmAccountEntityTenureIsNotNull.AccountType.ToString()}},
+                {"rent_group_type", new AttributeValue {S = _dmAccountEntityTenureIsNotNull.RentGroupType.ToString()}},
+                {"agreement_type", new AttributeValue {S = _dmAccountEntityTenureIsNotNull.AgreementType.ToString()}},
+                {"start_date", new AttributeValue {S = _dmAccountEntityTenureIsNotNull.StartDate.ToString()}},
+                {"end_date", new AttributeValue {S = _dmAccountEntityTenureIsNotNull.EndDate.ToString()}},
+                {"account_status", new AttributeValue {S = _dmAccountEntityTenureIsNotNull.AccountStatus.ToString()}},
+                {"payment_reference", new AttributeValue {S = _dmAccountEntityTenureIsNotNull.PaymentReference}},
+                {"parent_account_id", new AttributeValue {S = _dmAccountEntityTenureIsNotNull.ParentAccountId.ToString()}},
                 {"tenure", new AttributeValue
                     {
                         M = new Dictionary<string, AttributeValue>
                         {
-                            { "tenureId", new AttributeValue { S = _tenure.TenureId }},
-                            { "fullAddress", new AttributeValue { S = _tenure.FullAddress }}
+                            { "tenureId", new AttributeValue { S = "318229C6-C70C-4E0F-9226-35C01BD8471F" }},
+                            { "fullAddress", new AttributeValue { S = "sdfsdfsdfsdfsdf" }}
                         }
                     }
                 }
             };
             #endregion
 
-            #region ToQueryRequestTenureIsNotNullTenureTypeIsNotNullShouldReturnsAccountModel
-            _dmAccountEntityWithNullNotNullTenureAndNotNullTenureType = new DMAccountEntity()
+            #region PopulatedTenureShouldReturnsAccountModel
+            _dmAccountEntityPopulatedTenure = new DMAccountEntity()
             {
                 Id = long.MaxValue,
                 TargetType = string.Empty,
@@ -152,43 +139,32 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
                 ConsolidatedCharges = string.Empty
             };
 
-            _tenure = new TenureDbEntity()
+            _expectedAccountModelPopulatedTenure = new Dictionary<string, AttributeValue>
             {
-                TenureId = "318229C6-C70C-4E0F-9226-35C01BD8471F",
-                FullAddress = "sdfsdfsdfsdfsdf",
-                TenureType = new TenureTypeDbEntity()
-                {
-                    Code = "1941079102",
-                    Description = "kjdngk jfkjfnkjdfv"
-                },
-            };
-
-            _expectedAccountModelWhenTenureIsNotNullAndNotNullTenureType = new Dictionary<string, AttributeValue>
-            {
-                {"id", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullTenureType.Id.ToString()}},
-                {"account_balance", new AttributeValue {N = _dmAccountEntityWithNullNotNullTenureAndNotNullTenureType.AccountBalance.HasValue ? _dmAccountEntityWithNullNotNullTenureAndNotNullTenureType.AccountBalance.Value.ToString("F").Replace(',', '.') : "0"}},
-                {"target_id", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullTenureType.TargetId.ToString()}},
-                {"target_type", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullTenureType.TargetType.ToString()}},
-                {"account_type", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullTenureType.AccountType.ToString()}},
-                {"rent_group_type", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullTenureType.RentGroupType.ToString()}},
-                {"agreement_type", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullTenureType.AgreementType.ToString()}},
-                {"start_date", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullTenureType.StartDate.ToString()}},
-                {"end_date", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullTenureType.EndDate.ToString()}},
-                {"account_status", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullTenureType.AccountStatus.ToString()}},
-                {"payment_reference", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullTenureType.PaymentReference}},
-                {"parent_account_id", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullTenureType.ParentAccountId.ToString()}},
+                {"id", new AttributeValue {S = _dmAccountEntityPopulatedTenure.Id.ToString()}},
+                {"account_balance", new AttributeValue {N = _dmAccountEntityPopulatedTenure.AccountBalance.HasValue ? _dmAccountEntityPopulatedTenure.AccountBalance.Value.ToString("F").Replace(',', '.') : "0"}},
+                {"target_id", new AttributeValue {S = _dmAccountEntityPopulatedTenure.TargetId.ToString()}},
+                {"target_type", new AttributeValue {S = _dmAccountEntityPopulatedTenure.TargetType.ToString()}},
+                {"account_type", new AttributeValue {S = _dmAccountEntityPopulatedTenure.AccountType.ToString()}},
+                {"rent_group_type", new AttributeValue {S = _dmAccountEntityPopulatedTenure.RentGroupType.ToString()}},
+                {"agreement_type", new AttributeValue {S = _dmAccountEntityPopulatedTenure.AgreementType.ToString()}},
+                {"start_date", new AttributeValue {S = _dmAccountEntityPopulatedTenure.StartDate.ToString()}},
+                {"end_date", new AttributeValue {S = _dmAccountEntityPopulatedTenure.EndDate.ToString()}},
+                {"account_status", new AttributeValue {S = _dmAccountEntityPopulatedTenure.AccountStatus.ToString()}},
+                {"payment_reference", new AttributeValue {S = _dmAccountEntityPopulatedTenure.PaymentReference}},
+                {"parent_account_id", new AttributeValue {S = _dmAccountEntityPopulatedTenure.ParentAccountId.ToString()}},
                 {"tenure", new AttributeValue
                     {
                         M = new Dictionary<string, AttributeValue>
                         {
-                            { "tenureId", new AttributeValue { S = _tenure.TenureId }},
-                            { "fullAddress", new AttributeValue { S = _tenure.FullAddress }},
+                            { "tenureId", new AttributeValue { S = "318229C6-C70C-4E0F-9226-35C01BD8471F" }},
+                            { "fullAddress", new AttributeValue { S = "sdfsdfsdfsdfsdf" }},
                             { "tenureType", new AttributeValue
                                 {
                                     M = new Dictionary<string, AttributeValue>
                                     {
-                                        {"code", new AttributeValue {S = _tenure.TenureType.Code}},
-                                        {"description", new AttributeValue {S = _tenure.TenureType.Description}},
+                                        {"code", new AttributeValue {S = "1941079102"}},
+                                        {"description", new AttributeValue {S = "kjdngk jfkjfnkjdfv"}},
                                     }
                                 }
                             }
@@ -198,8 +174,8 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
             };
             #endregion
 
-            #region ToQueryRequestTenureIsNotNullPrimaryTenantsIsNotNullShouldReturnsAccountModel
-            _dmAccountEntityWithNullNotNullTenureAndNotNullPrimaryTenants = new DMAccountEntity()
+            #region TenureIsNotNullPrimaryTenantsIsNotNullShouldReturnsAccountModel
+            _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants = new DMAccountEntity()
             {
                 Id = long.MaxValue,
                 TargetType = string.Empty,
@@ -219,77 +195,63 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
                 ConsolidatedCharges = string.Empty,
                 Tenure = @"{ ""tenureId"":""318229C6-C70C-4E0F-9226-35C01BD8471F"", ""fullAddress"":""sdfsdfsdfsdfsdf"",
                 ""primaryTenants"":[{
-                ""id"":""76F78616-B8ED-4703-9E93-D808E21B570F"",""fullName"":""3A398F08-4712-4E78-A641-96E6F9301094""},{
-                ""id"":""9AFCB18A-F500-4F3A-A784-D4B3A2B59678"",""fullName"":""BC18422C-3263-4BAB-8CA3-25A43C2A84CE""}]}",
+                ""id"":""76f78616-b8ed-4703-9e93-d808e21b570f"",""fullName"":""3A398F08-4712-4E78-A641-96E6F9301094""},{
+                ""id"":""9afcb18a-f500-4f3a-a784-d4B3a2b59678"",""fullName"":""BC18422C-3263-4BAB-8CA3-25A43C2A84CE""}]}",
             };
 
-            _tenureWhenTenureIsNotNullAndNotNullPrimaryTenants = new TenureDbEntity()
+            _expectedAccountModelTenureIsNotNullAndNotNullPrimaryTenants = new Dictionary<string, AttributeValue>
             {
-                TenureId = "318229C6-C70C-4E0F-9226-35C01BD8471F",
-                FullAddress = "sdfsdfsdfsdfsdf",
-                TenureType = new TenureTypeDbEntity()
-                {
-                    Code = "1941079102",
-                    Description = "kjdngk jfkjfnkjdfv"
-                },
-                PrimaryTenants = new List<PrimaryTenantsDbEntity>()
-                {
-                    new PrimaryTenantsDbEntity()
+                {"id", new AttributeValue {S = _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants.Id.ToString()}},
+                {"account_balance", new AttributeValue {N = _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants.AccountBalance.HasValue ? _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants.AccountBalance.Value.ToString("F").Replace(',', '.') : "0"}},
+                {"target_id", new AttributeValue {S = _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants.TargetId.ToString()}},
+                {"target_type", new AttributeValue {S = _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants.TargetType.ToString()}},
+                {"account_type", new AttributeValue {S = _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants.AccountType.ToString()}},
+                {"rent_group_type", new AttributeValue {S = _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants.RentGroupType.ToString()}},
+                {"agreement_type", new AttributeValue {S = _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants.AgreementType.ToString()}},
+                {"start_date", new AttributeValue {S = _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants.StartDate.ToString()}},
+                {"end_date", new AttributeValue {S = _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants.EndDate.ToString()}},
+                {"account_status", new AttributeValue {S = _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants.AccountStatus.ToString()}},
+                {"payment_reference", new AttributeValue {S = _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants.PaymentReference}},
+                {"parent_account_id", new AttributeValue {S = _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants.ParentAccountId.ToString()}},
+                {"tenure", new AttributeValue
                     {
-                        Id = new Guid("76F78616-B8ED-4703-9E93-D808E21B570F"),
-                        FullName = "3A398F08-4712-4E78-A641-96E6F9301094",
-                    },
-                     new PrimaryTenantsDbEntity()
-                    {
-                        Id = new Guid("9AFCB18A-F500-4F3A-A784-D4B3A2B59678"),
-                        FullName = "BC18422C-3263-4BAB-8CA3-25A43C2A84CE",
-                    },
-                }
-            };
-
-            _expectedAccountModelWhenTenureIsNotNullAndNotNullPrimaryTenants = new Dictionary<string, AttributeValue>
-            {
-                {"id", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullPrimaryTenants.Id.ToString()}},
-                {"account_balance", new AttributeValue {N = _dmAccountEntityWithNullNotNullTenureAndNotNullPrimaryTenants.AccountBalance.HasValue ? _dmAccountEntityWithNullNotNullTenureAndNotNullPrimaryTenants.AccountBalance.Value.ToString("F").Replace(',', '.') : "0"}},
-                {"target_id", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullPrimaryTenants.TargetId.ToString()}},
-                {"target_type", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullPrimaryTenants.TargetType.ToString()}},
-                {"account_type", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullPrimaryTenants.AccountType.ToString()}},
-                {"rent_group_type", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullPrimaryTenants.RentGroupType.ToString()}},
-                {"agreement_type", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullPrimaryTenants.AgreementType.ToString()}},
-                {"start_date", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullPrimaryTenants.StartDate.ToString()}},
-                {"end_date", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullPrimaryTenants.EndDate.ToString()}},
-                {"account_status", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullPrimaryTenants.AccountStatus.ToString()}},
-                {"payment_reference", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullPrimaryTenants.PaymentReference}},
-                {"parent_account_id", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullPrimaryTenants.ParentAccountId.ToString()}},
-                {"primaryTenants",
-                    new AttributeValue
-                    {
-                        L = new List<AttributeValue>(_tenureWhenTenureIsNotNullAndNotNullPrimaryTenants.PrimaryTenants.Count)
+                        M = new Dictionary<string, AttributeValue>
                         {
-                            new AttributeValue
-                            {
-                                M = new Dictionary<string, AttributeValue>
+                            { "tenureId", new AttributeValue { S = "318229C6-C70C-4E0F-9226-35C01BD8471F" }},
+                            { "fullAddress", new AttributeValue { S = "sdfsdfsdfsdfsdf" }},
+                            {"primaryTenants",
+                                new AttributeValue
                                 {
-                                    {"fullName", new AttributeValue {S = "3A398F08-4712-4E78-A641-96E6F9301094" }},
-                                    {"id", new AttributeValue {S = "76F78616-B8ED-4703-9E93-D808E21B570F" }}
-                                }
-                            },
-                            new AttributeValue
-                            {
-                                M = new Dictionary<string, AttributeValue>
-                                {
-                                    {"fullName", new AttributeValue {S = "BC18422C-3263-4BAB-8CA3-25A43C2A84CE" }},
-                                    {"id", new AttributeValue {S = "9AFCB18A-F500-4F3A-A784-D4B3A2B59678" }}
+                                    L = new List<AttributeValue>(2)
+                                    {
+                                        new AttributeValue
+                                        {
+                                            M = new Dictionary<string, AttributeValue>
+                                            {
+                                                {"fullName", new AttributeValue {S = "3A398F08-4712-4E78-A641-96E6F9301094" }},
+                                                {"id", new AttributeValue {S = "76f78616-b8ed-4703-9e93-d808e21b570f" }}
+                                            }
+                                        },
+                                        new AttributeValue
+                                        {
+                                            M = new Dictionary<string, AttributeValue>
+                                            {
+                                                {"fullName", new AttributeValue {S = "BC18422C-3263-4BAB-8CA3-25A43C2A84CE" }},
+                                                {"id", new AttributeValue {S = "9afcb18a-f500-4f3a-a784-d4b3a2b59678" }}
+                                            }
+                                        },
+                                    }
                                 }
                             },
                         }
                     }
-                },
+                }
+               
             };
             #endregion
 
-            #region ToQueryRequestConsolidatedChargesIsNotNullShouldReturnsAccountModel
-            _dmAccountEntityWithNullNotNullConsolidatedCharges = new DMAccountEntity()
+            #region ConsolidatedChargesIsNotNullShouldReturnsAccountModel
+            _dmAccountEntityConsolidatedChargesIsNotNull = new DMAccountEntity()
             {
                 Id = long.MaxValue,
                 TargetType = string.Empty,
@@ -310,20 +272,20 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
                 Tenure = string.Empty
             };
 
-            _expectedAccountModelWhenConsolidatedChargesIsNotNull = new Dictionary<string, AttributeValue>
+            _expectedAccountModelConsolidatedChargesIsNotNull = new Dictionary<string, AttributeValue>
             {
-                {"id", new AttributeValue {S = _dmAccountEntityWithNullNotNullTenureAndNotNullPrimaryTenants.Id.ToString()}},
-                {"account_balance", new AttributeValue {N = _dmAccountEntityWithNullNotNullConsolidatedCharges.AccountBalance.HasValue ? _dmAccountEntityWithNullNotNullConsolidatedCharges.AccountBalance.Value.ToString("F").Replace(',', '.') : "0"}},
-                {"target_id", new AttributeValue {S = _dmAccountEntityWithNullNotNullConsolidatedCharges.TargetId.ToString()}},
-                {"target_type", new AttributeValue {S = _dmAccountEntityWithNullNotNullConsolidatedCharges.TargetType.ToString()}},
-                {"account_type", new AttributeValue {S = _dmAccountEntityWithNullNotNullConsolidatedCharges.AccountType.ToString()}},
-                {"rent_group_type", new AttributeValue {S = _dmAccountEntityWithNullNotNullConsolidatedCharges.RentGroupType.ToString()}},
-                {"agreement_type", new AttributeValue {S = _dmAccountEntityWithNullNotNullConsolidatedCharges.AgreementType.ToString()}},
-                {"start_date", new AttributeValue {S = _dmAccountEntityWithNullNotNullConsolidatedCharges.StartDate.ToString()}},
-                {"end_date", new AttributeValue {S = _dmAccountEntityWithNullNotNullConsolidatedCharges.EndDate.ToString()}},
-                {"account_status", new AttributeValue {S = _dmAccountEntityWithNullNotNullConsolidatedCharges.AccountStatus.ToString()}},
-                {"payment_reference", new AttributeValue {S = _dmAccountEntityWithNullNotNullConsolidatedCharges.PaymentReference}},
-                {"parent_account_id", new AttributeValue {S = _dmAccountEntityWithNullNotNullConsolidatedCharges.ParentAccountId.ToString()}},
+                {"id", new AttributeValue {S = _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants.Id.ToString()}},
+                {"account_balance", new AttributeValue {N = _dmAccountEntityConsolidatedChargesIsNotNull.AccountBalance.HasValue ? _dmAccountEntityConsolidatedChargesIsNotNull.AccountBalance.Value.ToString("F").Replace(',', '.') : "0"}},
+                {"target_id", new AttributeValue {S = _dmAccountEntityConsolidatedChargesIsNotNull.TargetId.ToString()}},
+                {"target_type", new AttributeValue {S = _dmAccountEntityConsolidatedChargesIsNotNull.TargetType.ToString()}},
+                {"account_type", new AttributeValue {S = _dmAccountEntityConsolidatedChargesIsNotNull.AccountType.ToString()}},
+                {"rent_group_type", new AttributeValue {S = _dmAccountEntityConsolidatedChargesIsNotNull.RentGroupType.ToString()}},
+                {"agreement_type", new AttributeValue {S = _dmAccountEntityConsolidatedChargesIsNotNull.AgreementType.ToString()}},
+                {"start_date", new AttributeValue {S = _dmAccountEntityConsolidatedChargesIsNotNull.StartDate.ToString()}},
+                {"end_date", new AttributeValue {S = _dmAccountEntityConsolidatedChargesIsNotNull.EndDate.ToString()}},
+                {"account_status", new AttributeValue {S = _dmAccountEntityConsolidatedChargesIsNotNull.AccountStatus.ToString()}},
+                {"payment_reference", new AttributeValue {S = _dmAccountEntityConsolidatedChargesIsNotNull.PaymentReference}},
+                {"parent_account_id", new AttributeValue {S = _dmAccountEntityConsolidatedChargesIsNotNull.ParentAccountId.ToString()}},
                 {"consolidatedCharges",
                     new AttributeValue
                     {
@@ -355,43 +317,43 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
         }
 
         [Fact]
-        public void ToQueryRequestTenureIsNullAndConsolidatedChargesIsNullShouldReturnsAccountModel()
+        public void SubmodelsAreNullShouldReturnsAccountModel()
         {
-            var result = _dmAccountEntityWithNullTenureAndConsolidatetCharges.ToQueryRequest();
+            var result = _dmAccountEntitySubmodelsAreNull.ToQueryRequest();
 
-            result.Should().BeEquivalentTo(_expectedAccountModelWhenTenureIsNullAndConsolidatedChargesIsNull);
+            result.Should().BeEquivalentTo(_expectedAccountModelSubmodelsAreNull);
         }
 
         [Fact]
-        public void ToQueryRequestTenureIsNotNullShouldReturnsAccountModel()
+        public void TenureIsNotNullShouldReturnsAccountModel()
         {
-            var result = _dmAccountEntityWithNullNotNullTenure.ToQueryRequest();
+            var result = _dmAccountEntityTenureIsNotNull.ToQueryRequest();
 
-            result.Should().BeEquivalentTo(_expectedAccountModelWhenTenureIsNotNull);
+            result.Should().BeEquivalentTo(_expectedAccountModelTenureIsNotNull);
         }
 
         [Fact]
-        public void ToQueryRequestTenureIsNotNullTenureTypeIsNotNullShouldReturnsAccountModel()
+        public void PopulatedTenureShouldReturnsAccountModel()
         {
-            var result = _dmAccountEntityWithNullNotNullTenureAndNotNullTenureType.ToQueryRequest();
+            var result = _dmAccountEntityPopulatedTenure.ToQueryRequest();
 
-            result.Should().BeEquivalentTo(_expectedAccountModelWhenTenureIsNotNullAndNotNullTenureType);
+            result.Should().BeEquivalentTo(_expectedAccountModelPopulatedTenure);
         }
 
         [Fact]
-        public void ToQueryRequestTenureIsNotNullPrimaryTenantsIsNotNullShouldReturnsAccountModel()
+        public void TenureIsNotNullPrimaryTenantsIsNotNullShouldReturnsAccountModel()
         {
-            var result = _dmAccountEntityWithNullNotNullTenureAndNotNullTenureType.ToQueryRequest();
+            var result = _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants.ToQueryRequest();
 
-            result.Should().BeEquivalentTo(_expectedAccountModelWhenTenureIsNotNullAndNotNullTenureType);
+            result.Should().BeEquivalentTo(_expectedAccountModelTenureIsNotNullAndNotNullPrimaryTenants);
         }
 
         [Fact]
-        public void ToQueryRequestConsolidatedChargesIsNotNullShouldReturnsAccountModel()
+        public void ConsolidatedChargesIsNotNullShouldReturnsAccountModel()
         {
-            var result = _dmAccountEntityWithNullNotNullConsolidatedCharges.ToQueryRequest();
+            var result = _dmAccountEntityConsolidatedChargesIsNotNull.ToQueryRequest();
 
-            result.Should().BeEquivalentTo(_expectedAccountModelWhenConsolidatedChargesIsNotNull);
+            result.Should().BeEquivalentTo(_expectedAccountModelConsolidatedChargesIsNotNull);
         }
     }
 }
