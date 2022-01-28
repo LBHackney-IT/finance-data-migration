@@ -23,13 +23,14 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
             {
                 Id = long.MaxValue,
                 BalanceAmount = decimal.MaxValue,
+                BankAccountNumber = string.Empty,
                 ChargedAmount = decimal.MaxValue,
                 CreatedAt = DateTimeOffset.MaxValue,
-                FinancialMonth = short.MaxValue,
-                FinancialYear = short.MaxValue,
+                FinancialMonth = 12,
+                FinancialYear = 32767,
                 Fund = string.Empty,
                 HousingBenefitAmount = decimal.MaxValue,
-                IdDynamodb = Guid.NewGuid(),
+                IdDynamodb = new Guid("54b886f6-3970-49ab-9d96-b357015f9a48"),
                 IsLoaded = false,
                 IsIndexed = false,
                 IsSuspense = false,
@@ -39,10 +40,10 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
                 PeriodNo = int.MaxValue,
                 Person = string.Empty,
                 SuspenseResolutionInfo = string.Empty,
-                TargetId = Guid.NewGuid(),
+                TargetId = new Guid("54b886f6-3970-49ab-9d96-b357015f9a48"),
                 TargetType = string.Empty,
                 TransactionAmount = decimal.MaxValue,
-                TransactionDate = DateTime.Now,
+                TransactionDate = DateTime.Today,
                 TransactionSource = string.Empty,
                 TransactionType = string.Empty
             };
@@ -53,25 +54,25 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
                 BalanceAmount = decimal.MaxValue,
                 BankAccountNumber = string.Empty,
                 ChargedAmount = decimal.MaxValue,
-                CreatedAt = DateTimeOffset.Now,
-                FinancialMonth = int.MaxValue,
-                FinancialYear = int.MaxValue,
+                CreatedAt = DateTimeOffset.MaxValue,
+                FinancialMonth = 12,
+                FinancialYear = 32767,
                 Fund = string.Empty,
                 HousingBenefitAmount = decimal.MaxValue,
-                IdDynamodb = Guid.NewGuid(),
-                IsLoaded = true,
+                IdDynamodb = new Guid("54b886f6-3970-49ab-9d96-b357015f9a48"),
+                IsLoaded = false,
                 IsIndexed = false,
-                IsSuspense = true,
+                IsSuspense = false,
                 IsTransformed = false,
                 PaidAmount = decimal.MaxValue,
                 PaymentReference = string.Empty,
                 PeriodNo = int.MaxValue,
                 Person = string.Empty,
                 SuspenseResolutionInfo = string.Empty,
-                TargetId = Guid.Empty,
+                TargetId = new Guid("54b886f6-3970-49ab-9d96-b357015f9a48"),
                 TargetType = string.Empty,
                 TransactionAmount = decimal.MaxValue,
-                TransactionDate = DateTime.Now,
+                TransactionDate = DateTime.Today,
                 TransactionSource = string.Empty,
                 TransactionType = string.Empty
             };
@@ -92,7 +93,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
         {
             var result = _dMTransactionEntityDomain.ToDatabase();
 
-            result.Should().BeOfType<DMTransactionEntity>();
+            result.Should().BeEquivalentTo(_dMTransactionEntity);
         }
 
         [Fact]
@@ -108,7 +109,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
         {
             var result = _dMTransactionEntity.ToDomain();
 
-            result.Should().BeOfType<DMTransactionEntityDomain>();
+            result.Should().BeEquivalentTo(_dMTransactionEntityDomain);
         }
 
         [Fact]
@@ -124,7 +125,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
         {
             var result = _listOfDbEntities.ToDomain();
 
-            result.Should().BeOfType<List<DMTransactionEntityDomain>>();
+            result.Should().BeEquivalentTo(_listOfDbDomainEntities);
         }
 
         [Fact]
@@ -132,7 +133,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
         {
             var result = _listOfDbDomainEntities.ToDatabase();
 
-            result.Should().BeOfType<List<DMTransactionEntity>>();
+            result.Should().BeEquivalentTo(_listOfDbEntities);
         }
     }
 }
