@@ -63,8 +63,6 @@ commands:
     parameters:
       stage:
         type: string
-      aws-account:
-        type: string
     steps:
       - *attach_workspace
       - checkout
