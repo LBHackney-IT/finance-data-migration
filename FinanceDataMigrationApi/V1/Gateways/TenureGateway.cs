@@ -93,8 +93,8 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 step = "GetAll+ScanRequest";
                 ScanResponse response = await _dynamoDb.ScanAsync(request).ConfigureAwait(false);
                 step = "GetAll+_dynamoDb.ScanAsync";
-                if (response == null)
-                    throw new Exception("_dynamoDb.ScanAsync results NULL");
+                if (response == null || response.Items==null)
+                    throw new Exception($"_dynamoDb.ScanAsync results NULL: {response?.ToString()}");
 
                 return new TenurePaginationResponse()
                 {
