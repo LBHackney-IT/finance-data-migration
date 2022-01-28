@@ -12,6 +12,9 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         {
             foreach (Dictionary<string, AttributeValue> item in response.Items)
             {
+                if (!item.ContainsKey("id"))
+                    throw new Exception(response.ToString());
+
                 yield return new TenureInformation
                 {
                     Id = Guid.Parse(item["id"].S),
