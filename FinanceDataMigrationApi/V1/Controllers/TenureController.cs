@@ -18,38 +18,34 @@ namespace FinanceDataMigrationApi.V1.Controllers
     [ApiVersion("1.0")]
     public class TenureController : BaseController
     {
-        private readonly IGetTenureByPrnUseCase _tenureByPrnUseCase;
+        private readonly IGetTenureByIdUseCase _tenureByIdUseCase;
         private readonly ITenureBatchInsertUseCase _batchInsertUseCase;
         private readonly ITenureGetAllUseCase _tenureGetAllUseCase;
         private readonly ITenureSaveToSqlUseCase _saveToSqlUseCase;
         private readonly ITenureGetLastHintUseCase _getLastHintUseCase;
 
-        public TenureController(IGetTenureByPrnUseCase tenureByPrnUseCase
+        public TenureController(IGetTenureByIdUseCase tenureByIdUseCase
             , ITenureBatchInsertUseCase batchInsertUseCase
             , ITenureGetAllUseCase tenureGetAllUseCase
             , ITenureSaveToSqlUseCase saveToSqlUseCase
             , ITenureGetLastHintUseCase getLastHintUseCase)
         {
-            _tenureByPrnUseCase = tenureByPrnUseCase;
+            _tenureByIdUseCase = tenureByIdUseCase;
             _batchInsertUseCase = batchInsertUseCase;
             _tenureGetAllUseCase = tenureGetAllUseCase;
             _saveToSqlUseCase = saveToSqlUseCase;
             _getLastHintUseCase = getLastHintUseCase;
         }
 
-        [HttpGet("{prn}")]
-        public async Task<IActionResult> Get(string prn)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(Guid id)
         {
-            if (prn == null)
-                return BadRequest($"{nameof(prn)} shouldn't be null.");
-            if (string.IsNullOrEmpty(prn))
-                return BadRequest($"{nameof(prn)} cannot be null or empty.");
-            if (string.IsNullOrWhiteSpace(prn))
-                return BadRequest($"{nameof(prn)} cannot be null or whitespace.");
+            if (id == Guid.Empty)
+                return BadRequest($"{nameof(id)} shouldn't be empty.");
 
-            var result = await _tenureByPrnUseCase.ExecuteAsync(prn).ConfigureAwait(false);
-            if (result.Count == 0)
-                return NotFound(prn);
+            var result = await _tenureByIdUseCase.ExecuteAsync(id).ConfigureAwait(false);
+            if (result == null)
+                return NotFound(id);
 
             return Ok(result);
         }
