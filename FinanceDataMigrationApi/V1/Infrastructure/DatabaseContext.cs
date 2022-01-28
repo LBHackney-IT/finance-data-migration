@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using FinanceDataMigrationApi.V1.Domain;
+using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure.Entities;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 
@@ -209,9 +210,13 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 await Database.CommitTransactionAsync().ConfigureAwait(false);
                 return returnValue;
             }
-            catch (Exception)
+            catch (Exception exception)
             {
                 await Database.RollbackTransactionAsync().ConfigureAwait(false);
+                LoggingHandler.LogError($"Executing stores procedure error in: " +
+                                        $"{nameof(FinanceDataMigrationApi)}." +
+                                        $"{nameof(Handler)}." +
+                                        $"{nameof(ExecuteStoredProcedure)}:{exception.GetFullMessage()}");
                 throw;
             }
         }
