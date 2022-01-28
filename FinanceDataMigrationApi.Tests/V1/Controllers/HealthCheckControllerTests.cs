@@ -1,8 +1,7 @@
-using System.Collections.Generic;
 using FinanceDataMigrationApi.V1.Controllers;
-using FinanceDataMigrationApi.V1.UseCase;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using Xunit;
 
 namespace FinanceDataMigrationApi.Tests.V1.Controllers
@@ -25,12 +24,6 @@ namespace FinanceDataMigrationApi.Tests.V1.Controllers
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(200);
             response.Value.Should().BeEquivalentTo(expected);
-        }
-
-        [Fact]
-        public void ThrowErrorThrows()
-        {
-            //Assert.Throws<TestOpsErrorException>(_classUnderTest.ThrowError);
         }
     }
 }

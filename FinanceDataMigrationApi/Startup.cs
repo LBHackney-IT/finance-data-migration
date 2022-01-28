@@ -187,11 +187,10 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IPersonGateway, PersonGateway>();
             services.AddScoped<IEsGateway, EsGateway>();
             services.AddScoped<IAssetGateway, AssetGateway>();
-            services.AddScoped<ITenureDynamoDbGateway, TenureDynamoDbGateway>();
             services.AddScoped<IAccountsDynamoDbGateway, AccountsDynamoDbGateway>();
 
             var searchApiUrl = Environment.GetEnvironmentVariable("SEARCH_API_URL") ?? "";
-            var searchApiToken = Environment.GetEnvironmentVariable("SEARCH_API_TOKEN");
+            var searchApiToken = Environment.GetEnvironmentVariable("SEARCH_API_TOKEN") ?? "";
 
             services.AddHttpClient<IAssetGateway, AssetGateway>(c =>
             {
@@ -216,8 +215,8 @@ namespace FinanceDataMigrationApi
                 })
                 .AddHttpMessageHandler<LoggingDelegatingHandler>();
 
-            var personApiUrl = Environment.GetEnvironmentVariable("PERSON_API_URL");
-            var personApiToken = Environment.GetEnvironmentVariable("PERSON_API_TOKEN");
+            var personApiUrl = Environment.GetEnvironmentVariable("PERSON_API_URL") ?? "";
+            var personApiToken = Environment.GetEnvironmentVariable("PERSON_API_TOKEN") ?? "";
 
             services.AddHttpClient<IPersonGateway, PersonGateway>(c =>
                 {

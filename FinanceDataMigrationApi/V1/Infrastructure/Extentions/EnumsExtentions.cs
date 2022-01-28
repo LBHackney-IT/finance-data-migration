@@ -35,21 +35,21 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Extentions
                 var trimmedStringValue = stringValue.Trim();
                 switch (trimmedStringValue)
                 {
-                    case "Gar & Park HRA":
+                    case "GPS":
                         return RentGroupType.Garages;
-                    case "Housing Gen Fund":
+                    case "HGF":
                         return RentGroupType.GenFundRents;
-                    case "Housing Revenue":
+                    case "HRA":
                         return RentGroupType.HraRents;
-                    case "LH Major Works":
+                    case "LMW":
                         return RentGroupType.MajorWorks;
-                    case "LH Serv Charges":
+                    case "LSC":
                         return RentGroupType.LeaseHolders;
-                    case "Temp Acc Gen Fun":
+                    case "TAG":
                         return RentGroupType.TempAcc;
-                    case "Travel Gen Fund":
+                    case "TRA":
                         return RentGroupType.Travelers;
-                    case "Temp Accom HRA":
+                    case "TAH":
                         return RentGroupType.TempAccHRA;
                     default:
                         throw new ArgumentException("Exception was thrown in ToRentGroup method " +

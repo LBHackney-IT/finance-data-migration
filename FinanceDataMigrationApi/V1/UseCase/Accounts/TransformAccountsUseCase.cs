@@ -13,20 +13,17 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
         private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IDMAccountEntityGateway _dMAccountEntityGateway;
         private readonly IEsGateway _esGateway;
-        private readonly ITenureDynamoDbGateway _tenureDynamoDbGateway;
 
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
         private const string DataMigrationTask = "TRANSFORM";
 
         public TransformAccountsUseCase(IDMRunLogGateway dMRunLogGateway,
             IDMAccountEntityGateway dMAccountEntityGateway,
-            IEsGateway esGateway,
-            ITenureDynamoDbGateway tenureDynamoDbGateway)
+            IEsGateway esGateway)
         {
             _dMRunLogGateway = dMRunLogGateway;
             _dMAccountEntityGateway = dMAccountEntityGateway;
             _esGateway = esGateway;
-            _tenureDynamoDbGateway = tenureDynamoDbGateway;
         }
 
         public async Task<StepResponse> ExecuteAsync()
@@ -48,8 +45,10 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
                     // Iterate through each row (or batched) and enrich with missing information for subsets
                     foreach (var account in dMAccountEntities)
                     {
-                        await PopulateAccount(account).ConfigureAwait(false);
-
+                        account.AgreementType = "Master Account";
+                        account.ParentAccountId = null;
+                        account.AccountType = "Master";
+                        account.ConsolidatedBalance = account.AccountBalance;
                         account.IsTransformed = true;
                         account.IsIndexed = false;
                     }
@@ -79,22 +78,6 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
 
                 throw;
             }
-        }
-
-        private async Task PopulateAccount(Infrastructure.Accounts.DMAccountEntity account)
-        {
-            var tenureFromDynamoDb = await _tenureDynamoDbGateway.GetTenureById(account.TargetId.Value).ConfigureAwait(false);
-
-            if (tenureFromDynamoDb == null)
-            {
-                throw new ArgumentException("Cannot load item from Tenures DynamoDB table. TargetId: " + account.TargetId.Value);
-            }
-
-            account.EndReasonCode = tenureFromDynamoDb.Terminated?.ReasonForTermination;
-            account.AgreementType = "Master Account";
-            account.ParentAccountId = null;
-            account.AccountType = "Master";
-            account.ConsolidatedBalance = account.AccountBalance;
         }
     }
 }

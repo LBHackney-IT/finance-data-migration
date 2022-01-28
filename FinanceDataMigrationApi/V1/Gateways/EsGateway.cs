@@ -12,16 +12,13 @@ namespace FinanceDataMigrationApi.V1.Gateways
     public class EsGateway : IEsGateway
     {
         private readonly IElasticClient _esClient;
-        private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<EsGateway> _logger;
 
         public EsGateway(IElasticClient esClient,
-            ILogger<EsGateway> logger,
-            IServiceProvider serviceProvider)
+            ILogger<EsGateway> logger)
         {
             _esClient = esClient;
             _logger = logger;
-            _serviceProvider = serviceProvider;
         }
 
         public async Task<IndexResponse> IndexTransaction(QueryableTransaction transaction)
