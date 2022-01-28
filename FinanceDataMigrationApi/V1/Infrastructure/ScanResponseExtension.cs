@@ -27,7 +27,8 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                     Terminated = item.ContainsKey("terminated") ? new Terminated()
                     {
                         IsTerminated = item["terminated"].M["isTerminated"].BOOL,
-                        ReasonForTermination = item["terminated"].M["reasonForTermination"].S
+                        ReasonForTermination = item["terminated"].M.ContainsKey("reasonForTermination") ?
+                            item["terminated"].M["reasonForTermination"].S : ""
                     } : null,
                     PaymentReference = item.ContainsKey("paymentReference") ? item["paymentReference"].S : null,
                     HouseholdMembers = item.ContainsKey("householdMembers") ? item["householdMembers"].L.ToArray().Select(m =>
