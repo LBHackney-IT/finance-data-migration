@@ -17,7 +17,8 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                     Id = Guid.Parse(item["id"].S),
                     TenuredAsset = item.ContainsKey("tenuredAsset") ? new TenuredAsset()
                     {
-                        FullAddress = item["tenuredAsset"].M["fullAddress"].S
+                        FullAddress = item["tenuredAsset"].M.ContainsKey("fullAddress") ?
+                            item["tenuredAsset"].M["fullAddress"].S : null
                     } : null,
                     TenureType = item.ContainsKey("tenureType") ? new TenureType()
                     {
@@ -28,18 +29,20 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                     } : null,
                     Terminated = item.ContainsKey("terminated") ? new Terminated()
                     {
-                        IsTerminated = item["terminated"].M.ContainsKey("isTerminated") ?
-                            item["terminated"].M["isTerminated"].BOOL : false,
+                        IsTerminated = item["terminated"].M.ContainsKey("isTerminated") && item["terminated"].M["isTerminated"].BOOL,
                         ReasonForTermination = item["terminated"].M.ContainsKey("reasonForTermination") ?
-                            item["terminated"].M["reasonForTermination"].S.Trim() : ""
+                            item["terminated"].M["reasonForTermination"].S.Trim() : null
                     } : null,
-                    PaymentReference = item.ContainsKey("paymentReference") ? item["paymentReference"].S : null,
-                    HouseholdMembers = item.ContainsKey("householdMembers") ? item["householdMembers"].L.ToArray().Select(m =>
+                    PaymentReference = item.ContainsKey("paymentReference") ?
+                        item["paymentReference"].S : null,
+                    HouseholdMembers = item.ContainsKey("householdMembers") ?
+                        item["householdMembers"].L.Select(m =>
                            new HouseholdMembers
                            {
                                Id = Guid.Parse(m.M["id"].S),
-                               FullName = m.M["fullName"].S,
-                               IsResponsible = m.M["isResponsible"].BOOL
+                               FullName = m.M.ContainsKey("fullName") ?
+                                   m.M["fullName"].S : null,
+                               IsResponsible = m.M.ContainsKey("isResponsible") && m.M["isResponsible"].BOOL
                            }) : null
                 };
             }

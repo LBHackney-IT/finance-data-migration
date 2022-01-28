@@ -93,11 +93,13 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 step = "GetAll+ScanRequest";
                 ScanResponse response = await _dynamoDb.ScanAsync(request).ConfigureAwait(false);
                 step = "GetAll+_dynamoDb.ScanAsync";
+                if (response == null)
+                    throw new Exception("_dynamoDb.ScanAsync results NULL");
 
                 return new TenurePaginationResponse()
                 {
                     LastKey = response.LastEvaluatedKey,
-                    TenureInformation = response.ToTenureInformation().ToList()
+                    TenureInformation = response?.ToTenureInformation().ToList()
                 };
             }
             catch (Exception exception)
