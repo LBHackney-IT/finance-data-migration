@@ -101,6 +101,6 @@ namespace FinanceDataMigrationApi.V1.Controllers
             }
 
             return Ok("Account Entities Indexed Successfully");
-        }   
+        }
     }
 }

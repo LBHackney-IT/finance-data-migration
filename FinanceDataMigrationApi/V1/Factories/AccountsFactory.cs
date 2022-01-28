@@ -74,7 +74,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                 accountModel.Add("tenure", new AttributeValue { M = tenureAttributes });
             }
 
-            if(!string.IsNullOrWhiteSpace(account.ConsolidatedCharges))
+            if (!string.IsNullOrWhiteSpace(account.ConsolidatedCharges))
             {
                 var consolidatedCharges = JsonConvert.DeserializeObject<List<ConsolidatedChargeDbEntity>>(account.ConsolidatedCharges);
 
