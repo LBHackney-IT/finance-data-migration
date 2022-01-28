@@ -72,7 +72,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// <returns>The Transactions to migrate</returns>
         public async Task<IList<ChargesDbEntity>> GetDMChargeEntitiesAsync()
             => await ChargesDbEntities
-                .Where(x => x.MigrationStatus==EMigrationStatus.Transformed)
+                .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
                 .ToListAsync()
                 .ConfigureAwait(false);
 

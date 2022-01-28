@@ -6,6 +6,6 @@ namespace FinanceDataMigrationApi.V1.UseCase.Interfaces
 {
     public interface IChargeBatchInsertUseCase
     {
-        Task<bool> ExecuteAsync(List<Charge> charges);
+        Task ExecuteAsync(List<Charge> charges);
     }
 }

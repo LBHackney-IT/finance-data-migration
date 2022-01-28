@@ -19,6 +19,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                     new XElement("tenure_type_code", a.TenureType.Code),
                     new XElement("tenure_type_desc", a.TenureType.Description),
                     new XElement("tenured_asset_full_address", a.TenuredAsset.FullAddress),
+                    new XElement("terminated_reason_code", a.Terminated?.ReasonForTermination),
                     a.HouseholdMembers?.Select(h =>
                         new XElement("HouseHoldMembers",
                             new XElement("id", h.Id),

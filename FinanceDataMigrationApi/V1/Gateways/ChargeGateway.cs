@@ -88,13 +88,12 @@ namespace FinanceDataMigrationApi.V1.Gateways
             return results.ToDomain();
         }
 
-        public async Task<bool> BatchInsert(List<Charge> charges)
+        public async Task BatchInsert(List<Charge> charges)
         {
             List<TransactWriteItem> actions = new List<TransactWriteItem>();
             foreach (Charge charge in charges)
             {
-                Dictionary<string, AttributeValue> columns = new Dictionary<string, AttributeValue>();
-                columns = charge.ToQueryRequest();
+                var columns = charge.ToQueryRequest();
 
                 actions.Add(new TransactWriteItem
                 {
@@ -103,7 +102,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
                         TableName = "Charges",
                         Item = columns,
                         ReturnValuesOnConditionCheckFailure = ReturnValuesOnConditionCheckFailure.ALL_OLD,
-                        ConditionExpression = "attribute_not_exists(id)"
+                        ConditionExpression = "attribute_not_exists(target_id)"
                     }
                 });
             }
@@ -115,8 +114,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
             };
 
             await _amazonDynamoDb.TransactWriteItemsAsync(placeOrderCharge).ConfigureAwait(false);
-
-            return true;
         }
     }
 }

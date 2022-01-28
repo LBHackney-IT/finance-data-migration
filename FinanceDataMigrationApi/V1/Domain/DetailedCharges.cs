@@ -17,5 +17,6 @@ namespace FinanceDataMigrationApi.V1.Domain
         public string ChargeCode { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public ChargeDbEntity ChargeDbEntity { get; set; }
     }
 }

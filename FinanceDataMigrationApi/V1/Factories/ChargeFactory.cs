@@ -100,7 +100,7 @@ namespace FinanceDataMigrationApi.V1.Factories
         {
             return new Dictionary<string, AttributeValue>()
             {
-                {"id", new AttributeValue {S = charge.Id.ToString()}},
+                {"id", new AttributeValue {S = charge.IdDynamodb.ToString()}},
                 {"target_id", new AttributeValue {S = charge.TargetId.ToString()}},
                 {"target_type", new AttributeValue {S = charge.TargetType.ToString()}},
                 {"charge_group", new AttributeValue {S = charge.ChargeGroup.ToString()}},

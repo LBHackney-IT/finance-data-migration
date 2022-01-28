@@ -88,8 +88,8 @@ commands:
           command: |
             cd ./FinanceDataMigrationApi/
             sls plugin install --name serverless-step-functions
-            sls deploy --stage <<parameters.stage>> --account <<parameters.aws-account>> --conceal
-
+            sls deploy --stage <<parameters.stage>>
+#--account <<parameters.aws-account>> --conceal
 jobs:
   check-code-formatting:
     executor: docker-dotnet

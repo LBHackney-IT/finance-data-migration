@@ -44,8 +44,7 @@ namespace FinanceDataMigrationApi.V1.UseCase
                 List<Task> tasks = new List<Task>();
                 for (int i = 0; i < transformedList.Count / 25; i++)
                 {
-
-                    tasks.Add(_dMChargeGateway.BatchInsert(transformedList.Skip(i).Take(25).ToList()));
+                    tasks.Add(_dMChargeGateway.BatchInsert(transformedList.Skip(i * 25).Take(25).ToList()));
                 }
                 DateTime startDateTime = DateTime.Now;
                 await Task.WhenAll(tasks).ConfigureAwait(false);
