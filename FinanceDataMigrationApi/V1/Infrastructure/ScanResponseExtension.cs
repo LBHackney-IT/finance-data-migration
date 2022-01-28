@@ -28,7 +28,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                     {
                         IsTerminated = item["terminated"].M["isTerminated"].BOOL,
                         ReasonForTermination = item["terminated"].M.ContainsKey("reasonForTermination") ?
-                            item["terminated"].M["reasonForTermination"].S : ""
+                            item["terminated"].M["reasonForTermination"].S.Trim() : ""
                     } : null,
                     PaymentReference = item.ContainsKey("paymentReference") ? item["paymentReference"].S : null,
                     HouseholdMembers = item.ContainsKey("householdMembers") ? item["householdMembers"].L.ToArray().Select(m =>
