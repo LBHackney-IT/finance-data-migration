@@ -24,7 +24,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Extentions
                 throw;
             }
         }
-        public static RentGroupType ToRentGroup (this string stringValue)
+        public static RentGroupType ToRentGroup(this string stringValue)
         {
             try
             {

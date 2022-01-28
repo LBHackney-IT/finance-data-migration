@@ -55,7 +55,7 @@ namespace FinanceDataMigrationApi
             ApiOptions apiOptions = apiOptionsConfigSection.Get<ApiOptions>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
-            
+
             services.AddApiVersioning(o =>
             {
                 o.DefaultApiVersion = new ApiVersion(1, 0);
