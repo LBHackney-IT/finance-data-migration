@@ -15,11 +15,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             foreach (Dictionary<string, AttributeValue> item in response.Items)
             {
                 LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ToTenureInformation)}, response.Items: {item["id"].S}");
-                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ToTenureInformation)}, response.Items: {item["tenuredAsset"].M}");
-                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ToTenureInformation)}, response.Items: {item["tenureType"].M}");
-                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ToTenureInformation)}, response.Items: {item["terminated"].M}");
-                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ToTenureInformation)}, response.Items: {item["paymentReference"].S}");
-                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ToTenureInformation)}, response.Items: {item["householdMembers"].M}");
 
                 if (!item.ContainsKey("id"))
                     throw new Exception(response.ToString());
