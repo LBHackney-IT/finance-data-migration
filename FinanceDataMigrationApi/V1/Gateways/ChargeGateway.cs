@@ -1,19 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.Model;
-using AutoMapper.Internal;
-using EFCore.BulkExtensions;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
-using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
@@ -39,49 +28,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
         {
             if (processingDate == null) throw new ArgumentNullException(nameof(processingDate));
             return await _context.ExtractDMChargesAsync().ConfigureAwait(false);
-        }
-
-
-        /*public async Task<List<DmDetailedChargesEntity>> GetDetailChargesListAsync(string paymentReference)
-        {
-            return await _context.GetDetailChargesListAsync(paymentReference).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// List Charge entities to migrate
-        /// </summary>
-        /// <returns>List of Charge</returns>
-        public async Task<IList<DMChargeEntityDomain>> ListAsync()
-        {
-            var results = await _context.DMChargeEntities
-                .Where(x => x.MigrationStatus==EMigrationStatus.Transformed)
-                .ToListAsync()
-                .ConfigureAwait(false);
-
-            return results.ToDomain();
-        }
-
-        public async Task UpdateDMChargeEntityItems(IList<DMChargeEntityDomain> dMChargeEntityDomainItems)
-        {
-            await _context
-                .BulkUpdateAsync(dMChargeEntityDomainItems.ToDatabase(), new BulkConfig { BatchSize = _batchSize })
-                .ConfigureAwait(false);
-        }
-
-
-
-        public async Task<IList<DMChargeEntityDomain>> GetLoadedListAsync()
-        {
-            var results = await _context.GetLoadedChargeListAsync().ConfigureAwait(false);
-            return results.ToDomain();
-        }
-
-
-        public async Task<int> AddChargeAsync(DMChargeEntityDomain dmEntity)
-        {
-            await Task.Delay(0).ConfigureAwait(false);
-            return -1;
-        }*/
+        } 
 
         public async Task<IList<Charge>> GetTransformedListAsync()
         {
@@ -118,6 +65,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
             try
             {
+                // how to check duplicated record to change status to loaded
                 await _amazonDynamoDb.TransactWriteItemsAsync(placeOrderCharge).ConfigureAwait(false);
                 _context.ChargesDbEntities.Where(p=>
                     charges.Select(i=>i.Id).Contains(p.Id)).
