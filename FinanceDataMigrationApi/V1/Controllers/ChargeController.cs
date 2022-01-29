@@ -43,10 +43,10 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [Route("extract")]
         public async Task<IActionResult> ExtractChargeEntity()
         {
-            /// Truncate should be removed from the extract stored procedure
-            /// The guid shuold be created in stored procedure to keep duplication check rule
-            /// Extract procedure should append new item's to the current list
-            /// Extract procedure should be executed asynchronously
+            // Truncate should be removed from the extract stored procedure
+            // The guid should be created in stored procedure to keep duplication check rule
+            // Extract procedure should append new item's to the current list
+            // Extract procedure should be executed asynchronously
             var runExtractChargeEntity = await _extractChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
 
             if (runExtractChargeEntity.Continue == false)
