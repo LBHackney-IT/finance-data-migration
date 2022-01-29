@@ -9,6 +9,7 @@ using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
+using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using Hackney.Shared.Tenure.Domain;
 using Hackney.Shared.Tenure.Factories;
@@ -82,20 +83,32 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public async Task<TenurePaginationResponse> GetAll(Dictionary<string, AttributeValue> lastEvaluatedKey = null)
         {
-            ScanRequest request = new ScanRequest("TenureInformation")
+            try
             {
-                Limit = 1000,
-                ExclusiveStartKey = lastEvaluatedKey
-            };
-            ScanResponse response = await _dynamoDb.ScanAsync(request).ConfigureAwait(false);
-            if (response == null || response.Items == null || response.Items.Count == 0)
-                throw new Exception($"_dynamoDb.ScanAsync results NULL: {response?.ToString()}");
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenureGateway");
+                ScanRequest request = new ScanRequest("TenureInformation")
+                {
+                    Limit = 1000,
+                    ExclusiveStartKey = lastEvaluatedKey
+                };
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenureGateway starts scan");
+                ScanResponse response = await _dynamoDb.ScanAsync(request).ConfigureAwait(false);
+                if (response == null || response.Items == null || response.Items.Count == 0)
+                    throw new Exception($"_dynamoDb.ScanAsync results NULL: {response?.ToString()}");
 
-            return new TenurePaginationResponse()
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenureGateway fills response");
+                return new TenurePaginationResponse()
+                {
+                    LastKey = response?.LastEvaluatedKey,
+                    TenureInformation = response?.ToTenureInformation()?.ToList()
+                };
+            }
+            catch (Exception ex)
             {
-                LastKey = response?.LastEvaluatedKey,
-                TenureInformation = response?.ToTenureInformation()?.ToList()
-            };
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: Exception: {ex.Message}");
+                LoggingHandler.LogError(ex.StackTrace);
+                throw;
+            }
         }
 
         public Task<int> SaveTenuresIntoSql(string lastHint, XElement xml)
@@ -105,10 +118,20 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public async Task<Guid> GetLastHint()
         {
-            var result = await _dbContext.DmDynamoLastHInt
-                .Where(p => p.TableName.ToLower() == "tenure")
-                .OrderBy(p => p.Timex).LastOrDefaultAsync().ConfigureAwait(false);
-            return result?.Id ?? Guid.Empty;
+            try
+            {
+                var result = await _dbContext.DmDynamoLastHInt.
+                    Where(p => p.TableName.ToLower() == "tenure").
+                    OrderBy(p => p.Timex).LastOrDefaultAsync().ConfigureAwait(false);
+
+                return result?.Id ?? Guid.Empty;
+            }
+            catch (Exception ex)
+            {
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetLastHint)}: Exception: {ex.Message}");
+                LoggingHandler.LogError(ex.StackTrace);
+                throw;
+            }
         }
     }
 }

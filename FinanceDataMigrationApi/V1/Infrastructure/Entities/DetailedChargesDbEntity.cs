@@ -9,10 +9,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Entities
     {
         [Key]
         [Column("id")]
-        public decimal Id { get; set; }
-        [ForeignKey("id_dynamodb")]
-        [Column("charge_id")]
-        public Guid ChargeId { get; set; }
+        public long Id { get; set; }
         [Column("property_reference")]
         public string PropertyReference { get; set; }
         [Column("type")]
@@ -32,5 +29,9 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Entities
         [Column("end_date")]
         public DateTime EndDate { get; set; }
 
+
+        [Column("charge_id")]
+        public long ChargeId { get; set; }
+        public ChargesDbEntity ChargesDbEntity { get; set; }
     }
 }

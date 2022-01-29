@@ -31,6 +31,10 @@ namespace FinanceDataMigrationApi.V1.Controllers
             _batchInsertUseCase = batchInsertUseCase;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status404NotFound)]
@@ -39,6 +43,10 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [Route("extract")]
         public async Task<IActionResult> ExtractChargeEntity()
         {
+            // Truncate should be removed from the extract stored procedure
+            // The guid should be created in stored procedure to keep duplication check rule
+            // Extract procedure should append new item's to the current list
+            // Extract procedure should be executed asynchronously
             var runExtractChargeEntity = await _extractChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
 
             if (runExtractChargeEntity.Continue == false)
@@ -49,25 +57,6 @@ namespace FinanceDataMigrationApi.V1.Controllers
 
             return Ok("Extracted successfully.");
         }
-
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status404NotFound)]
-        //[ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status500InternalServerError)]
-        //[HttpGet]
-        //[Route("charge-entity/transform")]
-        //public async Task<IActionResult> TransformChargeEntity()
-        //{
-        //    var runExtractChargeEntity = await _transformChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
-
-        //    if (runExtractChargeEntity.Continue == false)
-        //    {
-        //        return NotFound(new BaseErrorResponse((int) HttpStatusCode.InternalServerError,
-        //            "Transform Charge Entity Task Failed!!"));
-        //    }
-
-        //    return Ok("Charge Entities Transformed Successfully");
-        //}
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status400BadRequest)]

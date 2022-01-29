@@ -30,38 +30,28 @@ namespace FinanceDataMigrationApi.V1.UseCase
 
         public async Task<StepResponse> ExecuteAsync()
         {
-            var dmRunLogDomain = await UpdateLoadInProcessStatusForDmRunLogDomain().ConfigureAwait(false);
-
-            // Get all the Charges entity extracted data from the SOW2b SQL Server database table DMChargesEntity,
-            //      where isTransformed flag is TRUE and isLoaded flag is FALSE
             var transformedList = await _dMChargeGateway.GetTransformedListAsync().ConfigureAwait(false);
 
             if (transformedList.Any())
             {
 
-                //await _dynamoDbGateway.AddRangeAsync(addChargeRequestList).ConfigureAwait(false);
-
                 List<Task> tasks = new List<Task>();
                 for (int i = 0; i < transformedList.Count / 25; i++)
                 {
+                    /*await _dMChargeGateway.BatchInsert(transformedList.Skip(i * 25).Take(25).ToList())
+                        .ConfigureAwait(false)*/
+                    ;
                     tasks.Add(_dMChargeGateway.BatchInsert(transformedList.Skip(i * 25).Take(25).ToList()));
                 }
                 DateTime startDateTime = DateTime.Now;
                 await Task.WhenAll(tasks).ConfigureAwait(false);
 
-
-                /*await UpdateIsLoadedStatusForDmChargeEntities(transformedList).ConfigureAwait(false);
-
-                UpdateSuccessStatusForDmRunLogDomain(dmRunLogDomain, transformedList);*/
             }
 
             if (!transformedList.Any())
             {
                 LoggingHandler.LogInfo($"No records to {DataMigrationTask} for {DMEntityNames.Charges} Entity");
-                dmRunLogDomain.LastRunStatus = MigrationRunStatus.NothingToMigrate.ToString();
             }
-
-            await _dMRunLogGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
 
             LoggingHandler.LogInfo($"End of {DataMigrationTask} task for {DMEntityNames.Transactions} Entity");
 
@@ -86,25 +76,5 @@ namespace FinanceDataMigrationApi.V1.UseCase
             await _dMRunLogGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
             return dmRunLogDomain;
         }
-
-        /*private static void UpdateSuccessStatusForDmRunLogDomain(DMRunLogDomain dmRunLogDomain, IList<Charge> transformedList)
-        {
-            // Update migrationrun item with SET start_row_id & end_row_id here.
-            //      and set status to "LoadCompleted" (Data Set Migrated successfully)
-            dmRunLogDomain.ActualRowsMigrated = transformedList.Count;
-            dmRunLogDomain.StartRowId = transformedList.First().Id;
-            dmRunLogDomain.EndRowId = transformedList.Last().Id;
-            dmRunLogDomain.LastRunStatus = MigrationRunStatus.LoadCompleted.ToString();
-        }
-
-        private async Task UpdateIsLoadedStatusForDmChargeEntities(IList<Charge> transformedList)
-        {
-            foreach (var dmChargeEntityDomain in transformedList)
-            {
-                dmChargeEntityDomain.MigrationStatus = EMigrationStatus.Loaded;
-            }
-
-            await _dMChargeGateway.UpdateDMChargeEntityItems(transformedList).ConfigureAwait(false);
-        }*/
     }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Amazon.DynamoDBv2.Model;
 using AutoFixture;
 using FinanceDataMigrationApi.V1.Factories;
+using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 using Hackney.Shared.Tenure.Domain;
 using Microsoft.VisualBasic;
@@ -72,6 +73,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
         {
             do
             {
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: asset loading loop");
                 var lastKey = await _getLastHintUseCase.ExecuteAsync().ConfigureAwait(false);
                 Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
                 {
@@ -81,6 +83,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
                 lastEvaluatedKey = response.LastKey;
                 if (response.TenureInformation.Count == 0)
                     break;
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: Start saving to IFS SQL database");
                 await _saveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(),
                     response.TenureInformation.ToXElement()).ConfigureAwait(false);
 

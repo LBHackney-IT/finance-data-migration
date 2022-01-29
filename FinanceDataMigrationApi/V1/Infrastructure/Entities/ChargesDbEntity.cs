@@ -32,13 +32,13 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Entities
         [Column("charge_group")]
         public string ChargeGroup { get; set; }
 
-        [Column("detailed_charges")]
-        public List<DetailedCharges> DetailedCharges { get; set; }
-
         [Column("migration_status")]
         public EMigrationStatus MigrationStatus { get; set; }
 
         [Column("created_at")]
         public DateTimeOffset CreatedAt { get; set; }
+
+        [Column("detailed_charges")]
+        public List<DetailedChargesDbEntity> DetailedChargesDbEntities { get; set; }
     }
 }

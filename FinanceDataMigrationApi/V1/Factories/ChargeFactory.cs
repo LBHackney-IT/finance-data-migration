@@ -86,7 +86,21 @@ namespace FinanceDataMigrationApi.V1.Factories
                     PropertyReference = dMChargesEntity.PropertyReference,
                     TargetType = dMChargesEntity.TargetType,
                     ChargeGroup = dMChargesEntity.ChargeGroup,
-                    DetailedCharges = dMChargesEntity.DetailedCharges,
+                    DetailedCharges = dMChargesEntity.DetailedChargesDbEntities?
+                        .Select(p => new DetailedCharges
+                        {
+                            Amount = p.Amount,
+                            ChargeCode = p.ChargeCode,
+                            ChargeId = p.ChargeId,
+                            ChargeType = p.ChargeType,
+                            EndDate = p.EndDate,
+                            Frequency = p.Frequency,
+                            Id = p.Id,
+                            StartDate = p.StartDate,
+                            PropertyReference = p.PropertyReference,
+                            SubType = p.SubType,
+                            Type = p.Type
+                        }).ToList(),
                     MigrationStatus = dMChargesEntity.MigrationStatus,
                     CreatedAt = dMChargesEntity.CreatedAt
                 };
@@ -115,14 +129,14 @@ namespace FinanceDataMigrationApi.V1.Factories
                             {
                                 M = new Dictionary<string, AttributeValue>
                                 {
-                                    {"chargeCode", new AttributeValue {S = p.ChargeCode}},
-                                    {"frequency", new AttributeValue {S = p.Frequency}},
+                                    {"chargeCode", new AttributeValue {S = p.ChargeCode??""}},
+                                    {"frequency", new AttributeValue {S = p.Frequency??""}},
                                     {"amount", new AttributeValue {N = p.Amount.ToString("F")}},
-                                    {"endDate", new AttributeValue {S = p.EndDate.ToString("F")}},
-                                    {"chargeType", new AttributeValue {S = p.ChargeType.ToString()}},
-                                    {"subType", new AttributeValue {S = p.SubType.ToString()}},
-                                    {"type", new AttributeValue {S = p.Type.ToString()}},
-                                    {"startDate", new AttributeValue {S = p.StartDate.ToString("F")}},
+                                    {"endDate", new AttributeValue {S =p.EndDate==null?"": p.EndDate.ToString("F")}},
+                                    {"chargeType", new AttributeValue {S = p.ChargeType?.ToString()??""}},
+                                    {"subType", new AttributeValue {S = p.SubType?.ToString()??""}},
+                                    {"type", new AttributeValue {S = p.Type?.ToString()??""}},
+                                    {"startDate", new AttributeValue {S =p.StartDate==null?"":p.StartDate.ToString("F")}},
                                 }
                             }).ToList()
                     }
