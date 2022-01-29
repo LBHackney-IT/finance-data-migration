@@ -14,7 +14,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ToTenureInformation)}, ScanResponse: {response}");
             foreach (Dictionary<string, AttributeValue> item in response.Items)
             {
-                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ToTenureInformation)}, response.Items: {item["id"].S}");
 
                 if (!item.ContainsKey("id"))
                     throw new Exception(response.ToString());

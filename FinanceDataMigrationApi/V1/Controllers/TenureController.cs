@@ -73,7 +73,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
         {
             do
             {
-                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: asset loading loop");
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenure loading loop");
                 var lastKey = await _getLastHintUseCase.ExecuteAsync().ConfigureAwait(false);
                 Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
                 {
