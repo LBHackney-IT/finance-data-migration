@@ -104,7 +104,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             => await this.Set<ChargesDbEntity>()
                 .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
                 .Take(Constants.LoadCount)
-                .Include(p=>p.DetailedChargesDbEntities)
+                .Include(p => p.DetailedChargesDbEntities)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -112,7 +112,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             => await this.Set<ChargesDbEntity>()
                 .Where(x => x.MigrationStatus == EMigrationStatus.Loaded)
                 .Take(Constants.LoadCount)
-                .Include(p=>p.DetailedChargesDbEntities)
+                .Include(p => p.DetailedChargesDbEntities)
                 .ToListAsync()
                 .ConfigureAwait(false);
 

@@ -11,7 +11,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
     {
         public static IEnumerable<TenureInformation> ToTenureInformation(this ScanResponse response)
         {
-            LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ToTenureInformation)}: tenureGateway");
+            LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ToTenureInformation)}, ScanResponse: {response.ToString()}");
             foreach (Dictionary<string, AttributeValue> item in response.Items)
             {
                 if (!item.ContainsKey("id"))

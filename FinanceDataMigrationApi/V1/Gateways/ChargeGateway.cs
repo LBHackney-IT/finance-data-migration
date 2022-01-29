@@ -36,12 +36,12 @@ namespace FinanceDataMigrationApi.V1.Gateways
         {
             if (processingDate == null) throw new ArgumentNullException(nameof(processingDate));
             return await _context.ExtractDMChargesAsync().ConfigureAwait(false);
-        } 
+        }
 
         public async Task<IList<Charge>> GetTransformedListAsync()
         {
             var results = await _context.GetTransformedChargeListAsync().ConfigureAwait(false);
-            results.ToList().ForEach(p=>p.MigrationStatus=EMigrationStatus.Loading);
+            results.ToList().ForEach(p => p.MigrationStatus = EMigrationStatus.Loading);
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomain();
         }
@@ -75,9 +75,9 @@ namespace FinanceDataMigrationApi.V1.Gateways
             {
                 // how to check duplicated record to change status to loaded
                 await _amazonDynamoDb.TransactWriteItemsAsync(placeOrderCharge).ConfigureAwait(false);
-                _context.ChargesDbEntities.Where(p=>
-                    charges.Select(i=>i.Id).Contains(p.Id)).
-                    ForAll(p=>p.MigrationStatus=EMigrationStatus.Loaded);
+                _context.ChargesDbEntities.Where(p =>
+                    charges.Select(i => i.Id).Contains(p.Id)).
+                    ForAll(p => p.MigrationStatus = EMigrationStatus.Loaded);
                 await _context.SaveChangesAsync().ConfigureAwait(false);
             }
             catch (Exception)
