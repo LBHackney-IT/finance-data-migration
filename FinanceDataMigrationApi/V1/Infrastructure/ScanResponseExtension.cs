@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Amazon.DynamoDBv2.Model;
+using FinanceDataMigrationApi.V1.Handlers;
 using Hackney.Shared.Tenure.Domain;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure
@@ -10,6 +11,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
     {
         public static IEnumerable<TenureInformation> ToTenureInformation(this ScanResponse response)
         {
+            LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ToTenureInformation)}: tenureGateway");
             foreach (Dictionary<string, AttributeValue> item in response.Items)
             {
                 if (!item.ContainsKey("id"))

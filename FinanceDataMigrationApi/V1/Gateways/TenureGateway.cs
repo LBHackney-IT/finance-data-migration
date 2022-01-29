@@ -9,6 +9,7 @@ using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
+using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using Hackney.Shared.Tenure.Domain;
 using Hackney.Shared.Tenure.Factories;
@@ -82,15 +83,18 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public async Task<TenurePaginationResponse> GetAll(Dictionary<string, AttributeValue> lastEvaluatedKey = null)
         {
+            LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenureGateway");
             ScanRequest request = new ScanRequest("TenureInformation")
             {
                 Limit = 1000,
                 ExclusiveStartKey = lastEvaluatedKey
             };
+            LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenureGateway starts scan");
             ScanResponse response = await _dynamoDb.ScanAsync(request).ConfigureAwait(false);
             if (response == null || response.Items == null || response.Items.Count == 0)
                 throw new Exception($"_dynamoDb.ScanAsync results NULL: {response?.ToString()}");
 
+            LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenureGateway fills response");
             return new TenurePaginationResponse()
             {
                 LastKey = response?.LastEvaluatedKey,
