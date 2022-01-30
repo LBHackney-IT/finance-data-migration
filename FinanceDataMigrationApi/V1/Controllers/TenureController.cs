@@ -10,6 +10,7 @@ using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 using Hackney.Shared.Tenure.Domain;
 using Microsoft.VisualBasic;
+using FinanceDataMigrationApi.V1.Boundary.Response;
 
 namespace FinanceDataMigrationApi.V1.Controllers
 {
@@ -71,6 +72,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [Route("download-all")]
         public async Task<IActionResult> GetAll()
         {
+            TenurePaginationResponse response;
             do
             {
                 LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenure loading loop");
@@ -79,20 +81,19 @@ namespace FinanceDataMigrationApi.V1.Controllers
                 {
                     {"id",new AttributeValue{S = lastKey.ToString()}}
                 };
-                var response = await _tenureGetAllUseCase.ExecuteAsync(lastEvaluatedKey).ConfigureAwait(false);
+                response = await _tenureGetAllUseCase.ExecuteAsync(lastEvaluatedKey).ConfigureAwait(false);
                 lastEvaluatedKey = response.LastKey;
                 if (response.TenureInformation.Count == 0)
                     break;
                 LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: Start saving to IFS SQL database");
-                response.TenureInformation.ToXElement();
-                //await _saveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(),
-                //    response.TenureInformation.ToXElement()).ConfigureAwait(false);
+                /*await _saveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(),
+                    response.TenureInformation.ToXElement()).ConfigureAwait(false);*/
 
                 if (response.LastKey.Count == 0)
                     break;
 
             } while (true);
-            return Ok("Done");
+            return Ok(response);
         }
 
         [HttpGet]
