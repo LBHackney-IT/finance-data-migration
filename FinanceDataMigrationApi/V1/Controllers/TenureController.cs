@@ -54,7 +54,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
 
         [Route("dummy-async")]
         [HttpPost]
-        public async Task<IActionResult> DummyBatchInsertAsync(int count)
+        public async Task<IActionResult> DummyBatchInsertAsync([FromQuery] int count)
         {
             List<Task> tasks = new List<Task>();
             for (int i = 0; i < count / _batchSize; i++)
@@ -74,8 +74,8 @@ namespace FinanceDataMigrationApi.V1.Controllers
         /// <param name="count">DynamoDb scan limit</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("download-all{count}")]
-        public async Task<IActionResult> GetAll(int count = 940)
+        [Route("download-all")]
+        public async Task<IActionResult> GetAll([FromQuery] int count = 940)
         {
             int index = 0;
             do
@@ -102,6 +102,28 @@ namespace FinanceDataMigrationApi.V1.Controllers
                     break;
 
             } while (true);
+            return Ok("All tenure downloaded to IFS successfully.");
+        }
+
+        [HttpGet]
+        [Route("download-bunch")]
+        public async Task<IActionResult> GetBunch([FromQuery] int count = 940)
+        {
+            var lastKey = await _getLastHintUseCase.ExecuteAsync().ConfigureAwait(false);
+            Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
+                {
+                    {"id",new AttributeValue{S = lastKey.ToString()}}
+                };
+
+            var response = await _tenureGetAllUseCase.ExecuteAsync(count, lastEvaluatedKey).ConfigureAwait(false);
+            lastEvaluatedKey = response.LastKey;
+
+            LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetBunch)}: " +
+                $"Last ID:{response.TenureInformation.Last().Id}");
+
+            await _saveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(),
+                response.TenureInformation.ToXElement()).ConfigureAwait(false);
+
             return Ok("All tenure downloaded to IFS successfully.");
         }
     }

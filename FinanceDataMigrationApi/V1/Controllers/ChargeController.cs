@@ -68,8 +68,8 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status500InternalServerError)]
         [HttpGet]
-        [Route("load{count}")]
-        public async Task<IActionResult> LoadChargeEntity(int count)
+        [Route("load")]
+        public async Task<IActionResult> LoadChargeEntity([FromQuery] int count)
         {
             var runLoadChargeEntity = await _loadChargeEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
             /*return Ok($"Elapsed time: {DateAndTime.Now.Subtract(startDateTime).TotalSeconds}");*/

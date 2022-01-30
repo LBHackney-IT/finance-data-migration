@@ -93,7 +93,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             //TODO: StoredProc does not have processingDate parameters, need to clarify with Felipe, keep it consistent
 
             return await ExecuteStoredProcedure(
-                $"EXEC @returnValue = [dbo].[usp_ExtractChargesEntity]", 600)
+                $"EXEC @returnValue = [dbo].[usp_ExtractChargesEntity]", 60000)
                 .ConfigureAwait(false);
         }
 
@@ -160,13 +160,13 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
 
         public async Task<int> InsertDynamoAsset(string lastHint, XElement xml)
         {
-            var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_InsertDynamoAsset] '{lastHint}','{xml}'", 600).ConfigureAwait(false);
+            var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_InsertDynamoAsset] '{lastHint}','{xml}'", 6000).ConfigureAwait(false);
             return affectedRows;
         }
 
         public async Task<int> InsertDynamoTenure(string lastHint, XElement xml)
         {
-            var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_InsertDynamoTenure] '{lastHint}','{xml}'", 600).ConfigureAwait(false);
+            var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_InsertDynamoTenure] '{lastHint}','{xml}'", 6000).ConfigureAwait(false);
             return affectedRows;
         }
 
@@ -178,7 +178,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         //public async Task<int> ExtractDMTransactionsAsync(DateTime? processingDate)
         public async Task<int> ExtractDMTransactionsAsync(DateTimeOffset? processingDate)
         {
-            var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_ExtractTransactionEntity] '{processingDate:yyyy-MM-dd}'", 600).ConfigureAwait(false);
+            var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_ExtractTransactionEntity] '{processingDate:yyyy-MM-dd}'", 6000).ConfigureAwait(false);
             return affectedRows;
         }
 
