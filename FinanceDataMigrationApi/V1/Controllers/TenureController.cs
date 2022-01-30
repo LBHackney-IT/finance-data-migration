@@ -75,7 +75,6 @@ namespace FinanceDataMigrationApi.V1.Controllers
             do
             {
                 LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenure loading loop: {++index}");
-                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: scanlimit : {Constants.LoadCount}");
                 var lastKey = await _getLastHintUseCase.ExecuteAsync().ConfigureAwait(false);
                 Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
                 {
@@ -86,7 +85,12 @@ namespace FinanceDataMigrationApi.V1.Controllers
                 lastEvaluatedKey = response.LastKey;
                 if (response.TenureInformation.Count == 0)
                     break;
-                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: Start saving to IFS SQL database");
+
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: scanlimit : {Constants.LoadCount}");
+
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: " +
+                    $"Last ID:{response.TenureInformation.Last().Id}");
+
                 await _saveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(),
                     response.TenureInformation.ToXElement()).ConfigureAwait(false);
 
