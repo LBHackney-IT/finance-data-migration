@@ -19,8 +19,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
     [ApiVersion("1.0")]
     public class TenureController : BaseController
     {
-        readonly int _batchSize;
-        readonly int _loadCount;
+        readonly int _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE") ?? "25");
         readonly IGetTenureByIdUseCase _tenureByIdUseCase;
         readonly ITenureBatchInsertUseCase _batchInsertUseCase;
         readonly ITenureGetAllUseCase _tenureGetAllUseCase;
@@ -38,8 +37,6 @@ namespace FinanceDataMigrationApi.V1.Controllers
             _tenureGetAllUseCase = tenureGetAllUseCase;
             _saveToSqlUseCase = saveToSqlUseCase;
             _getLastHintUseCase = getLastHintUseCase;
-            _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE") ?? "25");
-            _loadCount = Convert.ToInt32(Environment.GetEnvironmentVariable("LOAD_COUNT") ?? "100");
         }
 
         [HttpGet("{id}")]
@@ -71,9 +68,14 @@ namespace FinanceDataMigrationApi.V1.Controllers
             return Ok($"Elapsed time: {DateAndTime.Now.Subtract(startDateTime).TotalSeconds}");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="count">DynamoDb scan limit</param>
+        /// <returns></returns>
         [HttpGet]
-        [Route("download-all")]
-        public async Task<IActionResult> GetAll()
+        [Route("download-all{count}")]
+        public async Task<IActionResult> GetAll(int count = 940)
         {
             int index = 0;
             do
@@ -85,12 +87,10 @@ namespace FinanceDataMigrationApi.V1.Controllers
                     {"id",new AttributeValue{S = lastKey.ToString()}}
                 };
 
-                var response = await _tenureGetAllUseCase.ExecuteAsync(lastEvaluatedKey).ConfigureAwait(false);
+                var response = await _tenureGetAllUseCase.ExecuteAsync(count, lastEvaluatedKey).ConfigureAwait(false);
                 lastEvaluatedKey = response.LastKey;
                 if (response.TenureInformation.Count == 0)
                     break;
-
-                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: scanlimit : {_loadCount}");
 
                 LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: " +
                     $"Last ID:{response.TenureInformation.Last().Id}");
@@ -103,14 +103,6 @@ namespace FinanceDataMigrationApi.V1.Controllers
 
             } while (true);
             return Ok("All tenure downloaded to IFS successfully.");
-        }
-
-        [HttpGet]
-        [Route("test-all")]
-        public async Task<IActionResult> TestAll()
-        {
-            var response = await _tenureGetAllUseCase.ExecuteAsync(null).ConfigureAwait(false);
-            return Ok(response);
         }
     }
 }

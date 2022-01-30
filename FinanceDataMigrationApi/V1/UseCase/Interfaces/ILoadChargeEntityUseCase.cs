@@ -5,6 +5,6 @@ namespace FinanceDataMigrationApi.V1.UseCase.Interfaces
 {
     public interface ILoadChargeEntityUseCase
     {
-        public Task<StepResponse> ExecuteAsync();
+        public Task<StepResponse> ExecuteAsync(int count);
     }
 }

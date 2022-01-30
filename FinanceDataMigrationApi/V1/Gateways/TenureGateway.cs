@@ -21,7 +21,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
 {
     public class TenureGateway : ITenureGateway
     {
-        readonly int _loadCount;
         readonly DatabaseContext _dbContext;
         readonly IAmazonDynamoDB _dynamoDb;
         readonly IDynamoDBContext _dynamoDbContext;
@@ -29,7 +28,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public TenureGateway(DatabaseContext dbContext, IAmazonDynamoDB dynamoDb, IDynamoDBContext dynamoDbContext, ILogger<ITenureGateway> logger)
         {
-            _loadCount = Convert.ToInt32(Environment.GetEnvironmentVariable("LOAD_COUNT") ?? "100");
             _dbContext = dbContext;
             _dynamoDb = dynamoDb;
             _dynamoDbContext = dynamoDbContext;
@@ -83,14 +81,14 @@ namespace FinanceDataMigrationApi.V1.Gateways
             return true;
         }
 
-        public async Task<TenurePaginationResponse> GetAll(Dictionary<string, AttributeValue> lastEvaluatedKey = null)
+        public async Task<TenurePaginationResponse> GetAll(int count, Dictionary<string, AttributeValue> lastEvaluatedKey = null)
         {
             try
             {
                 LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenureGateway");
                 ScanRequest request = new ScanRequest("TenureInformation")
                 {
-                    Limit = _loadCount,
+                    Limit = count,
                     ExclusiveStartKey = lastEvaluatedKey
                 };
                 LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenureGateway starts scan");

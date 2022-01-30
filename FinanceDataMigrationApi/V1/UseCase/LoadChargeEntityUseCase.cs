@@ -14,7 +14,7 @@ namespace FinanceDataMigrationApi.V1.UseCase
 {
     public class LoadChargeEntityUseCase : ILoadChargeEntityUseCase
     {
-        readonly int _batchSize;
+        readonly int _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE") ?? "25");
         private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IChargeGateway _dMChargeGateway;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
@@ -26,12 +26,11 @@ namespace FinanceDataMigrationApi.V1.UseCase
         {
             _dMRunLogGateway = dMRunLogGateway;
             _dMChargeGateway = dMChargeGateway;
-            _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE") ?? "25");
         }
 
-        public async Task<StepResponse> ExecuteAsync()
+        public async Task<StepResponse> ExecuteAsync(int count)
         {
-            var transformedList = await _dMChargeGateway.GetTransformedListAsync().ConfigureAwait(false);
+            var transformedList = await _dMChargeGateway.GetTransformedListAsync(count).ConfigureAwait(false);
 
             if (transformedList.Any())
             {
