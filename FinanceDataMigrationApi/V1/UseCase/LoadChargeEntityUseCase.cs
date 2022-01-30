@@ -14,6 +14,7 @@ namespace FinanceDataMigrationApi.V1.UseCase
 {
     public class LoadChargeEntityUseCase : ILoadChargeEntityUseCase
     {
+        readonly int _batchSize;
         private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IChargeGateway _dMChargeGateway;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
@@ -21,11 +22,11 @@ namespace FinanceDataMigrationApi.V1.UseCase
 
         public LoadChargeEntityUseCase(
             IDMRunLogGateway dMRunLogGateway,
-            IChargeGateway dMChargeGateway
-        )
+            IChargeGateway dMChargeGateway)
         {
             _dMRunLogGateway = dMRunLogGateway;
             _dMChargeGateway = dMChargeGateway;
+            _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE") ?? "25");
         }
 
         public async Task<StepResponse> ExecuteAsync()
@@ -36,12 +37,12 @@ namespace FinanceDataMigrationApi.V1.UseCase
             {
 
                 List<Task> tasks = new List<Task>();
-                for (int i = 0; i < transformedList.Count / 25; i++)
+                for (int i = 0; i < transformedList.Count / _batchSize; i++)
                 {
                     /*await _dMChargeGateway.BatchInsert(transformedList.Skip(i * 25).Take(25).ToList())
                         .ConfigureAwait(false)*/
                     ;
-                    tasks.Add(_dMChargeGateway.BatchInsert(transformedList.Skip(i * 25).Take(25).ToList()));
+                    tasks.Add(_dMChargeGateway.BatchInsert(transformedList.Skip(i * _batchSize).Take(_batchSize).ToList()));
                 }
                 DateTime startDateTime = DateTime.Now;
                 await Task.WhenAll(tasks).ConfigureAwait(false);

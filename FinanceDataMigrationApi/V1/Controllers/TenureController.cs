@@ -19,11 +19,13 @@ namespace FinanceDataMigrationApi.V1.Controllers
     [ApiVersion("1.0")]
     public class TenureController : BaseController
     {
-        private readonly IGetTenureByIdUseCase _tenureByIdUseCase;
-        private readonly ITenureBatchInsertUseCase _batchInsertUseCase;
-        private readonly ITenureGetAllUseCase _tenureGetAllUseCase;
-        private readonly ITenureSaveToSqlUseCase _saveToSqlUseCase;
-        private readonly ITenureGetLastHintUseCase _getLastHintUseCase;
+        readonly int _batchSize;
+        readonly int _loadCount;
+        readonly IGetTenureByIdUseCase _tenureByIdUseCase;
+        readonly ITenureBatchInsertUseCase _batchInsertUseCase;
+        readonly ITenureGetAllUseCase _tenureGetAllUseCase;
+        readonly ITenureSaveToSqlUseCase _saveToSqlUseCase;
+        readonly ITenureGetLastHintUseCase _getLastHintUseCase;
 
         public TenureController(IGetTenureByIdUseCase tenureByIdUseCase
             , ITenureBatchInsertUseCase batchInsertUseCase
@@ -36,6 +38,8 @@ namespace FinanceDataMigrationApi.V1.Controllers
             _tenureGetAllUseCase = tenureGetAllUseCase;
             _saveToSqlUseCase = saveToSqlUseCase;
             _getLastHintUseCase = getLastHintUseCase;
+            _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE") ?? "25");
+            _loadCount = Convert.ToInt32(Environment.GetEnvironmentVariable("LOAD_COUNT") ?? "100");
         }
 
         [HttpGet("{id}")]
@@ -56,7 +60,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
         public async Task<IActionResult> DummyBatchInsertAsync(int count)
         {
             List<Task> tasks = new List<Task>();
-            for (int i = 0; i < count / 25; i++)
+            for (int i = 0; i < count / _batchSize; i++)
             {
                 Fixture fixture = new Fixture();
                 List<TenureInformation> transactions = fixture.CreateMany<TenureInformation>(25).ToList();
@@ -86,7 +90,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
                 if (response.TenureInformation.Count == 0)
                     break;
 
-                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: scanlimit : {Constants.LoadCount}");
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: scanlimit : {_loadCount}");
 
                 LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: " +
                     $"Last ID:{response.TenureInformation.Last().Id}");

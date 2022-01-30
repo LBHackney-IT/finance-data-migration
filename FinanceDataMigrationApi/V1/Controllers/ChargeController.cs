@@ -16,9 +16,9 @@ namespace FinanceDataMigrationApi.V1.Controllers
     [ApiVersion("1.0")]
     public class ChargeController : BaseController
     {
-        private readonly IExtractChargeEntityUseCase _extractChargeEntityUseCase;
-        private readonly ILoadChargeEntityUseCase _loadChargeEntityUseCase;
-        private readonly IChargeBatchInsertUseCase _batchInsertUseCase;
+        readonly IExtractChargeEntityUseCase _extractChargeEntityUseCase;
+        readonly ILoadChargeEntityUseCase _loadChargeEntityUseCase;
+        readonly IChargeBatchInsertUseCase _batchInsertUseCase;
 
         public ChargeController(
             IExtractChargeEntityUseCase extractChargeEntityUseCase,
