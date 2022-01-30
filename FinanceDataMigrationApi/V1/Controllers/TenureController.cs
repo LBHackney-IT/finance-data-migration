@@ -72,15 +72,16 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [Route("download-all")]
         public async Task<IActionResult> GetAll()
         {
+            Dictionary<string, AttributeValue> lastEvaluatedKey = null;
             TenurePaginationResponse response;
+            int index = 0;
             do
             {
+                LoggingHandler.LogInfo($"Loop index:{++index}");
+
                 LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenure loading loop");
-                var lastKey = await _getLastHintUseCase.ExecuteAsync().ConfigureAwait(false);
-                Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
-                {
-                    {"id",new AttributeValue{S = lastKey.ToString()}}
-                };
+                /*var lastKey = await _getLastHintUseCase.ExecuteAsync().ConfigureAwait(false);*/
+
                 response = await _tenureGetAllUseCase.ExecuteAsync(lastEvaluatedKey).ConfigureAwait(false);
                 lastEvaluatedKey = response.LastKey;
                 if (response.TenureInformation.Count == 0)
@@ -89,7 +90,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
                 /*await _saveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(),
                     response.TenureInformation.ToXElement()).ConfigureAwait(false);*/
 
-                if (response.LastKey.Count == 0)
+                if (response.LastKey.Count == 0 || index == 5)
                     break;
 
             } while (true);
