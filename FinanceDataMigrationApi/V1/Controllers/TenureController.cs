@@ -71,30 +71,28 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [Route("download-all")]
         public async Task<IActionResult> GetAll()
         {
-            //do
-            //{
-            LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: wwwwwwwww _getLastHintUseCase.ExecuteAsync()");
-            var lastKey = await _getLastHintUseCase.ExecuteAsync().ConfigureAwait(false);
-            Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
+            do
+            {
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenure loading loop");
+                var lastKey = await _getLastHintUseCase.ExecuteAsync().ConfigureAwait(false);
+                Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
                 {
                     {"id",new AttributeValue{S = lastKey.ToString()}}
                 };
-            LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: wwwwwwwww _tenureGetAllUseCase.ExecuteAsync(lastEvaluatedKey)");
-            var response = await _tenureGetAllUseCase.ExecuteAsync(lastEvaluatedKey).ConfigureAwait(false);
-            lastEvaluatedKey = response.LastKey;
-            if (response.TenureInformation.Count == 0)
-                return NotFound("response.TenureInformation.Count == 0");
 
-            LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: wwwwwwwww _saveToSqlUseCase.ExecuteAsync()");
-            await _saveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(),
-                response.TenureInformation.ToXElement()).ConfigureAwait(false);
+                var response = await _tenureGetAllUseCase.ExecuteAsync(lastEvaluatedKey).ConfigureAwait(false);
+                lastEvaluatedKey = response.LastKey;
+                if (response.TenureInformation.Count == 0)
+                    break;
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: Start saving to IFS SQL database");
+                await _saveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(),
+                    response.TenureInformation.ToXElement()).ConfigureAwait(false);
 
-            LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: wwwwwwwww Finish");
-            if (response.LastKey.Count == 0)
-                return NotFound("response.LastKey.Count == 0");
+                if (response.LastKey.Count == 0)
+                    break;
 
-            //} while (true);
-            return Ok("Done");
+            } while (true);
+            return Ok("All tenure downloaded to IFS successfully.");
         }
 
         [HttpGet]
