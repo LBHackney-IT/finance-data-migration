@@ -20,6 +20,8 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
     /// <seealso cref="DbContext" />
     public sealed class DatabaseContext : DbContext
     {
+        private int _loadCount;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.BalanceAmount).HasColumnType("decimal");
@@ -47,7 +49,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public DatabaseContext(DbContextOptions options)
             : base(options)
         {
-
+            _loadCount = Convert.ToInt32(Environment.GetEnvironmentVariable("LOAD_COUNT") ?? "100");
         }
 
         /// <summary>
@@ -103,7 +105,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public async Task<IList<ChargesDbEntity>> GetTransformedChargeListAsync()
             => await this.Set<ChargesDbEntity>()
                 .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
-                .Take(Constants.LoadCount)
+                .Take(_loadCount)
                 .Include(p => p.DetailedChargesDbEntities)
                 .ToListAsync()
                 .ConfigureAwait(false);
@@ -111,7 +113,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public async Task<IList<ChargesDbEntity>> GetLoadedChargeListAsync()
             => await this.Set<ChargesDbEntity>()
                 .Where(x => x.MigrationStatus == EMigrationStatus.Loaded)
-                .Take(Constants.LoadCount)
+                .Take(_loadCount)
                 .Include(p => p.DetailedChargesDbEntities)
                 .ToListAsync()
                 .ConfigureAwait(false);
