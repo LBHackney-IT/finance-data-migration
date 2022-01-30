@@ -58,16 +58,20 @@ namespace FinanceDataMigrationApi.V1.Controllers
             return Ok("Extracted successfully.");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="count">Dynamodb scan limit.</param>
+        /// <returns></returns>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status500InternalServerError)]
         [HttpGet]
-        [Route("load")]
-        public async Task<IActionResult> LoadChargeEntity()
+        [Route("load{count}")]
+        public async Task<IActionResult> LoadChargeEntity(int count)
         {
-
-            var runLoadChargeEntity = await _loadChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
+            var runLoadChargeEntity = await _loadChargeEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
             /*return Ok($"Elapsed time: {DateAndTime.Now.Subtract(startDateTime).TotalSeconds}");*/
             return Ok("Done");
             // var runLoadChargeEntity = await _loadChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);

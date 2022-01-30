@@ -6,11 +6,9 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure.Entities;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure
 {
@@ -20,8 +18,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
     /// <seealso cref="DbContext" />
     public sealed class DatabaseContext : DbContext
     {
-        private int _loadCount;
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.BalanceAmount).HasColumnType("decimal");
@@ -49,7 +45,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public DatabaseContext(DbContextOptions options)
             : base(options)
         {
-            _loadCount = Convert.ToInt32(Environment.GetEnvironmentVariable("LOAD_COUNT") ?? "100");
         }
 
         /// <summary>
@@ -102,18 +97,18 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .ConfigureAwait(false);
         }
 
-        public async Task<IList<ChargesDbEntity>> GetTransformedChargeListAsync()
+        public async Task<IList<ChargesDbEntity>> GetTransformedChargeListAsync(int count)
             => await this.Set<ChargesDbEntity>()
                 .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
-                .Take(_loadCount)
+                .Take(count)
                 .Include(p => p.DetailedChargesDbEntities)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-        public async Task<IList<ChargesDbEntity>> GetLoadedChargeListAsync()
+        public async Task<IList<ChargesDbEntity>> GetLoadedChargeListAsync(int count)
             => await this.Set<ChargesDbEntity>()
                 .Where(x => x.MigrationStatus == EMigrationStatus.Loaded)
-                .Take(_loadCount)
+                .Take(count)
                 .Include(p => p.DetailedChargesDbEntities)
                 .ToListAsync()
                 .ConfigureAwait(false);
