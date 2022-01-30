@@ -207,7 +207,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 Database.SetCommandTimeout(timeout);
             try
             {
-                await Database.BeginTransactionAsync(IsolationLevel.ReadCommitted).ConfigureAwait(false);
+                //await Database.BeginTransactionAsync(IsolationLevel.ReadCommitted).ConfigureAwait(false);
 
                 var parameterReturn = new SqlParameter
                 {
@@ -219,12 +219,12 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 var result = await Database.ExecuteSqlRawAsync(procedureRawString, parameterReturn).ConfigureAwait(false);
 
                 int returnValue = (int) parameterReturn.Value;
-                await Database.CommitTransactionAsync().ConfigureAwait(false);
+                //await Database.CommitTransactionAsync().ConfigureAwait(false);
                 return returnValue;
             }
             catch (Exception exception)
             {
-                await Database.RollbackTransactionAsync().ConfigureAwait(false);
+                //await Database.RollbackTransactionAsync().ConfigureAwait(false);
                 LoggingHandler.LogError($"Executing stores procedure error in: " +
                                         $"{nameof(FinanceDataMigrationApi)}." +
                                         $"{nameof(Handler)}." +
