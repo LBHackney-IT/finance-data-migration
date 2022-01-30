@@ -88,7 +88,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenureGateway");
                 ScanRequest request = new ScanRequest("TenureInformation")
                 {
-                    Limit = 1000,
+                    Limit = Constants.LoadCount,
                     ExclusiveStartKey = lastEvaluatedKey
                 };
                 LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenureGateway starts scan");
