@@ -71,9 +71,11 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [Route("download-all")]
         public async Task<IActionResult> GetAll()
         {
+            int index = 0;
             do
             {
-                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenure loading loop");
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenure loading loop: {++index}");
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: scanlimit : {Constants.LoadCount}");
                 var lastKey = await _getLastHintUseCase.ExecuteAsync().ConfigureAwait(false);
                 Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
                 {
