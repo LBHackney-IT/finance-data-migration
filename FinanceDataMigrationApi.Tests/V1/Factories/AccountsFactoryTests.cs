@@ -246,7 +246,6 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
                         }
                     }
                 }
-               
             };
             #endregion
 
