@@ -16,7 +16,7 @@ namespace FinanceDataMigrationApi.Tests.V1.UseCase.Accounts
         private readonly Fixture _fixture;
         private Mock<IDMRunLogGateway> _dMRunLogGateway;
         private Mock<IDMAccountEntityGateway> _dMAccountEntityGateway;
-        private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
+        //private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
 
         private ExtractAccountEntityUseCase _sut;
 

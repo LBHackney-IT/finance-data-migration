@@ -4,6 +4,7 @@ orbs:
   aws-ecr: circleci/aws-ecr@3.0.0
   aws-cli: circleci/aws-cli@0.1.9
   aws_assume_role: lbh-hackit/aws_assume_role@0.1.0
+  aws-parameter-store: circleci/aws-parameter-store@1.0.0
 
 executors:
   docker-python:
@@ -62,8 +63,6 @@ commands:
     parameters:
       stage:
         type: string
-      aws-account:
-        type: string
     steps:
       - *attach_workspace
       - checkout
@@ -86,9 +85,7 @@ commands:
           name: Deploy lambda
           command: |
             cd ./FinanceDataMigrationApi/
-            sls plugin install --name serverless-step-functions
-            sls deploy --stage <<parameters.stage>> --account <<parameters.aws-account>> --conceal
-
+            sls deploy --stage <<parameters.stage>> --conceal
 jobs:
   check-code-formatting:
     executor: docker-dotnet
@@ -146,19 +143,16 @@ jobs:
     steps:
       - deploy-lambda:
           stage: "development"
-          aws-account: $AWS_ACCOUNT_DEVELOPMENT
   deploy-to-staging:
     executor: docker-dotnet
     steps:
       - deploy-lambda:
           stage: "staging"
-          aws-account: $AWS_ACCOUNT_STAGING
   deploy-to-production:
     executor: docker-dotnet
     steps:
       - deploy-lambda:
           stage: "production"
-          aws-account: $AWS_ACCOUNT_PRODUCTION
 
 workflows:
   check-and-deploy-development:

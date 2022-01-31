@@ -15,9 +15,9 @@ namespace FinanceDataMigrationApi.V1.UseCase
         {
             _tenureGateway = tenureGateway;
         }
-        public async Task<TenurePaginationResponse> ExecuteAsync(Dictionary<string, AttributeValue> lastEvaluatedKey = null)
+        public async Task<TenurePaginationResponse> ExecuteAsync(int count, Dictionary<string, AttributeValue> lastEvaluatedKey = null)
         {
-            return await _tenureGateway.GetAll(lastEvaluatedKey).ConfigureAwait(false);
+            return await _tenureGateway.GetAll(count, lastEvaluatedKey).ConfigureAwait(false);
         }
     }
 }

@@ -8,9 +8,7 @@ provider:
     apiGateway: true
   vpc: ${self:custom.vpc.${opt:stage}}
   stage: ${opt:stage}
-  account: ${opt:account}
   region: eu-west-2
-
 package:
   artifact: ./bin/release/netcoreapp3.1/finance-data-migration-api.zip
 
@@ -24,6 +22,7 @@ functions:
       CONNECTION_STRING: Data Source=${ssm:/housing-finance/${self:provider.stage}/db-host},${ssm:/housing-finance/${self:provider.stage}/db-port};Initial Catalog=${ssm:/housing-finance/${self:provider.stage}/db-database};Integrated Security=False;User Id=${ssm:/housing-finance/${self:provider.stage}/db-username};Password=${ssm:/housing-finance/${self:provider.stage}/db-password};Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;
       WAIT_DURATION: ${ssm:/finance-data-migration/${self:provider.stage}/step-function-wait-duration}
       BATCH_SIZE: ${ssm:/finance-data-migration/${self:provider.stage}/bulk-insert-batch-size}
+      LOAD_COUNT: ${ssm:/finance-data-migration/${self:provider.stage}/scan-limit}
       ACCEPTED_ORIGINS: ${ssm:/finance-data-migration/${self:provider.stage}/cors-accepted-origins}
       FINANCIAL_TRANSACTION_API_URL: ${ssm:/housing-finance/${self:provider.stage}/financial-transaction-api-url}
       FINANCIAL_TRANSACTION_API_TOKEN: ${ssm:/housing-finance/${self:provider.stage}/financial-transaction-api-token}
@@ -40,7 +39,7 @@ functions:
             headers:
               - Content-Type
               - If-Match
-              - X-Amz-Date`
+              - X-Amz-Date
               - Authorization
               - X-Api-Key
               - X-Amz-Security-Token
@@ -251,17 +250,23 @@ resources:
 custom:
   vpc:
     development:
+      securityGroupIds:
+        - sg-0b1844c4c2d5096a2
       subnetIds:
-        - subnet-0deabb5d8fb9c3446
-        - subnet-000b89c249f12a8ad
+        - subnet-0140d06fb84fdb547
+        - subnet-05ce390ba88c42bfd
     staging:
+      securityGroupIds:
+        - sg-00c197e980177983d
       subnetIds:
-        - subnet-06d3de1bd9181b0d7
-        - subnet-0ed7d7713d1127656
+        - subnet-0743d86e9b362fa38
+        - subnet-0ea0020a44b98a2ca
     production:
+      securityGroupIds:
+        - sg-02a377899622e884c
       subnetIds:
-        - subnet-01d3657f97a243261
-        - subnet-0b7b8fea07efabf34
+        - subnet-0beb266003a56ca82
+        - subnet-06a697d86a9b6ed01
 
-plugins:
-  - serverless-step-functions
+#plugins:
+#  - serverless-step-functions

@@ -7,19 +7,19 @@ using Hackney.Shared.Tenure.Domain;
 
 namespace FinanceDataMigrationApi.V1.UseCase
 {
-    public class GetTenureByPrnUseCase : IGetTenureByPrnUseCase
+    public class GetTenureByIdUseCase : IGetTenureByIdUseCase
     {
         private readonly ITenureGateway _gateway;
 
-        public GetTenureByPrnUseCase(ITenureGateway gateway)
+        public GetTenureByIdUseCase(ITenureGateway gateway)
         {
             _gateway = gateway;
         }
-        public async Task<List<TenureInformation>> ExecuteAsync(string prn)
+        public async Task<TenureInformation> ExecuteAsync(Guid id)
         {
-            if (prn == null) throw new ArgumentNullException(nameof(prn));
+            if (id == Guid.Empty) throw new ArgumentException(nameof(id).ToString());
 
-            return await _gateway.GetByPrnAsync(prn).ConfigureAwait(false);
+            return await _gateway.GetByIdAsync(id).ConfigureAwait(false);
         }
     }
 }

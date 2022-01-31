@@ -163,10 +163,13 @@ namespace FinanceDataMigrationApi
         private static void ConfigureDbContext(IServiceCollection services)
         {
             var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-            services.AddDbContext<DatabaseContext>(opt => opt.UseSqlServer(connectionString, sqlOptions =>
+            services.AddDbContext<DatabaseContext>(opt =>
             {
-                sqlOptions.CommandTimeout(360);
-            }));
+                if (connectionString != null)
+                    opt.UseSqlServer(connectionString, sqlOptions => { sqlOptions.CommandTimeout(360); });
+                else
+                    throw new Exception("Sql connection string is not valid.");
+            });
 
             services.AddDbContext<DbAccountsContext>(opt => opt.UseSqlServer(connectionString, sqlOptions =>
             {
@@ -231,12 +234,11 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IExtractTransactionEntityUseCase, ExtractTransactionEntityUseCase>();
             services.AddScoped<ITransformTransactionEntityUseCase, TransformTransactionEntityUseCase>();
             services.AddScoped<ILoadTransactionEntityUseCase, LoadTransactionEntityUseCase>();
+            services.AddScoped<IGetTenureByIdUseCase, GetTenureByIdUseCase>();
 
-            services.AddScoped<IGetTenureByPrnUseCase, GetTenureByPrnUseCase>();
             services.AddScoped<IGetPersonByIdUseCase, GetPersonByIdUseCase>();
             services.AddScoped<IIndexTransactionEntityUseCase, IndexTransactionEntityUseCase>();
             services.AddScoped<IExtractChargeEntityUseCase, ExtractChargeEntityUseCase>();
-            services.AddScoped<ITransformChargeEntityUseCase, TransformChargeEntityUseCase>();
             services.AddScoped<ITransactionBatchInsertUseCase, TransactionBatchInsertUseCase>();
             services.AddScoped<ITenureBatchInsertUseCase, TenureBatchInsertUseCase>();
             services.AddScoped<ITenureGetAllUseCase, TenureGetAllUseCase>();

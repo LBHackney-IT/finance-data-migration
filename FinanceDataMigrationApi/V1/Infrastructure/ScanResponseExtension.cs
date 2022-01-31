@@ -12,25 +12,39 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         {
             foreach (Dictionary<string, AttributeValue> item in response.Items)
             {
+                if (!item.ContainsKey("id"))
+                    throw new Exception(response.ToString());
+
                 yield return new TenureInformation
                 {
                     Id = Guid.Parse(item["id"].S),
+
                     TenuredAsset = item.ContainsKey("tenuredAsset") ? new TenuredAsset()
                     {
-                        FullAddress = item["tenuredAsset"].M["fullAddress"].S
+                        FullAddress = item["tenuredAsset"].M.ContainsKey("fullAddress") ? (item["tenuredAsset"].M["fullAddress"].NULL ? null : item["tenuredAsset"].M["fullAddress"].S) : null
                     } : null,
+
                     TenureType = item.ContainsKey("tenureType") ? new TenureType()
                     {
-                        Code = item["tenureType"].M["code"].S,
-                        Description = item["tenureType"].M["description"].S
+                        Code = item["tenureType"].M.ContainsKey("code") ? (item["tenureType"].M["code"].NULL ? null : item["tenureType"].M["code"].S) : null,
+                        Description = item["tenureType"].M.ContainsKey("description") ? (item["tenureType"].M["description"].NULL ? null : item["tenureType"].M["description"].S) : null
                     } : null,
-                    PaymentReference = item.ContainsKey("paymentReference") ? item["paymentReference"].S : null,
-                    HouseholdMembers = item.ContainsKey("householdMembers") ? item["householdMembers"].L.ToArray().Select(m =>
+
+                    Terminated = item.ContainsKey("terminated") ? new Terminated()
+                    {
+                        IsTerminated = item["terminated"].M.ContainsKey("isTerminated") && (item["terminated"].M["isTerminated"].NULL ? false : item["terminated"].M["isTerminated"].BOOL),
+                        ReasonForTermination = item["terminated"].M.ContainsKey("reasonForTermination") ? (item["terminated"].M["reasonForTermination"].NULL ? null : item["terminated"].M["reasonForTermination"].S.Trim()) : null
+                    } : null,
+
+                    PaymentReference = item.ContainsKey("paymentReference") ? (item["paymentReference"].NULL ? null : item["paymentReference"].S) : null,
+                    HouseholdMembers = item.ContainsKey("householdMembers") ?
+                        item["householdMembers"].NULL ? null :
+                        item["householdMembers"].L.Select(m =>
                            new HouseholdMembers
                            {
-                               Id = Guid.Parse(m.M["id"].S),
-                               FullName = m.M["fullName"].S,
-                               IsResponsible = m.M["isResponsible"].BOOL
+                               Id = m.M["id"].NULL ? Guid.Empty : Guid.Parse(m.M["id"].S),
+                               FullName = m.M.ContainsKey("fullName") ? (m.M["fullName"].NULL ? null : m.M["fullName"].S) : null,
+                               IsResponsible = m.M.ContainsKey("isResponsible") && (m.M["isResponsible"].NULL ? false : m.M["isResponsible"].BOOL)
                            }) : null
                 };
             }

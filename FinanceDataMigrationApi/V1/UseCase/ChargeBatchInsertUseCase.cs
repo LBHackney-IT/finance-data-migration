@@ -15,9 +15,9 @@ namespace FinanceDataMigrationApi.V1.UseCase
             _gateway = gateway;
         }
 
-        public async Task<bool> ExecuteAsync(List<Charge> charges)
+        public async Task ExecuteAsync(List<Charge> charges)
         {
-            return await _gateway.BatchInsert(charges).ConfigureAwait(false);
+            await _gateway.BatchInsert(charges).ConfigureAwait(false);
         }
     }
 }

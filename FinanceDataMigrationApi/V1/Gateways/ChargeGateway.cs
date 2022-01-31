@@ -4,13 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
-using EFCore.BulkExtensions;
+using AutoMapper.Internal;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
-using Microsoft.EntityFrameworkCore;
+using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceDataMigrationApi.V1.Gateways
@@ -20,8 +20,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
         private readonly DatabaseContext _context;
         private readonly IAmazonDynamoDB _amazonDynamoDb;
         private readonly ILogger<IChargeGateway> _logger;
-
-        private readonly int _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE"));
 
         public ChargeGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb, ILogger<IChargeGateway> logger)
         {
@@ -37,61 +35,24 @@ namespace FinanceDataMigrationApi.V1.Gateways
         /// <returns>number of records extracted</returns>
         public async Task<int> ExtractAsync(DateTimeOffset? processingDate)
         {
+            if (processingDate == null) throw new ArgumentNullException(nameof(processingDate));
             return await _context.ExtractDMChargesAsync().ConfigureAwait(false);
         }
 
-
-        public async Task<List<DMDetailedChargesEntity>> GetDetailChargesListAsync(string paymentReference)
+        public async Task<IList<Charge>> GetTransformedListAsync(int count)
         {
-            return await _context.GetDetailChargesListAsync(paymentReference).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// List Charge entities to migrate
-        /// </summary>
-        /// <returns>List of Charge</returns>
-        public async Task<IList<DMChargeEntityDomain>> ListAsync()
-        {
-            var results = await _context.DMChargeEntities
-                .Where(x => x.IsTransformed == false)
-                .ToListAsync()
-                .ConfigureAwait(false);
-
+            var results = await _context.GetTransformedChargeListAsync(count).ConfigureAwait(false);
+            results.ToList().ForEach(p => p.MigrationStatus = EMigrationStatus.Loading);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomain();
         }
 
-        public async Task UpdateDMChargeEntityItems(IList<DMChargeEntityDomain> dMChargeEntityDomainItems)
-        {
-            await _context
-                .BulkUpdateAsync(dMChargeEntityDomainItems.ToDatabase(), new BulkConfig { BatchSize = _batchSize })
-                .ConfigureAwait(false);
-        }
-
-        public async Task<IList<DMChargeEntityDomain>> GetTransformedListAsync()
-        {
-            var results = await _context.GetTransformedChargeListAsync().ConfigureAwait(false);
-            return results.ToDomain();
-        }
-
-        public async Task<IList<DMChargeEntityDomain>> GetLoadedListAsync()
-        {
-            var results = await _context.GetLoadedChargeListAsync().ConfigureAwait(false);
-            return results.ToDomain();
-        }
-
-        public async Task<int> AddChargeAsync(DMChargeEntityDomain dmEntity)
-        {
-            await Task.Delay(0).ConfigureAwait(false);
-            return -1;
-        }
-
-        public async Task<bool> BatchInsert(List<Charge> charges)
+        public async Task BatchInsert(List<Charge> charges)
         {
             List<TransactWriteItem> actions = new List<TransactWriteItem>();
             foreach (Charge charge in charges)
             {
-                Dictionary<string, AttributeValue> columns = new Dictionary<string, AttributeValue>();
-                columns = charge.ToQueryRequest();
+                var columns = charge.ToQueryRequest();
 
                 actions.Add(new TransactWriteItem
                 {
@@ -100,7 +61,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
                         TableName = "Charges",
                         Item = columns,
                         ReturnValuesOnConditionCheckFailure = ReturnValuesOnConditionCheckFailure.ALL_OLD,
-                        ConditionExpression = "attribute_not_exists(id)"
+                        ConditionExpression = "attribute_not_exists(target_id)"
                     }
                 });
             }
@@ -111,9 +72,24 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 ReturnConsumedCapacity = ReturnConsumedCapacity.TOTAL
             };
 
-            await _amazonDynamoDb.TransactWriteItemsAsync(placeOrderCharge).ConfigureAwait(false);
-
-            return true;
+            try
+            {
+                // how to check duplicated record to change status to loaded
+                await _amazonDynamoDb.TransactWriteItemsAsync(placeOrderCharge).ConfigureAwait(false);
+                _context.ChargesDbEntities.Where(p =>
+                    charges.Select(i => i.Id).Contains(p.Id)).
+                    ForAll(p => p.MigrationStatus = EMigrationStatus.Loaded);
+                await _context.SaveChangesAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                LoggingHandler.LogError($"TransactWriteItemsAsync: {ex.Message}");
+                _context.ChargesDbEntities.Where(p =>
+                        charges.Select(i => i.Id).Contains(p.Id)).
+                    ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
+                await _context.SaveChangesAsync().ConfigureAwait(false);
+                throw;
+            }
         }
     }
 }

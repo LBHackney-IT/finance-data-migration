@@ -16,7 +16,8 @@ namespace FinanceDataMigrationApi.V1.Gateways
     {
         private readonly DatabaseContext _context;
 
-        private readonly int _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE"));
+        private readonly int _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE")
+            );
 
         public DMTransactionEntityGateway(DatabaseContext context)
         {

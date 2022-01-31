@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Amazon.DynamoDBv2.Model;
 using AutoFixture;
 using FinanceDataMigrationApi.V1.Factories;
+using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 using Hackney.Shared.Tenure.Domain;
 using Microsoft.VisualBasic;
@@ -18,48 +19,45 @@ namespace FinanceDataMigrationApi.V1.Controllers
     [ApiVersion("1.0")]
     public class TenureController : BaseController
     {
-        private readonly IGetTenureByPrnUseCase _tenureByPrnUseCase;
-        private readonly ITenureBatchInsertUseCase _batchInsertUseCase;
-        private readonly ITenureGetAllUseCase _tenureGetAllUseCase;
-        private readonly ITenureSaveToSqlUseCase _saveToSqlUseCase;
-        private readonly ITenureGetLastHintUseCase _getLastHintUseCase;
+        readonly int _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE") ?? "25");
+        readonly IGetTenureByIdUseCase _tenureByIdUseCase;
+        readonly ITenureBatchInsertUseCase _batchInsertUseCase;
+        readonly ITenureGetAllUseCase _tenureGetAllUseCase;
+        readonly ITenureSaveToSqlUseCase _saveToSqlUseCase;
+        readonly ITenureGetLastHintUseCase _getLastHintUseCase;
 
-        public TenureController(IGetTenureByPrnUseCase tenureByPrnUseCase
+        public TenureController(IGetTenureByIdUseCase tenureByIdUseCase
             , ITenureBatchInsertUseCase batchInsertUseCase
             , ITenureGetAllUseCase tenureGetAllUseCase
             , ITenureSaveToSqlUseCase saveToSqlUseCase
             , ITenureGetLastHintUseCase getLastHintUseCase)
         {
-            _tenureByPrnUseCase = tenureByPrnUseCase;
+            _tenureByIdUseCase = tenureByIdUseCase;
             _batchInsertUseCase = batchInsertUseCase;
             _tenureGetAllUseCase = tenureGetAllUseCase;
             _saveToSqlUseCase = saveToSqlUseCase;
             _getLastHintUseCase = getLastHintUseCase;
         }
 
-        [HttpGet("{prn}")]
-        public async Task<IActionResult> Get(string prn)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(Guid id)
         {
-            if (prn == null)
-                return BadRequest($"{nameof(prn)} shouldn't be null.");
-            if (string.IsNullOrEmpty(prn))
-                return BadRequest($"{nameof(prn)} cannot be null or empty.");
-            if (string.IsNullOrWhiteSpace(prn))
-                return BadRequest($"{nameof(prn)} cannot be null or whitespace.");
+            if (id == Guid.Empty)
+                return BadRequest($"{nameof(id)} shouldn't be empty.");
 
-            var result = await _tenureByPrnUseCase.ExecuteAsync(prn).ConfigureAwait(false);
-            if (result.Count == 0)
-                return NotFound(prn);
+            var result = await _tenureByIdUseCase.ExecuteAsync(id).ConfigureAwait(false);
+            if (result == null)
+                return NotFound(id);
 
             return Ok(result);
         }
 
         [Route("dummy-async")]
         [HttpPost]
-        public async Task<IActionResult> DummyBatchInsertAsync(int count)
+        public async Task<IActionResult> DummyBatchInsertAsync([FromQuery] int count)
         {
             List<Task> tasks = new List<Task>();
-            for (int i = 0; i < count / 25; i++)
+            for (int i = 0; i < count / _batchSize; i++)
             {
                 Fixture fixture = new Fixture();
                 List<TenureInformation> transactions = fixture.CreateMany<TenureInformation>(25).ToList();
@@ -70,37 +68,65 @@ namespace FinanceDataMigrationApi.V1.Controllers
             return Ok($"Elapsed time: {DateAndTime.Now.Subtract(startDateTime).TotalSeconds}");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="count">DynamoDb scan limit</param>
+        /// <returns></returns>
         [HttpGet]
         [Route("download-all")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] int count = 940)
         {
+            int index = 0;
             do
             {
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenure loading loop: {++index}");
                 var lastKey = await _getLastHintUseCase.ExecuteAsync().ConfigureAwait(false);
                 Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
                 {
                     {"id",new AttributeValue{S = lastKey.ToString()}}
                 };
-                var response = await _tenureGetAllUseCase.ExecuteAsync(lastEvaluatedKey).ConfigureAwait(false);
+
+                var response = await _tenureGetAllUseCase.ExecuteAsync(count, lastEvaluatedKey).ConfigureAwait(false);
                 lastEvaluatedKey = response.LastKey;
                 if (response.TenureInformation.Count == 0)
                     break;
+
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: " +
+                    $"Last ID:{response.TenureInformation.Last().Id}");
+
                 await _saveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(),
                     response.TenureInformation.ToXElement()).ConfigureAwait(false);
 
                 if (response.LastKey.Count == 0)
                     break;
 
+                System.Threading.Thread.Sleep(5000);
+
             } while (true);
-            return Ok("Done");
+            return Ok("All tenure downloaded to IFS successfully.");
         }
 
         [HttpGet]
-        [Route("test-all")]
-        public async Task<IActionResult> TestAll()
+        [Route("download-bunch")]
+        public async Task<IActionResult> GetBunch([FromQuery] int count = 940)
         {
-            var response = await _tenureGetAllUseCase.ExecuteAsync(null).ConfigureAwait(false);
-            return Ok(response);
+            var lastKey = await _getLastHintUseCase.ExecuteAsync().ConfigureAwait(false);
+            Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
+                {
+                    {"id",new AttributeValue{S = lastKey.ToString()}}
+                };
+
+            var response = await _tenureGetAllUseCase.ExecuteAsync(count, lastEvaluatedKey).ConfigureAwait(false);
+            lastEvaluatedKey = response.LastKey;
+
+            LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetBunch)}: " +
+                $"Last ID:{response.TenureInformation.Last().Id}");
+
+            await _saveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(),
+                response.TenureInformation.ToXElement()).ConfigureAwait(false);
+
+            return Ok("All tenure downloaded to IFS successfully.");
         }
     }
 }

@@ -1,3 +1,5 @@
+using System;
+
 namespace FinanceDataMigrationApi.V1
 {
     public static class Constants

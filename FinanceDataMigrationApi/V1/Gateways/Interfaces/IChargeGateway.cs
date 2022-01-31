@@ -8,20 +8,21 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
 {
     public interface IChargeGateway
     {
-        Task<IList<DMChargeEntityDomain>> ListAsync();
 
+        /*        Task<IList<DMChargeEntityDomain>> ListAsync();
+
+
+                Task<List<DmDetailedChargesEntity>> GetDetailChargesListAsync(string paymentReference);
+
+                Task UpdateDMChargeEntityItems(IList<DMChargeEntityDomain> dMChargeEntityDomainItems);
+
+
+                Task<IList<DMChargeEntityDomain>> GetLoadedListAsync();
+
+                Task<int> AddChargeAsync(DMChargeEntityDomain dmEntity);*/
         Task<int> ExtractAsync(DateTimeOffset? processingDate);
+        Task<IList<Charge>> GetTransformedListAsync(int count);
 
-        Task<List<DMDetailedChargesEntity>> GetDetailChargesListAsync(string paymentReference);
-
-        Task UpdateDMChargeEntityItems(IList<DMChargeEntityDomain> dMChargeEntityDomainItems);
-
-        Task<IList<DMChargeEntityDomain>> GetTransformedListAsync();
-
-        Task<IList<DMChargeEntityDomain>> GetLoadedListAsync();
-
-        Task<int> AddChargeAsync(DMChargeEntityDomain dmEntity);
-
-        Task<bool> BatchInsert(List<Charge> charges);
+        Task BatchInsert(List<Charge> charges);
     }
 }
