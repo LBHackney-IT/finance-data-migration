@@ -14,7 +14,7 @@ namespace FinanceDataMigrationApi.V1.UseCase
 {
     public class LoadChargeEntityUseCase : ILoadChargeEntityUseCase
     {
-        readonly int _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE") ?? "25");
+        readonly int _batchSize = 25;// Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE") ?? "25");
         private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IChargeGateway _dMChargeGateway;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
@@ -58,7 +58,7 @@ namespace FinanceDataMigrationApi.V1.UseCase
                     LoggingHandler.LogInfo($"No records to {DataMigrationTask} for {DMEntityNames.Charges} Entity");
                 }
 
-                LoggingHandler.LogInfo($"End of {DataMigrationTask} task for {DMEntityNames.Transactions} Entity");
+                LoggingHandler.LogInfo($"End of {DataMigrationTask} task for {DMEntityNames.Charges} Entity");
 
                 return new StepResponse()
                 {
