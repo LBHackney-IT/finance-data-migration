@@ -30,40 +30,50 @@ namespace FinanceDataMigrationApi.V1.UseCase
 
         public async Task<StepResponse> ExecuteAsync(int count)
         {
-            LoggingHandler.LogInfo($"charge load");
-            var transformedList = await _dMChargeGateway.GetTransformedListAsync(count).ConfigureAwait(false);
-            LoggingHandler.LogInfo($"charge load record count: {transformedList.Count}");
-
-            if (transformedList.Any())
+            try
             {
-                LoggingHandler.LogInfo($"charge load batch size: {_batchSize}");
+                LoggingHandler.LogInfo($"charge load");
+                var transformedList = await _dMChargeGateway.GetTransformedListAsync(count).ConfigureAwait(false);
+                LoggingHandler.LogInfo($"charge load record count: {transformedList.Count}");
 
-                List<Task> tasks = new List<Task>();
-                for (int i = 0; i < transformedList.Count / _batchSize; i++)
+                if (transformedList.Any())
                 {
-                    /*await _dMChargeGateway.BatchInsert(transformedList.Skip(i * 25).Take(25).ToList())
-                        .ConfigureAwait(false)*/
-                    tasks.Add(_dMChargeGateway.BatchInsert(transformedList.Skip(i * _batchSize).Take(_batchSize).ToList()));
-                    LoggingHandler.LogInfo($"charge load index: {i}");
+                    LoggingHandler.LogInfo($"charge load batch size: {_batchSize}");
+
+                    List<Task> tasks = new List<Task>();
+                    for (int i = 0; i < transformedList.Count / _batchSize; i++)
+                    {
+                        /*await _dMChargeGateway.BatchInsert(transformedList.Skip(i * 25).Take(25).ToList())
+                            .ConfigureAwait(false)*/
+                        tasks.Add(_dMChargeGateway.BatchInsert(transformedList.OrderBy(P => P.Id).Skip(i * _batchSize).Take(_batchSize).ToList()));
+                        LoggingHandler.LogInfo($"charge load index: {i}");
+                    }
+                    DateTime startDateTime = DateTime.Now;
+                    await Task.WhenAll(tasks).ConfigureAwait(false);
+
                 }
-                DateTime startDateTime = DateTime.Now;
-                await Task.WhenAll(tasks).ConfigureAwait(false);
 
+                if (!transformedList.Any())
+                {
+                    LoggingHandler.LogInfo($"No records to {DataMigrationTask} for {DMEntityNames.Charges} Entity");
+                }
+
+                LoggingHandler.LogInfo($"End of {DataMigrationTask} task for {DMEntityNames.Transactions} Entity");
+
+                return new StepResponse()
+                {
+                    Continue = true,
+                    NextStepTime = DateTime.Now.AddSeconds(int.Parse(_waitDuration))
+                };
             }
-
-            if (!transformedList.Any())
+            catch (Exception ex)
             {
-                LoggingHandler.LogInfo($"No records to {DataMigrationTask} for {DMEntityNames.Charges} Entity");
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}" +
+                    $".{nameof(Handler)}" +
+                    $".{nameof(ExecuteAsync)}" +
+                    $" load charge exception: {ex.Message}");
+                throw;
             }
-
-            LoggingHandler.LogInfo($"End of {DataMigrationTask} task for {DMEntityNames.Transactions} Entity");
-
-            return new StepResponse()
-            {
-                Continue = true,
-                NextStepTime = DateTime.Now.AddSeconds(int.Parse(_waitDuration))
-            };
-
         }
 
         private async Task<DMRunLogDomain> UpdateLoadInProcessStatusForDmRunLogDomain()
