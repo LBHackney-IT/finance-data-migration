@@ -27,7 +27,7 @@ namespace FinanceDataMigrationApi
 
         public Handler()
         {
-            DbContextOptionsBuilder optionsBuilder = new DbContextOptionsBuilder();
+            DbContextOptionsBuilder<DatabaseContext> optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
             var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
             if (connectionString != null)
                 optionsBuilder.UseSqlServer(connectionString);
