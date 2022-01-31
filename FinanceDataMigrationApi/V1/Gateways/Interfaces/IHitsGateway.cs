@@ -5,6 +5,6 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
 {
     public interface IHitsGateway
     {
-        public Task<Guid> GetLastHint();
+        public Task<Guid> GetLastHint(string tableName);
     }
 }

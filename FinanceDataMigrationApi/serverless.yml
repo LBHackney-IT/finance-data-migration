@@ -51,7 +51,7 @@ functions:
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::DownloadTenureToIfs
     role: lambdaExecutionRole
     events:
-      - schedule: cron(0/5 * * * ? *)
+      - schedule: cron(15 20 * * ? *)
   loadCharge:
     name: ${self:service}-${self:provider.stage}-load-charge
     description: "The scheduler to load charge data for migration of charge entity. Run at 12:15 AM"

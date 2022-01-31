@@ -13,9 +13,9 @@ namespace FinanceDataMigrationApi.V1.UseCase
         {
             _gateway = gateway;
         }
-        public async Task<Guid> ExecuteAsync()
+        public async Task<Guid> ExecuteAsync(string tableName)
         {
-            return await _gateway.GetLastHint().ConfigureAwait(false);
+            return await _gateway.GetLastHint(tableName).ConfigureAwait(false);
         }
     }
 }

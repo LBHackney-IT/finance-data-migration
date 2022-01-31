@@ -14,8 +14,6 @@ using FinanceDataMigrationApi.V1.Infrastructure;
 using Hackney.Shared.Tenure.Domain;
 using Hackney.Shared.Tenure.Factories;
 using Hackney.Shared.Tenure.Infrastructure;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {

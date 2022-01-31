@@ -1,6 +1,7 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Boundary.Response;
-using FinanceDataMigrationApi.V1.Boundary.Response.MetaData;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 
@@ -14,9 +15,10 @@ namespace FinanceDataMigrationApi.V1.UseCase
         {
             _gateway = gateway;
         }
-        public Task<APIResponse<GetAssetListResponse>> ExecuteAsync(string lastHintStr)
+
+        public async Task<AssetPaginationResponse> ExecuteAsync(int count, Dictionary<string, AttributeValue> lastEvaluatedKey)
         {
-            return _gateway.DownloadAsync(lastHintStr);
+            return await _gateway.GetAll(count, lastEvaluatedKey).ConfigureAwait(false);
         }
     }
 }

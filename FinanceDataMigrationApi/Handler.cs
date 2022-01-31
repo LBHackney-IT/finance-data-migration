@@ -29,10 +29,11 @@ namespace FinanceDataMigrationApi
 
         readonly ILoadChargeEntityUseCase _loadChargeEntityUseCase;
         readonly IExtractChargeEntityUseCase _extractChargeEntityUseCase;
-        readonly ITenureBatchInsertUseCase _tenureBatchInsertUseCase;
         readonly IGetLastHintUseCase _getLastHintUseCase;
         readonly ITenureGetAllUseCase _tenureGetAllUseCase;
         readonly ITenureSaveToSqlUseCase _tenureSaveToSqlUseCase;
+        readonly IAssetGetAllUseCase _assetGetAllUseCase;
+        readonly IAssetSaveToSqlUseCase _assetSaveToSqlUseCase;
         /// <summary>
         /// Waiting time for next run, in second
         /// </summary>
@@ -80,14 +81,16 @@ namespace FinanceDataMigrationApi
             IDynamoDBContext dynamoDbContext = new DynamoDBContext(amazonDynamoDb);
             IChargeGateway chargeGateway = new ChargeGateway(context, amazonDynamoDb);
             ITenureGateway tenureGateway = new TenureGateway(context, amazonDynamoDb, dynamoDbContext);
+            IAssetGateway assetGateway = new AssetGateway(context, amazonDynamoDb);
             IHitsGateway hitsGateway = new HitsGateway(context);
 
             _getLastHintUseCase = new GetLastHintUseCase(hitsGateway);
             _loadChargeEntityUseCase = new LoadChargeEntityUseCase(migrationRunGateway, chargeGateway);
             _extractChargeEntityUseCase = new ExtractChargeEntityUseCase(migrationRunGateway, chargeGateway);
-            _tenureBatchInsertUseCase = new TenureBatchInsertUseCase(tenureGateway);
             _tenureGetAllUseCase = new TenureGetAllUseCase(tenureGateway);
             _tenureSaveToSqlUseCase = new TenureSaveToSqlUseCase(tenureGateway);
+            _assetGetAllUseCase = new AssetGetAllUseCase(assetGateway);
+            _assetSaveToSqlUseCase = new AssetSaveToSqlUseCase(assetGateway);
         }
 
         /*public async Task<StepResponse> ExtractTransactions()
@@ -117,7 +120,7 @@ namespace FinanceDataMigrationApi
 
         public async Task<StepResponse> DownloadTenureToIfs(int count)
         {
-            var lastKey = await _getLastHintUseCase.ExecuteAsync().ConfigureAwait(false);
+            var lastKey = await _getLastHintUseCase.ExecuteAsync("tenure").ConfigureAwait(false);
             Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
                 {
                     {"id",new AttributeValue{S = lastKey.ToString()}}
@@ -130,6 +133,32 @@ namespace FinanceDataMigrationApi
 
             await _tenureSaveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(),
                 response.TenureInformation.ToXElement()).ConfigureAwait(false);
+
+            if (response.LastKey.Count == 0)
+                return new StepResponse() { Continue = false };
+
+            return new StepResponse()
+            {
+                Continue = true,
+                NextStepTime = DateTime.Now.AddSeconds(_waitDuration)
+            };
+        }
+
+        public async Task<StepResponse> DownloadAssetToIfs(int count)
+        {
+            var lastKey = await _getLastHintUseCase.ExecuteAsync("asset").ConfigureAwait(false);
+            Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
+            {
+                {"id",new AttributeValue{S = lastKey.ToString()}}
+            };
+
+            var response = await _assetGetAllUseCase.ExecuteAsync(count, lastEvaluatedKey).ConfigureAwait(false);
+            lastEvaluatedKey = response.LastKey;
+            if (response.Assets.Count == 0)
+                return new StepResponse() { Continue = false };
+
+            await _assetSaveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(),
+                response.Assets.ToXElement()).ConfigureAwait(false);
 
             if (response.LastKey.Count == 0)
                 return new StepResponse() { Continue = false };

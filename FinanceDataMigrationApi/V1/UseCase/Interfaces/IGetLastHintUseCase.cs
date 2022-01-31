@@ -5,6 +5,6 @@ namespace FinanceDataMigrationApi.V1.UseCase.Interfaces
 {
     public interface IGetLastHintUseCase
     {
-        public Task<Guid> ExecuteAsync();
+        public Task<Guid> ExecuteAsync(string tableName);
     }
 }

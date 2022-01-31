@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Amazon.DynamoDBv2.Model;
+using Hackney.Shared.HousingSearch.Domain.Asset;
 using Hackney.Shared.Tenure.Domain;
+using TenuredAsset = Hackney.Shared.Tenure.Domain.TenuredAsset;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure
 {
@@ -12,9 +14,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         {
             foreach (Dictionary<string, AttributeValue> item in response.Items)
             {
-                if (!item.ContainsKey("id"))
-                    throw new Exception(response.ToString());
-
                 yield return new TenureInformation
                 {
                     Id = Guid.Parse(item["id"].S),
@@ -44,8 +43,26 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                            {
                                Id = m.M["id"].NULL ? Guid.Empty : Guid.Parse(m.M["id"].S),
                                FullName = m.M.ContainsKey("fullName") ? (m.M["fullName"].NULL ? null : m.M["fullName"].S) : null,
-                               IsResponsible = m.M.ContainsKey("isResponsible") && (m.M["isResponsible"].NULL ? false : m.M["isResponsible"].BOOL)
+                               IsResponsible = m.M.ContainsKey("isResponsible") && (!m.M["isResponsible"].NULL && m.M["isResponsible"].BOOL)
                            }) : null
+                };
+            }
+        }
+
+        public static IEnumerable<Asset> ToAssets(this ScanResponse response)
+        {
+            foreach (Dictionary<string, AttributeValue> item in response.Items)
+            {
+                yield return new Asset
+                {
+                    Id = item["id"].S,
+                    AssetId = item.ContainsKey("assetId") ? (item["assetId"].NULL ? null : item["assetId"].S) : null,
+                    AssetType = item.ContainsKey("assetType") ? (item["assetType"].NULL ? null : item["assetType"].S) : null,
+                    Tenure = item.ContainsKey("tenure") ? new Tenure()
+                    {
+                        Id = item["tenure"].M.ContainsKey("id") ? (item["tenure"].M["id"].NULL ? null : item["tenure"].M["id"].S) : null,
+                        PaymentReference = item["tenure"].M.ContainsKey("paymentReference") ? (item["tenure"].M["paymentReference"].NULL ? null : item["tenure"].M["paymentReference"].S) : null,
+                    } : null
                 };
             }
         }
