@@ -72,14 +72,44 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 ReturnConsumedCapacity = ReturnConsumedCapacity.TOTAL
             };
 
+
             try
             {
                 // how to check duplicated record to change status to loaded
                 await _amazonDynamoDb.TransactWriteItemsAsync(placeOrderCharge).ConfigureAwait(false);
+
                 _context.ChargesDbEntities.Where(p =>
                     charges.Select(i => i.Id).Contains(p.Id)).
                     ForAll(p => p.MigrationStatus = EMigrationStatus.Loaded);
                 await _context.SaveChangesAsync().ConfigureAwait(false);
+
+            }
+            catch (ResourceNotFoundException rnf)
+            {
+                _logger.LogError($"One of the table involved in the account is not found: {rnf.Message}");
+                _context.ChargesDbEntities.Where(p =>
+                        charges.Select(i => i.Id).Contains(p.Id)).
+                    ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
+                await _context.SaveChangesAsync().ConfigureAwait(false);
+                throw;
+            }
+            catch (InternalServerErrorException ise)
+            {
+                _logger.LogError($"Internal Server Error: {ise.Message}");
+                _context.ChargesDbEntities.Where(p =>
+                        charges.Select(i => i.Id).Contains(p.Id)).
+                    ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
+                await _context.SaveChangesAsync().ConfigureAwait(false);
+                throw;
+            }
+            catch (TransactionCanceledException tce)
+            {
+                _logger.LogError($"Transaction Canceled: {tce.Message}");
+                _context.ChargesDbEntities.Where(p =>
+                        charges.Select(i => i.Id).Contains(p.Id)).
+                    ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
+                await _context.SaveChangesAsync().ConfigureAwait(false);
+                throw;
             }
             catch (Exception ex)
             {
