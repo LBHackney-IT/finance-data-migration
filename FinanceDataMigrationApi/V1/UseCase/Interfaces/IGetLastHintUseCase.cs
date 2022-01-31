@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.UseCase.Interfaces
 {
-    public interface ITenureGetLastHintUseCase
+    public interface IGetLastHintUseCase
     {
         public Task<Guid> ExecuteAsync();
     }

@@ -204,7 +204,7 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IAssetSaveToSqlUseCase, AssetSaveToSqlUseCase>();
             services.AddScoped<IAssetGetLastHintUseCase, AssetGetLastHintUseCase>();
             services.AddScoped<ITenureSaveToSqlUseCase, TenureSaveToSqlUseCase>();
-            services.AddScoped<ITenureGetLastHintUseCase, TenureGetLastHintUseCase>();
+            services.AddScoped<IGetLastHintUseCase, GetLastHintUseCase>();
             services.AddScoped<IChargeBatchInsertUseCase, ChargeBatchInsertUseCase>();
             services.AddScoped<ILoadChargeEntityUseCase, LoadChargeEntityUseCase>();
         }

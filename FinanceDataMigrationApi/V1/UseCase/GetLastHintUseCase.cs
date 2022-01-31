@@ -5,11 +5,11 @@ using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 
 namespace FinanceDataMigrationApi.V1.UseCase
 {
-    public class TenureGetLastHintUseCase : ITenureGetLastHintUseCase
+    public class GetLastHintUseCase : IGetLastHintUseCase
     {
-        private readonly ITenureGateway _gateway;
+        private readonly IHitsGateway _gateway;
 
-        public TenureGetLastHintUseCase(ITenureGateway gateway)
+        public GetLastHintUseCase(IHitsGateway gateway)
         {
             _gateway = gateway;
         }

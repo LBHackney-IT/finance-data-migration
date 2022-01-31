@@ -24,13 +24,13 @@ namespace FinanceDataMigrationApi.V1.Controllers
         readonly ITenureBatchInsertUseCase _batchInsertUseCase;
         readonly ITenureGetAllUseCase _tenureGetAllUseCase;
         readonly ITenureSaveToSqlUseCase _saveToSqlUseCase;
-        readonly ITenureGetLastHintUseCase _getLastHintUseCase;
+        readonly IGetLastHintUseCase _getLastHintUseCase;
 
         public TenureController(IGetTenureByIdUseCase tenureByIdUseCase
             , ITenureBatchInsertUseCase batchInsertUseCase
             , ITenureGetAllUseCase tenureGetAllUseCase
             , ITenureSaveToSqlUseCase saveToSqlUseCase
-            , ITenureGetLastHintUseCase getLastHintUseCase)
+            , IGetLastHintUseCase getLastHintUseCase)
         {
             _tenureByIdUseCase = tenureByIdUseCase;
             _batchInsertUseCase = batchInsertUseCase;
