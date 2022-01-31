@@ -1,11 +1,8 @@
 service: finance-data-migration-api
 provider:
   name: aws
+  timeout: 300
   runtime: dotnetcore3.1
-  memorySize: 2048
-  tracing:
-    lambda: true
-    apiGateway: true
   vpc: ${self:custom.vpc.${opt:stage}}
   stage: ${opt:stage}
   region: eu-west-2
@@ -46,11 +43,11 @@ functions:
               - X-Amz-User-Agent
               - x-correlation-id
             allowCredentials: false
-  extractTransactions:
-    name: ${self:service}-${self:provider.stage}-extract-transactions
-    description: "The scheduler to extract source data for migration of Transaction entity. Run at 12:15 AM"
+  loadCharge:
+    name: ${self:service}-${self:provider.stage}-load-charge
+    description: "The scheduler to load charge data for migration of charge entity. Run at 12:15 AM"
     timeout: 900
-    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::ExtractTransactions
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::LoadCharge
     role: lambdaExecutionRole
     events:
         - schedule: cron(15 0 * * ? *)   

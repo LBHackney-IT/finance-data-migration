@@ -19,13 +19,11 @@ namespace FinanceDataMigrationApi.V1.Gateways
     {
         private readonly DatabaseContext _context;
         private readonly IAmazonDynamoDB _amazonDynamoDb;
-        private readonly ILogger<IChargeGateway> _logger;
 
-        public ChargeGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb, ILogger<IChargeGateway> logger)
+        public ChargeGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb)
         {
             _context = context;
             _amazonDynamoDb = amazonDynamoDb;
-            _logger = logger;
         }
 
         /// <summary>
@@ -72,10 +70,8 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 ReturnConsumedCapacity = ReturnConsumedCapacity.TOTAL
             };
 
-
             try
             {
-                // how to check duplicated record to change status to loaded
                 await _amazonDynamoDb.TransactWriteItemsAsync(placeOrderCharge).ConfigureAwait(false);
 
                 _context.ChargesDbEntities.Where(p =>
@@ -86,7 +82,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             }
             catch (ResourceNotFoundException rnf)
             {
-                _logger.LogError($"One of the table involved in the account is not found: {rnf.Message}");
+                LoggingHandler.LogError($"One of the table involved in the account is not found: {rnf.Message}");
                 _context.ChargesDbEntities.Where(p =>
                         charges.Select(i => i.Id).Contains(p.Id)).
                     ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
@@ -95,7 +91,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             }
             catch (InternalServerErrorException ise)
             {
-                _logger.LogError($"Internal Server Error: {ise.Message}");
+                LoggingHandler.LogError($"Internal Server Error: {ise.Message}");
                 _context.ChargesDbEntities.Where(p =>
                         charges.Select(i => i.Id).Contains(p.Id)).
                     ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
@@ -104,7 +100,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             }
             catch (TransactionCanceledException tce)
             {
-                _logger.LogError($"Transaction Canceled: {tce.Message}");
+                LoggingHandler.LogError($"Transaction Canceled: {tce.Message}");
                 _context.ChargesDbEntities.Where(p =>
                         charges.Select(i => i.Id).Contains(p.Id)).
                     ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
