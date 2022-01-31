@@ -9,8 +9,6 @@ using System.Xml.Linq;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure.Entities;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
-using FinanceDataMigrationApi.V1.Infrastructure;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure
 {
@@ -22,15 +20,21 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.BalanceAmount).HasColumnType("decimal");
+            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.ChargedAmount).HasColumnType("decimal");
+            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.HousingBenefitAmount).HasColumnType("decimal");
+            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PaidAmount).HasColumnType("decimal");
+            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PeriodNo).HasColumnType("decimal");
+            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.TransactionAmount).HasColumnType("decimal");
             modelBuilder.Entity<DMTransactionEntity>().Property(x => x.TargetId).HasDefaultValueSql("NEWID()");
+            //modelBuilder.Entity<ChargesDbEntity>()
+            //    .HasMany(c => c.DetailedChargesDbEntities)
+            //    .WithOne(d => d.ChargesDbEntity)
+            //    .HasForeignKey(c => c.ChargeId);
             modelBuilder.Entity<DetailedChargesDbEntity>()
                 .HasOne(c => c.ChargesDbEntity)
                 .WithMany(c => c.DetailedChargesDbEntities)
                 .HasForeignKey(c => c.ChargeId);
-            modelBuilder.Entity<DmDynamoTenureHouseHoldMembers>()
-                .HasOne(c => c.DynamoTenure)
-                .WithMany(c => c.DynamoHouseHoldMembers)
-                .HasForeignKey(c => c.TenureId);
         }
 
 
@@ -64,9 +68,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// Get Data Migration Detailed Charges Entities
         /// </summary>
         public DbSet<DetailedChargesDbEntity> DetailedChargesEntities { get; set; }
-
-        public DbSet<DmDynamoTenure> DynamoTenure { get; set; }
-        public DbSet<DmDynamoTenureHouseHoldMembers> DynamoTenureHouseHoldMembers { get; set; }
 
 
         #region Charges Entity Specific
@@ -167,73 +168,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         {
             var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_InsertDynamoTenure] '{lastHint}','{xml}'", 6000).ConfigureAwait(false);
             return affectedRows;
-        }
-
-        public async Task<int> SaveDynamoTenureToIFS<T>(List<T> data, string lastHint)
-        {
-            /*var serilizer = new XmlSerializer(typeof(DmDynamoTenure));
-            var result = (DmDynamoTenure) serilizer.Deserialize(xml.CreateReader());*/
-
-            try
-            {
-                /*var tenure = xml.Descendants("Tenure").Select(p => new DmDynamoTenure()
-                {
-                    Id = Guid.Parse(p.Element("id").Value.ToString()),
-                    PaymentReference = p.Element("payment_reference")?.Value,
-                    TenureTypeCode = p.Element("tenure_type_code")?.Value,
-                    TenureTypeDesc = p.Element("tenure_type_desc")?.Value,
-                    TenuredAssetFullAddress = p.Element("tenured_asset_full_address")?.Value,
-                    TerminatedReasonCode = p.Element("terminated_reason_code")?.Value,
-                    Timex = DateTime.Parse(p.Element("timex")?.Value),
-                    DynamoHouseHoldMembers = p.Elements("HouseHoldMembers")?
-                      .Select(d => new DmDynamoTenureHouseHoldMembers
-                      {
-                          Id = Guid.Parse(d.Element("id")?.Value),
-                          Fullname = d.Element("fullname")?.Value,
-                          IsResponsible = bool.Parse(d.Element("is_responsible")?.Value ?? "false")
-                      }).ToList()
-                });*/
-
-                using (SqlConnection connection = new SqlConnection(Database.GetConnectionString()))
-                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
-                {
-                    //await Database.BeginTransactionAsync(IsolationLevel.ReadCommitted).ConfigureAwait(false);
-
-                    if (connection.State != ConnectionState.Open)
-                        connection.Open();
-
-                    bulkCopy.DestinationTableName = ((TableAttribute) typeof(T).GetCustomAttributes(typeof(TableAttribute), false)[0]).Name;
-
-                    DmDynamoLastHInt dmDynamoLastHInt = new DmDynamoLastHInt()
-                    {
-                        TableName = bulkCopy.DestinationTableName,
-                        Id = Guid.Parse(lastHint),
-                        Timex = DateTime.Now
-                    };
-
-                    DmDynamoLastHInt.Add(dmDynamoLastHInt);
-
-                    await bulkCopy.WriteToServerAsync(DatatableExtension.ToDataTable(data)).ConfigureAwait(false);
-                    if (connection.State == ConnectionState.Open)
-                        connection.Close();
-
-                    if (data.Count == 0)
-                        throw new Exception("Exception in bulk copy.");
-
-                    SaveChanges();
-                    //await Database.CommitTransactionAsync().ConfigureAwait(false);
-                    return data.Count;
-                }
-            }
-            catch (Exception ex)
-            {
-                //await Database.RollbackTransactionAsync().ConfigureAwait(false);
-                LoggingHandler.LogError($"SqlBulkCopy Exception: " +
-                                        $"{nameof(FinanceDataMigrationApi)}." +
-                                        $"{nameof(Handler)}." +
-                                        $"{nameof(ExecuteStoredProcedure)}:{ex.GetFullMessage()}");
-                throw;
-            }
         }
 
         /// <summary>

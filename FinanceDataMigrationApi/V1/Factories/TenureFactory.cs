@@ -5,7 +5,6 @@ using Hackney.Shared.Tenure.Domain;
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Handlers;
 using System;
-using FinanceDataMigrationApi.V1.Infrastructure.Entities;
 
 namespace FinanceDataMigrationApi.V1.Factories
 {
@@ -92,33 +91,6 @@ namespace FinanceDataMigrationApi.V1.Factories
 
                 {"paymentReference", new AttributeValue {S = tenure.PaymentReference.ToString()}}
             };
-        }
-
-        public static DmDynamoTenure ToDbEntity(this TenureInformation tenure)
-        {
-            return new DmDynamoTenure
-            {
-                Id = tenure.Id,
-                PaymentReference = tenure.PaymentReference,
-                TenuredAssetFullAddress = tenure.TenuredAsset?.FullAddress,
-                TenureTypeCode = tenure.TenureType?.Code,
-                TenureTypeDesc = tenure.TenureType?.Description,
-                TerminatedReasonCode = tenure.Terminated?.ReasonForTermination,
-                Timex = DateTime.Now,
-                DynamoHouseHoldMembers = tenure.HouseholdMembers?
-                .Select(p => new DmDynamoTenureHouseHoldMembers
-                {
-                    Id = p.Id,
-                    Fullname = p.FullName,
-                    IsResponsible = p.IsResponsible,
-                    TenureId = tenure.Id
-                }).ToList()
-            };
-        }
-
-        public static List<DmDynamoTenure> ToDbEntities(this List<TenureInformation> tenures)
-        {
-            return tenures.Select(p => p.ToDbEntity()).ToList();
         }
     }
 }
