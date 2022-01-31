@@ -6,6 +6,20 @@ provider:
   vpc: ${self:custom.vpc.${opt:stage}}
   stage: ${opt:stage}
   region: eu-west-2
+
+  environment:
+    CONNECTION_STRING: Data Source=${ssm:/housing-finance/${self:provider.stage}/db-host},${ssm:/housing-finance/${self:provider.stage}/db-port};Initial Catalog=${ssm:/housing-finance/${self:provider.stage}/db-database};Integrated Security=False;User Id=${ssm:/housing-finance/${self:provider.stage}/db-username};Password=${ssm:/housing-finance/${self:provider.stage}/db-password};Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;
+    WAIT_DURATION: ${ssm:/finance-data-migration/${self:provider.stage}/step-function-wait-duration}
+    BATCH_SIZE: ${ssm:/finance-data-migration/${self:provider.stage}/bulk-insert-batch-size}
+    LOAD_COUNT: ${ssm:/finance-data-migration/${self:provider.stage}/scan-limit}
+    ACCEPTED_ORIGINS: ${ssm:/finance-data-migration/${self:provider.stage}/cors-accepted-origins}
+    FINANCIAL_TRANSACTION_API_URL: ${ssm:/housing-finance/${self:provider.stage}/financial-transaction-api-url}
+    FINANCIAL_TRANSACTION_API_TOKEN: ${ssm:/housing-finance/${self:provider.stage}/financial-transaction-api-token}
+    SEARCH_API_URL: ${ssm:/housing-tl/${self:provider.stage}/search-api-url}
+    SEARCH_API_TOKEN: ${ssm:/housing-finance/${self:provider.stage}/search-api-key}
+    PERSON_API_URL: ${ssm:/housing-tl/${self:provider.stage}/person-api-url}
+    PERSON_API_TOKEN: ${ssm:/housing-tl/${self:provider.stage}/person-token}
+
 package:
   artifact: ./bin/release/netcoreapp3.1/finance-data-migration-api.zip
 
@@ -14,18 +28,6 @@ functions:
     name: ${self:service}-${self:provider.stage}
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.LambdaEntryPoint::FunctionHandlerAsync
     role: lambdaExecutionRole
-    environment:
-      CONNECTION_STRING: Data Source=${ssm:/housing-finance/${self:provider.stage}/db-host},${ssm:/housing-finance/${self:provider.stage}/db-port};Initial Catalog=${ssm:/housing-finance/${self:provider.stage}/db-database};Integrated Security=False;User Id=${ssm:/housing-finance/${self:provider.stage}/db-username};Password=${ssm:/housing-finance/${self:provider.stage}/db-password};Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;
-      WAIT_DURATION: ${ssm:/finance-data-migration/${self:provider.stage}/step-function-wait-duration}
-      BATCH_SIZE: ${ssm:/finance-data-migration/${self:provider.stage}/bulk-insert-batch-size}
-      LOAD_COUNT: ${ssm:/finance-data-migration/${self:provider.stage}/scan-limit}
-      ACCEPTED_ORIGINS: ${ssm:/finance-data-migration/${self:provider.stage}/cors-accepted-origins}
-      FINANCIAL_TRANSACTION_API_URL: ${ssm:/housing-finance/${self:provider.stage}/financial-transaction-api-url}
-      FINANCIAL_TRANSACTION_API_TOKEN: ${ssm:/housing-finance/${self:provider.stage}/financial-transaction-api-token}
-      SEARCH_API_URL: ${ssm:/housing-tl/${self:provider.stage}/search-api-url}
-      SEARCH_API_TOKEN: ${ssm:/housing-finance/${self:provider.stage}/search-api-key}
-      PERSON_API_URL: ${ssm:/housing-tl/${self:provider.stage}/person-api-url}
-      PERSON_API_TOKEN: ${ssm:/housing-tl/${self:provider.stage}/person-token}
     events:
       - http:
           path: /{proxy+}
