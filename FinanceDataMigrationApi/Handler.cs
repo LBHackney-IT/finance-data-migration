@@ -54,9 +54,9 @@ namespace FinanceDataMigrationApi
             _loadTransactionsUseCase = new LoadTransactionEntityUseCase(migrationRunGateway, dMTransactionEntityGateway, transactionGateway);*/
             #endregion
 
-            var url = Environment.GetEnvironmentVariable("DynamoDb_LocalServiceUrl");
-            var clientConfig = new AmazonDynamoDBConfig { ServiceURL = url };
-            _amazonDynamoDB = new AmazonDynamoDBClient(clientConfig);
+            /*var url = Environment.GetEnvironmentVariable("DynamoDb_LocalServiceUrl");
+            var clientConfig = new AmazonDynamoDBConfig { ServiceURL = url };*/
+            _amazonDynamoDB = new AmazonDynamoDBClient();
 
             _chargeGateway = new ChargeGateway(context, _amazonDynamoDB);
             _loadChargeEntityUseCase = new LoadChargeEntityUseCase(migrationRunGateway, _chargeGateway);
