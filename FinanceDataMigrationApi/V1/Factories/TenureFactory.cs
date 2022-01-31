@@ -29,7 +29,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                                 new XElement("id", h.Id),
                                 new XElement("fullname", h.FullName?.Replace("'", "''")),
                                 new XElement("is_responsible", h.IsResponsible))
-                        )
+                        ).Take(100) // ignore loading fake number of data due inserting to IFS Exception
                     )));
 
                 return xEle;
