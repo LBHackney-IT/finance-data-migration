@@ -29,10 +29,16 @@ namespace FinanceDataMigrationApi
         {
             DbContextOptionsBuilder optionsBuilder = new DbContextOptionsBuilder();
             var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-            optionsBuilder.UseSqlServer(connectionString);
+            if (connectionString != null)
+                optionsBuilder.UseSqlServer(connectionString);
+            else
+                throw new Exception($"Connection string is null.");
+
             DatabaseContext context = new DatabaseContext(optionsBuilder.Options);
 
             IDMRunLogGateway migrationRunGateway = new DMRunLogGateway(context);
+
+            #region Commented
             /*IDMTransactionEntityGateway dMTransactionEntityGateway = new DMTransactionEntityGateway(context);
             var httpClient = new HttpClient();
             ITransactionGateway transactionGateway = new TransactionGateway(httpClient);
@@ -46,6 +52,7 @@ namespace FinanceDataMigrationApi
             _transformTransactionsUseCase = new TransformTransactionEntityUseCase(migrationRunGateway, dMTransactionEntityGateway, tenureGateway);
 
             _loadTransactionsUseCase = new LoadTransactionEntityUseCase(migrationRunGateway, dMTransactionEntityGateway, transactionGateway);*/
+            #endregion
 
             var url = Environment.GetEnvironmentVariable("DynamoDb_LocalServiceUrl");
             var clientConfig = new AmazonDynamoDBConfig { ServiceURL = url };
