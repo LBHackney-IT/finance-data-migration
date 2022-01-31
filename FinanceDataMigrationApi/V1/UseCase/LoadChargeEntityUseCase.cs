@@ -30,18 +30,21 @@ namespace FinanceDataMigrationApi.V1.UseCase
 
         public async Task<StepResponse> ExecuteAsync(int count)
         {
+            LoggingHandler.LogInfo($"charge load");
             var transformedList = await _dMChargeGateway.GetTransformedListAsync(count).ConfigureAwait(false);
+            LoggingHandler.LogInfo($"charge load record count: {transformedList.Count}");
 
             if (transformedList.Any())
             {
+                LoggingHandler.LogInfo($"charge load batch size: {_batchSize}");
 
                 List<Task> tasks = new List<Task>();
                 for (int i = 0; i < transformedList.Count / _batchSize; i++)
                 {
                     /*await _dMChargeGateway.BatchInsert(transformedList.Skip(i * 25).Take(25).ToList())
                         .ConfigureAwait(false)*/
-                    ;
                     tasks.Add(_dMChargeGateway.BatchInsert(transformedList.Skip(i * _batchSize).Take(_batchSize).ToList()));
+                    LoggingHandler.LogInfo($"charge load index: {i}");
                 }
                 DateTime startDateTime = DateTime.Now;
                 await Task.WhenAll(tasks).ConfigureAwait(false);
