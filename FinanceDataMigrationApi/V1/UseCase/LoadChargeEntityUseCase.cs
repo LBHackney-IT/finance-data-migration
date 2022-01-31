@@ -40,16 +40,16 @@ namespace FinanceDataMigrationApi.V1.UseCase
                 {
                     LoggingHandler.LogInfo($"charge load batch size: {_batchSize}");
 
-                    List<Task> tasks = new List<Task>();
+                    /*List<Task> tasks = new List<Task>();*/
                     for (int i = 0; i < transformedList.Count / _batchSize; i++)
                     {
-                        /*await _dMChargeGateway.BatchInsert(transformedList.Skip(i * 25).Take(25).ToList())
-                            .ConfigureAwait(false)*/
-                        tasks.Add(_dMChargeGateway.BatchInsert(transformedList.OrderBy(P => P.Id).Skip(i * _batchSize).Take(_batchSize).ToList()));
+                        await _dMChargeGateway.BatchInsert(transformedList.Skip(i * 25).Take(25).ToList())
+                            .ConfigureAwait(false);
+                        /*tasks.Add(_dMChargeGateway.BatchInsert(transformedList.OrderBy(P => P.Id).Skip(i * _batchSize).Take(_batchSize).ToList()));*/
                         LoggingHandler.LogInfo($"charge load index: {i}");
                     }
                     DateTime startDateTime = DateTime.Now;
-                    await Task.WhenAll(tasks).ConfigureAwait(false);
+                    /*await Task.WhenAll(tasks).ConfigureAwait(false);*/
 
                 }
 
