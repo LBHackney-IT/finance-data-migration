@@ -111,17 +111,12 @@ namespace FinanceDataMigrationApi.V1.Gateways
             }
         }
 
-        public Task<int> SaveTenuresIntoSql(string lastHint, XElement xml)
-        {
-            return _dbContext.InsertDynamoTenure(lastHint, xml);
-        }
-
         public async Task<Guid> GetLastHint()
         {
             try
             {
                 var result = await _dbContext.DmDynamoLastHInt.
-                    Where(p => p.TableName.ToLower() == "tenure").
+                    Where(p => p.TableName.ToLower() == "dmdynamotenure").
                     OrderBy(p => p.Timex).LastOrDefaultAsync().ConfigureAwait(false);
 
                 return result?.Id ?? Guid.Empty;
@@ -132,6 +127,12 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 LoggingHandler.LogError(ex.StackTrace);
                 throw;
             }
+        }
+
+        public Task<int> SaveTenuresIntoSql(TenurePaginationResponse tenurePaginationResponse)
+        {
+            return _dbContext.SaveDynamoTenureToIFS(tenurePaginationResponse.TenureInformation.ToDbEntities(), tenurePaginationResponse.LastKey["id"].S);
+            //return _dbContext.InsertDynamoTenure(tenurePaginationResponse.TenureInformation, tenurePaginationResponse.LastKey.ToString());
         }
     }
 }

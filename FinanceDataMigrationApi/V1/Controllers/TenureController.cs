@@ -95,13 +95,10 @@ namespace FinanceDataMigrationApi.V1.Controllers
                 LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: " +
                     $"Last ID:{response.TenureInformation.Last().Id}");
 
-                await _saveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(),
-                    response.TenureInformation.ToXElement()).ConfigureAwait(false);
+                await _saveToSqlUseCase.ExecuteAsync(response).ConfigureAwait(false);
 
                 if (response.LastKey.Count == 0)
                     break;
-
-                System.Threading.Thread.Sleep(1000);
 
             } while (true);
             return Ok("All tenure downloaded to IFS successfully.");
@@ -123,8 +120,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
             LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetBunch)}: " +
                 $"Last ID:{response.TenureInformation.Last().Id}");
 
-            await _saveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(),
-                response.TenureInformation.ToXElement()).ConfigureAwait(false);
+            await _saveToSqlUseCase.ExecuteAsync(response).ConfigureAwait(false);
 
             return Ok("All tenure downloaded to IFS successfully.");
         }

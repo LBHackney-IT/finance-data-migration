@@ -15,7 +15,7 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
         public Task<TenureInformation> GetByIdAsync(Guid id);
         public Task<bool> BatchInsert(List<TenureInformation> tenures);
         public Task<TenurePaginationResponse> GetAll(int count, Dictionary<string, AttributeValue> lastEvaluatedKey);
-        public Task<int> SaveTenuresIntoSql(string lastHint, XElement xml);
+        public Task<int> SaveTenuresIntoSql(TenurePaginationResponse tenurePaginationResponse);
         public Task<Guid> GetLastHint();
     }
 }

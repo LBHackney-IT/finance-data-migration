@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 
@@ -13,9 +14,10 @@ namespace FinanceDataMigrationApi.V1.UseCase
         {
             _gateway = gateway;
         }
-        public async Task<int> ExecuteAsync(string lastHint, XElement xml)
+
+        public async Task<int> ExecuteAsync(TenurePaginationResponse tenurePaginationResponse)
         {
-            return await _gateway.SaveTenuresIntoSql(lastHint, xml).ConfigureAwait(false);
+            return await _gateway.SaveTenuresIntoSql(tenurePaginationResponse).ConfigureAwait(false);
         }
     }
 }
