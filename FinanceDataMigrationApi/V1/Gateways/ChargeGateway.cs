@@ -8,6 +8,7 @@ using AutoMapper.Internal;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
+using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using Microsoft.Extensions.Logging;
@@ -80,8 +81,9 @@ namespace FinanceDataMigrationApi.V1.Gateways
                     ForAll(p => p.MigrationStatus = EMigrationStatus.Loaded);
                 await _context.SaveChangesAsync().ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                LoggingHandler.LogError($"TransactWriteItemsAsync: {ex.Message}");
                 _context.ChargesDbEntities.Where(p =>
                         charges.Select(i => i.Id).Contains(p.Id)).
                     ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
