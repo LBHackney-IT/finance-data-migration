@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
@@ -40,7 +41,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
         public async Task<IList<Charge>> GetTransformedListAsync(int count)
         {
             var results = await _context.GetTransformedChargeListAsync(count).ConfigureAwait(false);
-            results.ToList().ForEach(p => p.MigrationStatus = EMigrationStatus.Loading);
+            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomain();
         }
@@ -72,7 +73,10 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
             try
             {
-                await _amazonDynamoDb.TransactWriteItemsAsync(placeOrderCharge).ConfigureAwait(false);
+                var writeResult = await _amazonDynamoDb.TransactWriteItemsAsync(placeOrderCharge).ConfigureAwait(false);
+
+                if (writeResult.HttpStatusCode != HttpStatusCode.OK)
+                    throw new Exception(writeResult.ResponseMetadata.ToString());
 
                 _context.ChargesDbEntities.Where(p =>
                     charges.Select(i => i.Id).Contains(p.Id)).

@@ -44,14 +44,28 @@ functions:
               - X-Amz-User-Agent
               - x-correlation-id
             allowCredentials: false
+  downloadTenureToIfs:
+    name: ${self:service}-${self:provider.stage}-download-tenure
+    description: "The scheduler to download tenure data for migration of accoutn and transaction entities. Run at 12:15 AM"
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::DownloadTenureToIfs
+    role: lambdaExecutionRole
+    events:
+      - schedule: cron(15 20 * * ? *)
   loadCharge:
     name: ${self:service}-${self:provider.stage}-load-charge
     description: "The scheduler to load charge data for migration of charge entity. Run at 12:15 AM"
     timeout: 900
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::LoadCharge
     role: lambdaExecutionRole
-    events:
-        - schedule: cron(15 0 * * ? *)   
+    #events:
+    #    - schedule: cron(15 0 * * ? *)
+  extractCharge:
+    name: ${self:service}-${self:provider.stage}-extract-charge
+    description: "The scheduler to extract charge data for migration of charge entity. Run at 12:15 AM"
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::ExtractCharge
+    role: lambdaExecutionRole
   transformTransactions:
     name: ${self:service}-${self:provider.stage}-transform-transactions
     description: "The scheduler to transform the extracted Transaction entity data to be migrated. "

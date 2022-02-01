@@ -12,7 +12,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
     [ApiVersion("1.0")]
     public class AssetController : BaseController
     {
-        private readonly IAssetGetAllUseCase _getAllUseCase;
+        /*private readonly IAssetGetAllUseCase _getAllUseCase;
         private readonly IAssetSaveToSqlUseCase _assetSaveToSqlUseCase;
         private readonly IAssetGetLastHintUseCase _assetGetLastHintUseCase;
 
@@ -38,6 +38,6 @@ namespace FinanceDataMigrationApi.V1.Controllers
                 await _assetSaveToSqlUseCase.ExecuteAsync(lastHint.ToString(), result).ConfigureAwait(false);
             } while (true);
             return Ok("Operation done successfully");
-        }
+        }*/
     }
 }

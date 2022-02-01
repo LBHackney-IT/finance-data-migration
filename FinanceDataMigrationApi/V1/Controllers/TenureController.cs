@@ -24,13 +24,13 @@ namespace FinanceDataMigrationApi.V1.Controllers
         readonly ITenureBatchInsertUseCase _batchInsertUseCase;
         readonly ITenureGetAllUseCase _tenureGetAllUseCase;
         readonly ITenureSaveToSqlUseCase _saveToSqlUseCase;
-        readonly ITenureGetLastHintUseCase _getLastHintUseCase;
+        readonly IGetLastHintUseCase _getLastHintUseCase;
 
         public TenureController(IGetTenureByIdUseCase tenureByIdUseCase
             , ITenureBatchInsertUseCase batchInsertUseCase
             , ITenureGetAllUseCase tenureGetAllUseCase
             , ITenureSaveToSqlUseCase saveToSqlUseCase
-            , ITenureGetLastHintUseCase getLastHintUseCase)
+            , IGetLastHintUseCase getLastHintUseCase)
         {
             _tenureByIdUseCase = tenureByIdUseCase;
             _batchInsertUseCase = batchInsertUseCase;
@@ -81,7 +81,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
             do
             {
                 LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenure loading loop: {++index}");
-                var lastKey = await _getLastHintUseCase.ExecuteAsync().ConfigureAwait(false);
+                var lastKey = await _getLastHintUseCase.ExecuteAsync("tenure").ConfigureAwait(false);
                 Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
                 {
                     {"id",new AttributeValue{S = lastKey.ToString()}}
@@ -111,7 +111,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [Route("download-bunch")]
         public async Task<IActionResult> GetBunch([FromQuery] int count = 940)
         {
-            var lastKey = await _getLastHintUseCase.ExecuteAsync().ConfigureAwait(false);
+            var lastKey = await _getLastHintUseCase.ExecuteAsync("tenure").ConfigureAwait(false);
             Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
                 {
                     {"id",new AttributeValue{S = lastKey.ToString()}}

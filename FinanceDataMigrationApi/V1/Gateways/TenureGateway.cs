@@ -14,8 +14,6 @@ using FinanceDataMigrationApi.V1.Infrastructure;
 using Hackney.Shared.Tenure.Domain;
 using Hackney.Shared.Tenure.Factories;
 using Hackney.Shared.Tenure.Infrastructure;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
@@ -24,14 +22,12 @@ namespace FinanceDataMigrationApi.V1.Gateways
         readonly DatabaseContext _dbContext;
         readonly IAmazonDynamoDB _dynamoDb;
         readonly IDynamoDBContext _dynamoDbContext;
-        readonly ILogger<ITenureGateway> _logger;
 
-        public TenureGateway(DatabaseContext dbContext, IAmazonDynamoDB dynamoDb, IDynamoDBContext dynamoDbContext, ILogger<ITenureGateway> logger)
+        public TenureGateway(DatabaseContext dbContext, IAmazonDynamoDB dynamoDb, IDynamoDBContext dynamoDbContext)
         {
             _dbContext = dbContext;
             _dynamoDb = dynamoDb;
             _dynamoDbContext = dynamoDbContext;
-            _logger = logger;
         }
 
         public async Task<List<TenureInformation>> GetByPrnAsync(string prn)
@@ -114,24 +110,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
         public Task<int> SaveTenuresIntoSql(string lastHint, XElement xml)
         {
             return _dbContext.InsertDynamoTenure(lastHint, xml);
-        }
-
-        public async Task<Guid> GetLastHint()
-        {
-            try
-            {
-                var result = await _dbContext.DmDynamoLastHInt.
-                    Where(p => p.TableName.ToLower() == "tenure").
-                    OrderBy(p => p.Timex).LastOrDefaultAsync().ConfigureAwait(false);
-
-                return result?.Id ?? Guid.Empty;
-            }
-            catch (Exception ex)
-            {
-                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetLastHint)}: Exception: {ex.Message}");
-                LoggingHandler.LogError(ex.StackTrace);
-                throw;
-            }
         }
     }
 }
