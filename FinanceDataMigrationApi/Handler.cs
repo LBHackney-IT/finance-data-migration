@@ -1,13 +1,14 @@
 using Amazon.Lambda.Core;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Gateways;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
-using FinanceDataMigrationApi.V1.Infrastructure.Interfaces;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces;
+using FinanceDataMigrationApi.V1.UseCase;
+using Amazon.DynamoDBv2;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
@@ -20,42 +21,65 @@ namespace FinanceDataMigrationApi
         //private readonly ITransformTransactionEntityUseCase _transformTransactionsUseCase;
         //private readonly ILoadTransactionEntityUseCase _loadTransactionsUseCase;
 
+        private readonly ILoadChargeEntityUseCase _loadChargeEntityUseCase;
+        private readonly IChargeGateway _chargeGateway;
+        private readonly IAmazonDynamoDB _amazonDynamoDB;
+
         public Handler()
         {
-            //    DbContextOptionsBuilder optionsBuilder = new DbContextOptionsBuilder();
-            //    var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-            //    optionsBuilder.UseSqlServer(connectionString);
-            //    DatabaseContext context = new DatabaseContext(optionsBuilder.Options);
+            DbContextOptionsBuilder<DatabaseContext> optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
+            var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+            if (connectionString != null)
+                optionsBuilder.UseSqlServer(connectionString);
+            else
+                throw new Exception($"Connection string is null.");
 
-            //    IDMRunLogGateway migrationRunGateway = new DMRunLogGateway(context);
-            //    IDMTransactionEntityGateway dMTransactionEntityGateway = new DMTransactionEntityGateway(context);
-            //    var httpClient = new HttpClient();
-            //    ITransactionGateway transactionGateway = new TransactionGateway(httpClient);
+            DatabaseContext context = new DatabaseContext(optionsBuilder.Options);
 
-            //    IGetEnvironmentVariables getEnvironmentVariables = new GetEnvironmentVariables();
-            //    ICustomeHttpClient _customeHttpClient = new CustomeHttpClient();
-            //    ITenureGateway tenureGateway = new TenureGateway(_customeHttpClient, getEnvironmentVariables);
+            IDMRunLogGateway migrationRunGateway = new DMRunLogGateway(context);
 
-            //    _extractTransactionsUseCase = new ExtractTransactionEntityUseCase(migrationRunGateway, dMTransactionEntityGateway);
+            #region Commented
+            /*IDMTransactionEntityGateway dMTransactionEntityGateway = new DMTransactionEntityGateway(context);
+            var httpClient = new HttpClient();
+            ITransactionGateway transactionGateway = new TransactionGateway(httpClient);
 
-            //    _transformTransactionsUseCase = new TransformTransactionEntityUseCase(migrationRunGateway, dMTransactionEntityGateway, tenureGateway);
+            IGetEnvironmentVariables getEnvironmentVariables = new GetEnvironmentVariables();
+            ICustomeHttpClient _customeHttpClient = new CustomeHttpClient();
+            ITenureGateway tenureGateway = new TenureGateway(_customeHttpClient, getEnvironmentVariables);
 
-            //    _loadTransactionsUseCase = new LoadTransactionEntityUseCase(migrationRunGateway, dMTransactionEntityGateway, transactionGateway);
-            //}
+            _extractTransactionsUseCase = new ExtractTransactionEntityUseCase(migrationRunGateway, dMTransactionEntityGateway);
 
-            //public async Task<StepResponse> ExtractTransactions()
-            //{
-            //    return await _extractTransactionsUseCase.ExecuteAsync().ConfigureAwait(false);
-            //}
+            _transformTransactionsUseCase = new TransformTransactionEntityUseCase(migrationRunGateway, dMTransactionEntityGateway, tenureGateway);
 
-            //public async Task<StepResponse> TransformTransactions()
-            //{
-            //    return await _transformTransactionsUseCase.ExecuteAsync().ConfigureAwait(false);
-            //}
+            _loadTransactionsUseCase = new LoadTransactionEntityUseCase(migrationRunGateway, dMTransactionEntityGateway, transactionGateway);*/
+            #endregion
 
-            //public async Task<StepResponse> LoadTransactions()
-            //{
-            //    return await _loadTransactionsUseCase.ExecuteAsync().ConfigureAwait(false);
+            /*var url = Environment.GetEnvironmentVariable("DynamoDb_LocalServiceUrl");
+            var clientConfig = new AmazonDynamoDBConfig { ServiceURL = url };*/
+            _amazonDynamoDB = new AmazonDynamoDBClient();
+
+            _chargeGateway = new ChargeGateway(context, _amazonDynamoDB);
+            _loadChargeEntityUseCase = new LoadChargeEntityUseCase(migrationRunGateway, _chargeGateway);
+        }
+
+        /*public async Task<StepResponse> ExtractTransactions()
+        {
+            return await _extractTransactionsUseCase.ExecuteAsync().ConfigureAwait(false);
+        }
+
+        public async Task<StepResponse> TransformTransactions()
+        {
+            return await _transformTransactionsUseCase.ExecuteAsync().ConfigureAwait(false);
+        }
+
+        public async Task<StepResponse> LoadTransactions()
+        {
+            return await _loadTransactionsUseCase.ExecuteAsync().ConfigureAwait(false);
+        }*/
+
+        public async Task<StepResponse> LoadCharge()
+        {
+            return await _loadChargeEntityUseCase.ExecuteAsync(100).ConfigureAwait(false);
         }
 
     }
