@@ -61,6 +61,9 @@ namespace FinanceDataMigrationApi.Tests.V1.Infrastructure
         private readonly IEnumerable<TenureInformation> _expectedScanResponseItemContainsHouseholdMembersKeyPropsAreNull;
         private readonly ScanResponse _responseItemContainsHouseholdMembersKeyPropsAreNull;
 
+        private readonly IEnumerable<TenureInformation> _expectedScanResponseItemContainsHouseholdMembersKeyPropsAreNotContained;
+        private readonly ScanResponse _responseItemContainsHouseholdMembersKeyPropsAreNotContained;
+
         public ScanResponseExtensionTests()
         {
             _expectedScanResponseItemContainsTenuredAssetKey = new List<TenureInformation>
@@ -718,6 +721,59 @@ namespace FinanceDataMigrationApi.Tests.V1.Infrastructure
                     }
                 }
             };
+
+            _expectedScanResponseItemContainsHouseholdMembersKeyPropsAreNotContained = new List<TenureInformation>()
+            {
+                 new TenureInformation()
+                {
+                    Id = new Guid("54b886f6-3970-49ab-9d96-b357015f9a48"),
+                    TenuredAsset = null,
+                    TenureType = null,
+                    Terminated = null,
+                    HouseholdMembers = new List<HouseholdMembers>()
+                    {
+                        new HouseholdMembers()
+                        {
+                            Id = Guid.Empty,
+                            FullName = null,
+                            IsResponsible = false
+                        }
+                    }
+                }
+            };
+
+            _responseItemContainsHouseholdMembersKeyPropsAreNotContained = new ScanResponse()
+            {
+                Items = new List<Dictionary<string, AttributeValue>>()
+                {
+                    new Dictionary<string, AttributeValue>()
+                    {
+                        { "id", new AttributeValue() { S = "54b886f6-3970-49ab-9d96-b357015f9a48" } },
+                        {
+                           "householdMembers",
+                            new AttributeValue()
+                            {
+                                L = new List<AttributeValue>()
+                                {
+                                    new AttributeValue()
+                                    {
+                                        M = new Dictionary<string, AttributeValue>()
+                                        {
+                                            {
+                                                "id",
+                                                new AttributeValue()
+                                                {
+                                                    NULL = true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
         }
 
         [Fact]
@@ -846,6 +902,14 @@ namespace FinanceDataMigrationApi.Tests.V1.Infrastructure
             var result = _responseItemContainsHouseholdMembersKeyPropsAreNull.ToTenureInformation();
 
             result.Should().BeEquivalentTo(_expectedScanResponseItemContainsHouseholdMembersKeyPropsAreNull);
+        }
+
+        [Fact]
+        public void ScanResponseItemContainsHouseholdMembersKeyPropsAreNotContained()
+        {
+            var result = _responseItemContainsHouseholdMembersKeyPropsAreNotContained.ToTenureInformation();
+
+            result.Should().BeEquivalentTo(_expectedScanResponseItemContainsHouseholdMembersKeyPropsAreNotContained);
         }
     }
 }
