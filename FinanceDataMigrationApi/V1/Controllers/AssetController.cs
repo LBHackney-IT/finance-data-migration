@@ -1,9 +1,8 @@
-using System;
-using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.Controllers
 {

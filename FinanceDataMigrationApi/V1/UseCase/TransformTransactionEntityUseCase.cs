@@ -2,12 +2,11 @@ using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
+using Hackney.Shared.HousingSearch.Domain.Transactions;
 using Newtonsoft.Json;
 using System;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Hackney.Shared.HousingSearch.Domain.Transactions;
 using TransactionPerson = FinanceDataMigrationApi.V1.Domain.TransactionPerson;
 
 namespace FinanceDataMigrationApi.V1.UseCase
@@ -110,7 +109,6 @@ namespace FinanceDataMigrationApi.V1.UseCase
 
             if (householdMember.Count == 1)
             {
-
                 var transactionPerson = new TransactionPerson { Id = householdMember[0].Id, FullName = householdMember[0].FullName };
                 return await Task.FromResult(JsonConvert.SerializeObject(transactionPerson)).ConfigureAwait(false);
             }

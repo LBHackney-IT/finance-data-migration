@@ -1,4 +1,3 @@
-using FinanceDataMigrationApi.V1.Domain;
 using FluentAssertions;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
 using Xunit;

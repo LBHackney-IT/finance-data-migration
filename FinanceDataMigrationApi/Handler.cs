@@ -46,7 +46,7 @@ namespace FinanceDataMigrationApi
             _waitDuration = int.Parse(Environment.GetEnvironmentVariable("WAIT_DURATION") ?? "5");
             _batchSize = int.Parse(Environment.GetEnvironmentVariable("BATCH_SIZE") ?? "100");
 
-            DbContextOptionsBuilder optionsBuilder = new DbContextOptionsBuilder();
+            DbContextOptionsBuilder<DatabaseContext> optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
             var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
             if (connectionString != null)
                 optionsBuilder.UseSqlServer(connectionString);

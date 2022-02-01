@@ -13,7 +13,7 @@ using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 namespace FinanceDataMigrationApi.V1.Infrastructure
 {
     /// <summary>
-    /// The database context class.
+    /// The database context class to work with transaction entities.
     /// </summary>
     /// <seealso cref="DbContext" />
     public sealed class DatabaseContext : DbContext
@@ -37,12 +37,11 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .HasForeignKey(c => c.ChargeId);
         }
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DatabaseContext"/> class.
         /// </summary>
         /// <param name="options">The options for this context.</param>
-        public DatabaseContext(DbContextOptions options)
+        public DatabaseContext(DbContextOptions<DatabaseContext> options)
             : base(options)
         {
         }

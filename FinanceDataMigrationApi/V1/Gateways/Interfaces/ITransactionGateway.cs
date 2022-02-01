@@ -1,6 +1,6 @@
+using Hackney.Shared.HousingSearch.Domain.Transactions;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Hackney.Shared.HousingSearch.Domain.Transactions;
 
 namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
 {

@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.UseCase.Interfaces
 {
-    public interface IGetMigrationRunByEntityNameUseCase
+    public interface IIndexAccountEntityUseCase
     {
-        public Task<MigrationRunResponse> ExecuteAsync(string entityName);
+        Task<StepResponse> ExecuteAsync();
     }
 }

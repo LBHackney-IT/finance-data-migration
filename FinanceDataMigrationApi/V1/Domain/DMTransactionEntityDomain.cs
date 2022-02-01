@@ -1,4 +1,3 @@
-
 using System;
 
 namespace FinanceDataMigrationApi.V1.Domain
