@@ -6,7 +6,7 @@ using FinanceDataMigrationApi.V1.Boundary.Response;
 
 namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
 {
-    interface ITimelog
+    interface ITimelogGateway
     {
         public Task Save(TimeLogModel timeLogModel);
     }
