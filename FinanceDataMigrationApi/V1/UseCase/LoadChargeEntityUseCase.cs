@@ -1,14 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Domain;
-using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
-using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
+using System.Diagnostics;
 
 namespace FinanceDataMigrationApi.V1.UseCase
 {
@@ -33,24 +28,20 @@ namespace FinanceDataMigrationApi.V1.UseCase
             try
             {
                 LoggingHandler.LogInfo($"charge load");
+                var timer = new Stopwatch();
+                timer.Start();
                 var transformedList = await _dMChargeGateway.GetTransformedListAsync(count).ConfigureAwait(false);
-                LoggingHandler.LogInfo($"charge load record count: {transformedList.Count}");
-
+                timer.Stop();
+                timer.Elapsed;
                 if (transformedList.Any())
                 {
-                    LoggingHandler.LogInfo($"charge load batch size: {_batchSize}");
-
-                    /*List<Task> tasks = new List<Task>();*/
+                    List<Task> tasks = new List<Task>();
                     for (int i = 0; i < transformedList.Count / _batchSize; i++)
                     {
-                        await _dMChargeGateway.BatchInsert(transformedList.Skip(i * 25).Take(25).ToList())
-                            .ConfigureAwait(false);
-                        /*tasks.Add(_dMChargeGateway.BatchInsert(transformedList.OrderBy(P => P.Id).Skip(i * _batchSize).Take(_batchSize).ToList()));*/
-                        LoggingHandler.LogInfo($"charge load index: {i}");
+                        tasks.Add(_dMChargeGateway.BatchInsert(transformedList.OrderBy(P => P.Id).Skip(i * _batchSize).Take(_batchSize).ToList()));
                     }
                     DateTime startDateTime = DateTime.Now;
-                    /*await Task.WhenAll(tasks).ConfigureAwait(false);*/
-
+                    await Task.WhenAll(tasks).ConfigureAwait(false);
                 }
 
                 if (!transformedList.Any())
