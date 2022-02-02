@@ -10,11 +10,9 @@ namespace FinanceDataMigrationApi.V1.UseCase
 {
     public class ExtractChargeEntityUseCase : IExtractChargeEntityUseCase
     {
-
         private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IChargeGateway _dMChargeGateway;
-        private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
-
+        private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION") ?? "25";
 
         private const string DataMigrationTask = "EXTRACT";
 

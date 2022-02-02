@@ -16,7 +16,6 @@ namespace FinanceDataMigrationApi.V1.UseCase
         private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IDMTransactionEntityGateway _dMTransactionEntityGateway;
         private readonly ITenureGateway _tenureGateway;
-        private readonly IPersonGateway _personGateway;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
         private const string DataMigrationTask = "TRANSFORM";
         private Guid _targetId;
@@ -24,13 +23,11 @@ namespace FinanceDataMigrationApi.V1.UseCase
         public TransformTransactionEntityUseCase(
             IDMRunLogGateway dMRunLogGateway,
             IDMTransactionEntityGateway dMTransactionEntityGateway,
-            ITenureGateway tenureGateway,
-            IPersonGateway personGateway)
+            ITenureGateway tenureGateway)
         {
             _dMRunLogGateway = dMRunLogGateway;
             _dMTransactionEntityGateway = dMTransactionEntityGateway;
             _tenureGateway = tenureGateway;
-            _personGateway = personGateway;
         }
 
         // Read data from staging table and enrich with remaining subset data. i.e. Person
@@ -101,7 +98,6 @@ namespace FinanceDataMigrationApi.V1.UseCase
 
             var tenure = tenureList.FirstOrDefault();
             _targetId = tenure.Id;
-
 
             var householdMembers = tenureList.SelectMany(x => x.HouseholdMembers).ToList();
 
