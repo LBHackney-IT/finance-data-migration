@@ -1,9 +1,13 @@
+using System;
+using System.Collections.Generic;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.UseCase
 {
@@ -32,7 +36,7 @@ namespace FinanceDataMigrationApi.V1.UseCase
                 timer.Start();
                 var transformedList = await _dMChargeGateway.GetTransformedListAsync(count).ConfigureAwait(false);
                 timer.Stop();
-                timer.Elapsed;
+                //timer.Elapsed;
                 if (transformedList.Any())
                 {
                     List<Task> tasks = new List<Task>();

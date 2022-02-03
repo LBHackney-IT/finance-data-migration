@@ -106,9 +106,9 @@ namespace FinanceDataMigrationApi
             return await _loadTransactionsUseCase.ExecuteAsync().ConfigureAwait(false);
         }*/
 
-        public async Task<StepResponse> LoadCharge()
+        public async Task<StepResponse> LoadCharge(int count)
         {
-            return await _loadChargeEntityUseCase.ExecuteAsync(100).ConfigureAwait(false);
+            return await _loadChargeEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
         }
 
         public async Task<StepResponse> ExtractCharge()
