@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure.Entities
 {
+    [Table("DMRunStatus")]
     public class DmRunStatusModel
     {
         [Column("id")]

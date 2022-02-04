@@ -5,6 +5,7 @@ using Amazon.XRay.Recorder.Core.Sampling;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure.Entities
 {
+    [Table("DMTimeLog")]
     public class DmTimeLogModel
     {
         [Column("id")]
