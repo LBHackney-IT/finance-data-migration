@@ -10,7 +10,6 @@ using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Accounts;
 using FinanceDataMigrationApi.Versioning;
 using Hackney.Core.DynamoDb;
-using Hackney.Core.ElasticSearch;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;

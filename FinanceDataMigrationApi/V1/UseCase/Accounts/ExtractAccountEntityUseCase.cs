@@ -47,10 +47,10 @@ namespace FinanceDataMigrationApi.V1.UseCase
 
                 // if return value from usp is >0 (success), then capture how many rows to migrate from return value.
                 // if return value from usp is =0 (success), but no rows to migrate.
-                // Update migrationrun item with latest run time to NOW and set status to "Extract Completed"
+                // Update migration run item with latest run time to NOW and set status to "Extract Completed"
                 if (numberOfRowsExtracted > 0)
                 {
-                    // Update migrationrun item with latest run time to NOW and set status to "Extract Completed"
+                    // Update migration run item with latest run time to NOW and set status to "Extract Completed"
                     newDMRunLogDomain.ExpectedRowsToMigrate = numberOfRowsExtracted;
                     newDMRunLogDomain.LastRunStatus = MigrationRunStatus.ExtractCompleted.ToString();
                     LoggingHandler.LogInfo($"Number of rows extracted for this migration run = [{numberOfRowsExtracted}]");

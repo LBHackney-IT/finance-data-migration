@@ -68,6 +68,8 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// </summary>
         public DbSet<DetailedChargesDbEntity> DetailedChargesEntities { get; set; }
 
+        public DbSet<DmRunStatusModel> DmRunStatusModels { get; set; }
+        public DbSet<DmTimeLogModel> DmTimeLogModels { get; set; }
 
         #region Charges Entity Specific
 

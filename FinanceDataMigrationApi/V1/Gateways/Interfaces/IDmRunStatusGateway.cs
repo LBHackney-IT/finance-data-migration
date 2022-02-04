@@ -3,8 +3,11 @@ using FinanceDataMigrationApi.V1.Infrastructure.Entities;
 
 namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
 {
-    public interface ITimeLogGateway
+    public interface IDmRunStatusGateway
     {
-        public Task Save(DmTimeLogModel timeLogModel);
+
+        public Task<DmRunStatusModel> GetStatus();
+        public Task SaveStatus(DmRunStatusModel model);
+
     }
 }

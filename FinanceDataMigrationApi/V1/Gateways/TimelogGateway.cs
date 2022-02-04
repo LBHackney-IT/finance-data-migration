@@ -1,24 +1,22 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Infrastructure;
+using FinanceDataMigrationApi.V1.Infrastructure.Entities;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
-    public class TimelogGateway : ITimelogGateway
+    public class TimeLogGateway : ITimeLogGateway
     {
         private readonly DatabaseContext _context;
 
-        public TimelogGateway(DatabaseContext context)
+        public TimeLogGateway(DatabaseContext context)
         {
             _context = context;
         }
-        public Task Save(TimeLogModel timeLogModel)
+        public async Task Save(DmTimeLogModel timeLogModel)
         {
-                
+            _context.DmTimeLogModels.Add(timeLogModel);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
         }
     }
 }

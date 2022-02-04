@@ -8,22 +8,49 @@ using System.Xml.Linq;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Boundary.Response;
+using FinanceDataMigrationApi.V1.Boundary.Response.MetaData;
+using FinanceDataMigrationApi.V1.Gateways.Extensions;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Infrastructure;
-using Microsoft.AspNetCore.Http;
 
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
     public class AssetGateway : IAssetGateway
     {
+        private readonly HttpClient _client;
         private readonly DatabaseContext _dbContext;
         private readonly IAmazonDynamoDB _dynamoDb;
+        private DatabaseContext _context;
+        private IAmazonDynamoDB _amazonDynamoDb;
 
-        public AssetGateway(DatabaseContext dbContext, IAmazonDynamoDB dynamoDb)
+        public AssetGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb)
         {
+            _context = context;
+            _amazonDynamoDb = amazonDynamoDb;
+        }
+
+        public AssetGateway(HttpClient client, DatabaseContext dbContext, IAmazonDynamoDB dynamoDb)
+        {
+            var searchApiUrl = Environment.GetEnvironmentVariable("SEARCH_API_URL") ??
+                               throw new Exception("Housing search api url is null.");
+            var searchApiToken = Environment.GetEnvironmentVariable("SEARCH_API_TOKEN") ??
+                                  throw new Exception("Housing search api token is null.");
+
+            _client = client;
             _dbContext = dbContext;
             _dynamoDb = dynamoDb;
+            _client.BaseAddress = new Uri(searchApiUrl);
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(searchApiToken);
+        }
+
+        public async Task<APIResponse<GetAssetListResponse>> DownloadAsync(int count, string lastHintStr = "")
+        {
+            var uri = new Uri($"api/v1/search/assets/all?searchText=**&pageSize={count}&page=1&sortBy=id&isDesc=true&lastHitId={lastHintStr}", UriKind.Relative);
+
+            var response = await _client.GetAsync(uri).ConfigureAwait(true);
+            var assetsResponse = await response.ReadContentAs<APIResponse<GetAssetListResponse>>().ConfigureAwait(true);
+            return assetsResponse;
         }
 
         public async Task<AssetPaginationResponse> GetAll(int count, Dictionary<string, AttributeValue> lastEvaluatedKey = null)

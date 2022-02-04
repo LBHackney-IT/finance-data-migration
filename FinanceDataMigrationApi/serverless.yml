@@ -50,8 +50,16 @@ functions:
     timeout: 900
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::DownloadTenureToIfs
     role: lambdaExecutionRole
-    events:
-      - schedule: cron(15 20 * * ? *)
+    #events:
+    #  - schedule: cron(15 20 * * ? *)
+  downloadAssetToIfs:
+    name: ${self:service}-${self:provider.stage}-download-assets
+    description: "The scheduler to download asset data for migration of charges entities. by calling Asset elastic search endpoint."
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::DownloadAssetToIfs
+    role: lambdaExecutionRole
+    #events:
+    #  - schedule: cron(15 20 * * ? *)
   loadCharge:
     name: ${self:service}-${self:provider.stage}-load-charge
     description: "The scheduler to load charge data for migration of charge entity. Run at 12:15 AM"
@@ -78,6 +86,41 @@ functions:
     timeout: 900
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::LoadTransactions  
     role: lambdaExecutionRole
+stepFunctions:
+  stateMachines:
+    downloadingAsset:
+      name: DmDownloadingAsset
+      event:
+        - schedule: cron(0/5 * * * ? *)
+      definition:
+        Comment: "Download asset information by calling asset information elastic get batch endpoint."
+        StartAt: DownloadAssetToIfs
+        States:
+          DownloadAssetToIfs:
+            type: Task
+            Resource:
+              Fn::GetAtt: [downloadAssetToIfs, Arn]
+            Retry:
+              - ErrorEqual:
+                - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: Wait_1
+          Wait_1:
+              Type: Wait
+              TimestampPath: $.NextStepTime
+              Next: Choice_1
+          Choice_1:
+            Type: Choice
+            Choices:
+              - Variable: $.Continue
+                BooleanEquals: true
+                Next: DownloadAssetToIfs
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
+
 resources:
   Resources:
     lambdaExecutionRole:

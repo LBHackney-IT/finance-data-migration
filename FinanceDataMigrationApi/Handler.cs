@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
@@ -12,6 +13,10 @@ using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 using FinanceDataMigrationApi.V1.UseCase;
 using FinanceDataMigrationApi.V1.Factories;
+using FinanceDataMigrationApi.V1.Handlers;
+using FinanceDataMigrationApi.V1.Infrastructure.Entities;
+using FinanceDataMigrationApi.V1.UseCase.DmRunStatus;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.DmRunStatus;
 using Microsoft.EntityFrameworkCore;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -32,6 +37,9 @@ namespace FinanceDataMigrationApi
         readonly ITenureSaveToSqlUseCase _tenureSaveToSqlUseCase;
         readonly IAssetGetAllUseCase _assetGetAllUseCase;
         readonly IAssetSaveToSqlUseCase _assetSaveToSqlUseCase;
+        readonly IDmRunStatusGetUseCase _dmRunStatusGetUseCase;
+        readonly IDmRunStatusSaveUseCase _dmRunStatusSaveUseCase;
+        readonly ITimeLogSaveUseCase _timeLogSaveUseCase;
         /// <summary>
         /// Waiting time for next run, in second
         /// </summary>
@@ -81,6 +89,8 @@ namespace FinanceDataMigrationApi
             ITenureGateway tenureGateway = new TenureGateway(context, amazonDynamoDb, dynamoDbContext);
             IAssetGateway assetGateway = new AssetGateway(context, amazonDynamoDb);
             IHitsGateway hitsGateway = new HitsGateway(context);
+            IDmRunStatusGateway dmRunStatusGateway = new DmRunStatusGateway(context);
+            ITimeLogGateway timeLogGateway = new TimeLogGateway(context);
 
             _getLastHintUseCase = new GetLastHintUseCase(hitsGateway);
             _loadChargeEntityUseCase = new LoadChargeEntityUseCase(migrationRunGateway, chargeGateway);
@@ -89,6 +99,9 @@ namespace FinanceDataMigrationApi
             _tenureSaveToSqlUseCase = new TenureSaveToSqlUseCase(tenureGateway);
             _assetGetAllUseCase = new AssetGetAllUseCase(assetGateway);
             _assetSaveToSqlUseCase = new AssetSaveToSqlUseCase(assetGateway);
+            _dmRunStatusGetUseCase = new DmRunStatusGetUseCase(dmRunStatusGateway);
+            _dmRunStatusSaveUseCase = new DmRunStatusSaveUseCase(dmRunStatusGateway);
+            _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
         }
 
         /*public async Task<StepResponse> ExtractTransactions()
@@ -118,6 +131,11 @@ namespace FinanceDataMigrationApi
 
         public async Task<StepResponse> DownloadTenureToIfs(int count)
         {
+            var dmRunStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
+
+            if (dmRunStatus.AllAssetDmCompleted == true)
+                return new StepResponse() { Continue = false };
+
             var lastKey = await _getLastHintUseCase.ExecuteAsync("tenure").ConfigureAwait(false);
             Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
                 {
@@ -144,28 +162,63 @@ namespace FinanceDataMigrationApi
 
         public async Task<StepResponse> DownloadAssetToIfs(int count)
         {
-            var lastKey = await _getLastHintUseCase.ExecuteAsync("asset").ConfigureAwait(false);
-            Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
+            try
             {
-                {"id",new AttributeValue{S = lastKey.ToString()}}
-            };
+                var dmRunStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
 
-            var response = await _assetGetAllUseCase.ExecuteAsync(count, lastEvaluatedKey).ConfigureAwait(false);
-            lastEvaluatedKey = response.LastKey;
-            if (response.Assets.Count == 0)
-                return new StepResponse() { Continue = false };
+                if (dmRunStatus.AllAssetDmCompleted == true)
+                    return new StepResponse() { Continue = false };
 
-            await _assetSaveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(),
-                response.Assets.ToXElement()).ConfigureAwait(false);
+                var lastHint = await _getLastHintUseCase.ExecuteAsync("asset").ConfigureAwait(false);
 
-            if (response.LastKey.Count == 0)
-                return new StepResponse() { Continue = false };
+                DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
+                {
+                    ProcName = $"{nameof(_assetGetAllUseCase)}",
+                    StartTime = DateTime.Now
+                };
 
-            return new StepResponse()
+                var response = await _assetGetAllUseCase.ExecuteAsync(count, lastHint == Guid.Empty ? "" : lastHint.ToString()).ConfigureAwait(false);
+
+                await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+
+                if (response.lastHitId == null || response.Results.Assets.Count == 0)
+                {
+                    await _dmRunStatusSaveUseCase.ExecuteAsync(new DmRunStatusModel() { AllAssetDmCompleted = true }).ConfigureAwait(false);
+                    return new StepResponse() { Continue = false };
+                }
+
+                dmTimeLogModel = new DmTimeLogModel()
+                {
+                    ProcName = $"ToXElement",
+                    StartTime = DateTime.Now
+                };
+                var result = response.Results.Assets.ToXElement();
+                await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+
+                lastHint = Guid.Parse(response.lastHitId);
+
+                dmTimeLogModel = new DmTimeLogModel()
+                {
+                    ProcName = $"{nameof(_assetSaveToSqlUseCase)}",
+                    StartTime = DateTime.Now
+                };
+                await _assetSaveToSqlUseCase.ExecuteAsync(lastHint.ToString(), result).ConfigureAwait(false);
+                await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+
+                return new StepResponse()
+                {
+                    Continue = true,
+                    NextStepTime = DateTime.Now.AddSeconds(_waitDuration)
+                };
+            }
+            catch (Exception exception)
             {
-                Continue = true,
-                NextStepTime = DateTime.Now.AddSeconds(_waitDuration)
-            };
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(DownloadAssetToIfs)} Exception: {exception.GetFullMessage()}");
+                return new StepResponse()
+                {
+                    Continue = false
+                };
+            }
         }
     }
 }
