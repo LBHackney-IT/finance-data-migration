@@ -160,7 +160,7 @@ namespace FinanceDataMigrationApi
             };
         }
 
-        public async Task<StepResponse> DownloadAssetToIfs(int count)
+        public async Task<StepResponse> DownloadAssetToIfs(int count = 5000)
         {
             try
             {
