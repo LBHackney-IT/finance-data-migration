@@ -82,11 +82,16 @@ commands:
             chmod +x ./build.sh
             ./build.sh
       - run:
-          name: Deploy lambda
+          name: Install step function plugin
           command: |
             cd ./FinanceDataMigrationApi/
             sls plugin install --name serverless-step-functions
+      - run:
+          name: Deploy lambda
+          command: |
+            cd ./FinanceDataMigrationApi/
             sls deploy --stage <<parameters.stage>> --conceal
+
 jobs:
   check-code-formatting:
     executor: docker-dotnet
