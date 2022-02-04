@@ -85,6 +85,7 @@ commands:
           name: Deploy lambda
           command: |
             cd ./FinanceDataMigrationApi/
+            sls plugin install --name serverless-step-functions
             sls deploy --stage <<parameters.stage>> --conceal
 jobs:
   check-code-formatting:
