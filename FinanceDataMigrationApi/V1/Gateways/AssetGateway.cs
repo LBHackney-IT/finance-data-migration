@@ -21,23 +21,16 @@ namespace FinanceDataMigrationApi.V1.Gateways
         private readonly HttpClient _client;
         private readonly DatabaseContext _dbContext;
         private readonly IAmazonDynamoDB _dynamoDb;
-        private DatabaseContext _context;
-        private IAmazonDynamoDB _amazonDynamoDb;
 
-        public AssetGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb)
-        {
-            _context = context;
-            _amazonDynamoDb = amazonDynamoDb;
-        }
 
-        public AssetGateway(HttpClient client, DatabaseContext dbContext, IAmazonDynamoDB dynamoDb)
+        public AssetGateway(DatabaseContext dbContext, IAmazonDynamoDB dynamoDb)
         {
             var searchApiUrl = Environment.GetEnvironmentVariable("SEARCH_API_URL") ??
                                throw new Exception("Housing search api url is null.");
             var searchApiToken = Environment.GetEnvironmentVariable("SEARCH_API_TOKEN") ??
                                   throw new Exception("Housing search api token is null.");
 
-            _client = client;
+            _client = new HttpClient();
             _dbContext = dbContext;
             _dynamoDb = dynamoDb;
             _client.BaseAddress = new Uri(searchApiUrl);
@@ -62,7 +55,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             };
 
             ScanResponse response = await _dynamoDb.ScanAsync(request).ConfigureAwait(false);
-            if (response == null || response.Items == null || response.Items.Count == 0)
+            if (response?.Items == null || response.Items.Count == 0)
                 throw new Exception($"_dynamoDb.ScanAsync results NULL: {response?.ToString()}");
 
             return new AssetPaginationResponse()

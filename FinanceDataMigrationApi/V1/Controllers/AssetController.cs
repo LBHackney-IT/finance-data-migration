@@ -12,6 +12,15 @@ namespace FinanceDataMigrationApi.V1.Controllers
     [ApiVersion("1.0")]
     public class AssetController : BaseController
     {
+        [HttpGet]
+        public async Task<IActionResult> TestHandler()
+        {
+
+            Handler handler = new Handler();
+            await handler.DownloadAssetToIfs().ConfigureAwait(false);
+            return Ok("Done");
+        }
+
         /*private readonly IAssetGetAllUseCase _getAllUseCase;
         private readonly IAssetSaveToSqlUseCase _assetSaveToSqlUseCase;
         private readonly IAssetGetLastHintUseCase _assetGetLastHintUseCase;
