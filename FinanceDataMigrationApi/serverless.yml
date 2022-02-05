@@ -101,8 +101,8 @@ stepFunctions:
             Resource:
               Fn::GetAtt: [downloadAssetToIfs, Arn]
             Retry:
-              - ErrorEqual:
-                - States.All
+              - ErrorEquals:
+                  - States.All
                 IntervalSeconds: 30
                 MaxAttempts: 3
                 BackoffRate: 2
