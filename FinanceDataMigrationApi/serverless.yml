@@ -117,6 +117,9 @@ stepFunctions:
               - Variable: $.Continue
                 BooleanEquals: true
                 Next: DownloadAssetToIfs
+              - Variable: $.Continue
+                BooleanEquals: false
+                Next: EndStep
           EndStep:
             Type: Succeed
       dependsOn: lambdaExecutionRole
