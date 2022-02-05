@@ -117,12 +117,14 @@ stepFunctions:
               - Variable: $.Continue
                 BooleanEquals: true
                 Next: DownloadAssetToIfs
-              #- Variable: $.Continue
-              #  BooleanEquals: false
-              #  Next: ImportCashFileTransactions
+          EndStep:
+            Type: Succeed
       dependsOn: lambdaExecutionRole
       tags:
         Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
 resources:
   Resources:
     lambdaExecutionRole:
