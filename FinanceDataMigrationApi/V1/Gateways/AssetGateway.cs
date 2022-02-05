@@ -43,7 +43,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
             var uri = new Uri($"{_client.BaseAddress}/search/assets/all?searchText=**&pageSize={count}&page=1&sortBy=id&isDesc=true&lastHitId={lastHintStr}", UriKind.Absolute);
 
             var response = await _client.GetAsync(uri).ConfigureAwait(true);
-            LoggingHandler.LogInfo($"Response:{response}");
             var assetsResponse = await response.ReadContentAs<APIResponse<GetAssetListResponse>>().ConfigureAwait(true);
             return assetsResponse;
         }

@@ -8,7 +8,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Entities
     {
         [Column("id")]
         [Key]
-        public int Id { get; set; }
+        public int Id { get; set; } = 1;
         [Column("all_asset_dm_completed")]
         public bool AllAssetDmCompleted { get; set; }
     }

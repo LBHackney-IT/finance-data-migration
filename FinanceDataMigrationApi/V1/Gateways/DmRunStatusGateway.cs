@@ -27,7 +27,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             if (item == null)
                 throw new Exception("DmRunStatus is empty.");
 
-            item = model;
+            item.AllAssetDmCompleted = model.AllAssetDmCompleted;
             await _context.SaveChangesAsync().ConfigureAwait(false);
         }
     }
