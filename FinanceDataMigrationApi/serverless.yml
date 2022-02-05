@@ -20,7 +20,7 @@ provider:
     PERSON_API_URL: ${ssm:/housing-tl/${self:provider.stage}/person-api-url}
     PERSON_API_TOKEN: ${ssm:/housing-tl/${self:provider.stage}/person-token}
     ASSET_DOWNLOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/asset-download-batch-size}
-
+    REQUIRED_GOOGL_GROUPS: ${ssm:/housing-finance/${self:provider.stage}/authorization/required-google-groups}
 package:
   artifact: ./bin/release/netcoreapp3.1/finance-data-migration-api.zip
 

@@ -11,6 +11,7 @@ using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Boundary.Response.MetaData;
 using FinanceDataMigrationApi.V1.Gateways.Extensions;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
+using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
 
 
@@ -34,6 +35,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             _dbContext = dbContext;
             _dynamoDb = dynamoDb;
             _client.BaseAddress = new Uri(searchApiUrl);
+            LoggingHandler.LogInfo($"Token: {searchApiToken}");
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(searchApiToken);
         }
 
@@ -41,6 +43,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
         {
             var uri = new Uri($"/search/assets/all?searchText=**&pageSize={count}&page=1&sortBy=id&isDesc=true&lastHitId={lastHintStr}", UriKind.Relative);
 
+            LoggingHandler.LogInfo($"Url:{uri}");
             var response = await _client.GetAsync(uri).ConfigureAwait(true);
             var assetsResponse = await response.ReadContentAs<APIResponse<GetAssetListResponse>>().ConfigureAwait(true);
             return assetsResponse;
