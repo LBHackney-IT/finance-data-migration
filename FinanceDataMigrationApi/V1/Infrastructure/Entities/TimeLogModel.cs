@@ -18,6 +18,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Entities
         [Column("end_time")]
         public DateTime EndTime { get; set; }
         [Column("elapsed_time")]
-        public TimeSpan ElapsedTime { get; set; }
+        public double ElapsedTime { get; set; }
     }
 }

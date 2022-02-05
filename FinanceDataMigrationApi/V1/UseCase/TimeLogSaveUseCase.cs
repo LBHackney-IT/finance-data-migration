@@ -17,7 +17,7 @@ namespace FinanceDataMigrationApi.V1.UseCase
         public async Task ExecuteAsync(DmTimeLogModel timeLogModel)
         {
             timeLogModel.EndTime = DateTime.Now;
-            timeLogModel.ElapsedTime = DateTime.Now.Subtract(timeLogModel.EndTime);
+            timeLogModel.ElapsedTime = DateTime.Now.Subtract(timeLogModel.EndTime).TotalSeconds;
             await _gateway.Save(timeLogModel).ConfigureAwait(false);
         }
     }
