@@ -39,7 +39,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public async Task<APIResponse<GetAssetListResponse>> DownloadAsync(int count, string lastHintStr = "")
         {
-            var uri = new Uri($"api/v1/search/assets/all?searchText=**&pageSize={count}&page=1&sortBy=id&isDesc=true&lastHitId={lastHintStr}", UriKind.Relative);
+            var uri = new Uri($"/search/assets/all?searchText=**&pageSize={count}&page=1&sortBy=id&isDesc=true&lastHitId={lastHintStr}", UriKind.Relative);
 
             var response = await _client.GetAsync(uri).ConfigureAwait(true);
             var assetsResponse = await response.ReadContentAs<APIResponse<GetAssetListResponse>>().ConfigureAwait(true);
