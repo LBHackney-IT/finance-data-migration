@@ -97,7 +97,7 @@ stepFunctions:
         StartAt: DownloadAssetToIfs
         States:
           DownloadAssetToIfs:
-            type: Task
+            Type: Task
             Resource:
               Fn::GetAtt: [downloadAssetToIfs, Arn]
             Retry:
