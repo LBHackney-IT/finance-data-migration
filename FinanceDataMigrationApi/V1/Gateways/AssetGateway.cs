@@ -35,7 +35,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
             _dbContext = dbContext;
             _dynamoDb = dynamoDb;
             _client.BaseAddress = new Uri(searchApiUrl);
-            LoggingHandler.LogInfo($"Token: {searchApiToken}");
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(searchApiToken);
         }
 
@@ -43,8 +42,8 @@ namespace FinanceDataMigrationApi.V1.Gateways
         {
             var uri = new Uri($"/search/assets/all?searchText=**&pageSize={count}&page=1&sortBy=id&isDesc=true&lastHitId={lastHintStr}", UriKind.Relative);
 
-            LoggingHandler.LogInfo($"Url:{uri}");
             var response = await _client.GetAsync(uri).ConfigureAwait(true);
+            LoggingHandler.LogInfo($"Response:{response}");
             var assetsResponse = await response.ReadContentAs<APIResponse<GetAssetListResponse>>().ConfigureAwait(true);
             return assetsResponse;
         }
