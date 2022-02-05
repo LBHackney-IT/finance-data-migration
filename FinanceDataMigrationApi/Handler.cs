@@ -160,10 +160,13 @@ namespace FinanceDataMigrationApi
             };
         }
 
-        public async Task<StepResponse> DownloadAssetToIfs(int count = 5000)
+        public async Task<StepResponse> DownloadAssetToIfs()
         {
             try
             {
+                int count = int.Parse(Environment.GetEnvironmentVariable("ASSET_DOWNLOAD_BATCH_SIZE") ??
+                                      throw new Exception("Asset download batch size is null."));
+
                 var dmRunStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
 
                 if (dmRunStatus.AllAssetDmCompleted == true)
