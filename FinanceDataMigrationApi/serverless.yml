@@ -90,7 +90,7 @@ stepFunctions:
   stateMachines:
     downloadingAsset:
       name: DmDownloadingAsset
-      event:
+      events:
         - schedule: cron(0/5 * * * ? *)
       definition:
         Comment: "Download asset information by calling asset information elastic get batch endpoint."
