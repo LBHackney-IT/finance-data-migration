@@ -38,10 +38,18 @@ namespace FinanceDataMigrationApi.V1.Gateways
             return await _context.ExtractDMChargesAsync().ConfigureAwait(false);
         }
 
+        public async Task<IList<Charge>> GetExtractedListAsync(int count)
+        {
+            var results = await _context.GetExtractedChargeListAsync(count).ConfigureAwait(false);
+            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Extracted);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
+            return results.ToDomain();
+        }
+
         public async Task<IList<Charge>> GetTransformedListAsync(int count)
         {
             var results = await _context.GetTransformedChargeListAsync(count).ConfigureAwait(false);
-            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
+            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Transformed);
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomain();
         }

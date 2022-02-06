@@ -19,7 +19,14 @@ namespace FinanceDataMigrationApi.V1.Controllers
     [ApiVersion("1.0")]
     public class TenureController : BaseController
     {
-        readonly int _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE") ?? "25");
+        [HttpGet]
+        public async Task<IActionResult> TestHandler()
+        {
+            Handler handler = new Handler();
+            await handler.DownloadTenureToIfs().ConfigureAwait(false);
+            return Ok("Done");
+        }
+        /*readonly int _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE") ?? "25");
         readonly IGetTenureByIdUseCase _tenureByIdUseCase;
         readonly ITenureBatchInsertUseCase _batchInsertUseCase;
         readonly ITenureGetAllUseCase _tenureGetAllUseCase;
@@ -127,6 +134,6 @@ namespace FinanceDataMigrationApi.V1.Controllers
                 response.TenureInformation.ToXElement()).ConfigureAwait(false);
 
             return Ok("All tenure downloaded to IFS successfully.");
-        }
+        }*/
     }
 }

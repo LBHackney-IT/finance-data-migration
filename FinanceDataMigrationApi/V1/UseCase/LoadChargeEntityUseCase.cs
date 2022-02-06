@@ -31,13 +31,13 @@ namespace FinanceDataMigrationApi.V1.UseCase
         {
             try
             {
-                var transformedList = await _dMChargeGateway.GetTransformedListAsync(count).ConfigureAwait(false);
-                if (transformedList.Any())
+                var extractedList = await _dMChargeGateway.GetExtractedListAsync(count).ConfigureAwait(false);
+                if (extractedList.Any())
                 {
                     List<Task> tasks = new List<Task>();
-                    for (int i = 0; i < transformedList.Count / _batchSize; i++)
+                    for (int i = 0; i <= extractedList.Count / _batchSize; i++)
                     {
-                        tasks.Add(_dMChargeGateway.BatchInsert(transformedList.OrderBy(p => p.Id).
+                        tasks.Add(_dMChargeGateway.BatchInsert(extractedList.OrderBy(p => p.Id).
                             Skip(i * _batchSize).Take(_batchSize).ToList()));
                     }
                     await Task.WhenAll(tasks).ConfigureAwait(false);

@@ -41,6 +41,7 @@ namespace FinanceDataMigrationApi
         readonly IDmAssetRunStatusSaveUseCase _dmAssetRunStatusSaveUseCase;
         readonly IDmTenureRunStatusSaveUseCase _dmTenureRunStatusSaveUseCase;
         readonly IDmChargeExtractRunStatusSaveUseCase _dmChargeExtractRunStatusSaveUseCase;
+        readonly IDmChargeLoadRunStatusSaveUseCase _dmChargeLoadRunStatusSaveUseCase;
         readonly ITimeLogSaveUseCase _timeLogSaveUseCase;
         /// <summary>
         /// Waiting time for next run, in second
@@ -105,6 +106,7 @@ namespace FinanceDataMigrationApi
             _dmAssetRunStatusSaveUseCase = new DmAssetRunStatusSaveUseCase(dmRunStatusGateway);
             _dmTenureRunStatusSaveUseCase = new DmTenureRunStatusSaveUseCase(dmRunStatusGateway);
             _dmChargeExtractRunStatusSaveUseCase = new DmChargeExtractRunStatusSaveUseCase(dmRunStatusGateway);
+            _dmChargeLoadRunStatusSaveUseCase = new DmChargeLoadRunStatusSaveUseCase(dmRunStatusGateway);
             _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
         }
 
@@ -125,17 +127,43 @@ namespace FinanceDataMigrationApi
 
         public async Task<StepResponse> LoadCharge()
         {
-            int count = int.Parse(Environment.GetEnvironmentVariable("CHARGE_LOAD_BATCH_SIZE") ??
-                                  throw new Exception("Tenure download batch size is null."));
-
-            DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
+            try
             {
-                ProcName = $"{nameof(LoadCharge)}",
-                StartTime = DateTime.Now
-            };
-            var result = await _loadChargeEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
-            await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
-            return result;
+                int count = int.Parse(Environment.GetEnvironmentVariable("CHARGE_LOAD_BATCH_SIZE") ??
+                                      throw new Exception("Tenure download batch size is null."));
+
+                var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
+                if (runStatus.ChargeExtractDate >= DateTime.Today && runStatus.ChargeLoadDate < DateTime.Today)
+                {
+                    DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
+                    {
+                        ProcName = $"{nameof(LoadCharge)}",
+                        StartTime = DateTime.Now
+                    };
+
+                    var result = await _loadChargeEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
+                    await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+                    if (!result.Continue)
+                        await _dmChargeLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
+
+                    return result;
+                }
+                else
+                {
+                    return new StepResponse()
+                    {
+                        Continue = false
+                    };
+                }
+            }
+            catch (Exception exception)
+            {
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(LoadCharge)} Exception: {exception.GetFullMessage()}");
+                return new StepResponse()
+                {
+                    Continue = false
+                };
+            }
         }
 
         public async Task<StepResponse> ExtractCharge()
@@ -143,7 +171,7 @@ namespace FinanceDataMigrationApi
             try
             {
                 var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
-                if (runStatus.AllAssetDmCompleted && runStatus.ChargeExtractDate != DateTime.Now)
+                if (runStatus.AllAssetDmCompleted && runStatus.ChargeExtractDate < DateTime.Today)
                 {
                     DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
                     {
@@ -152,7 +180,7 @@ namespace FinanceDataMigrationApi
                     };
                     await _extractChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
                     await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
-                    await _dmChargeExtractRunStatusSaveUseCase.ExecuteAsync(DateTime.Now).ConfigureAwait(false);
+                    await _dmChargeExtractRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
                 }
                 return new StepResponse() { Continue = false };
             }

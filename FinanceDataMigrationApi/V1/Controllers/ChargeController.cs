@@ -13,7 +13,16 @@ namespace FinanceDataMigrationApi.V1.Controllers
     [ApiVersion("1.0")]
     public class ChargeController : BaseController
     {
-        readonly IExtractChargeEntityUseCase _extractChargeEntityUseCase;
+
+        [HttpGet]
+        public async Task<IActionResult> TestHandler()
+        {
+            Handler handler = new Handler();
+            await handler.LoadCharge().ConfigureAwait(false);
+            return Ok("Done");
+        }
+
+        /*readonly IExtractChargeEntityUseCase _extractChargeEntityUseCase;
         readonly ILoadChargeEntityUseCase _loadChargeEntityUseCase;
         readonly IChargeBatchInsertUseCase _batchInsertUseCase;
 
@@ -59,7 +68,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
         public async Task<IActionResult> LoadChargeEntity([FromQuery] int count)
         {
             var runLoadChargeEntity = await _loadChargeEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
-            /*return Ok($"Elapsed time: {DateAndTime.Now.Subtract(startDateTime).TotalSeconds}");*/
+            *//*return Ok($"Elapsed time: {DateAndTime.Now.Subtract(startDateTime).TotalSeconds}");*//*
             return Ok("Done");
             // var runLoadChargeEntity = await _loadChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
             //
@@ -71,6 +80,6 @@ namespace FinanceDataMigrationApi.V1.Controllers
             //
             // return Ok("Charge Entities Loaded Successfully");
 
-        }
+        }*/
     }
 }

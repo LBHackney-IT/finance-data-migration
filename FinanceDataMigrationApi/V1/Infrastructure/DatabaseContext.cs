@@ -98,6 +98,14 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .ConfigureAwait(false);
         }
 
+        public async Task<IList<ChargesDbEntity>> GetExtractedChargeListAsync(int count)
+            => await this.Set<ChargesDbEntity>()
+                .Where(x => x.MigrationStatus == EMigrationStatus.Extracted)
+                .Take(count)
+                .Include(p => p.DetailedChargesDbEntities)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
         public async Task<IList<ChargesDbEntity>> GetTransformedChargeListAsync(int count)
             => await this.Set<ChargesDbEntity>()
                 .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)

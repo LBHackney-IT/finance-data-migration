@@ -61,7 +61,6 @@ namespace FinanceDataMigrationApi.V1.UseCase
             catch (Exception exc)
             {
                 var namespaceLabel = $"{nameof(FinanceDataMigrationApi)}.{nameof(DataMigrationTask)}.{nameof(ExecuteAsync)}";
-
                 LoggingHandler.LogError($"{namespaceLabel} Application error: {exc.Message}");
                 LoggingHandler.LogError(exc.ToString());
                 throw;

@@ -22,6 +22,7 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
                 Task<int> AddChargeAsync(DMChargeEntityDomain dmEntity);*/
         Task<int> ExtractAsync(DateTimeOffset? processingDate);
         Task<IList<Charge>> GetTransformedListAsync(int count);
+        Task<IList<Charge>> GetExtractedListAsync(int count);
 
         Task BatchInsert(List<Charge> charges);
     }
