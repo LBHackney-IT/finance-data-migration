@@ -31,29 +31,25 @@ namespace FinanceDataMigrationApi.V1.UseCase
         {
             try
             {
-                LoggingHandler.LogInfo($"charge load");
-                var timer = new Stopwatch();
-                timer.Start();
                 var transformedList = await _dMChargeGateway.GetTransformedListAsync(count).ConfigureAwait(false);
-                timer.Stop();
-                //timer.Elapsed;
                 if (transformedList.Any())
                 {
                     List<Task> tasks = new List<Task>();
                     for (int i = 0; i < transformedList.Count / _batchSize; i++)
                     {
-                        tasks.Add(_dMChargeGateway.BatchInsert(transformedList.OrderBy(P => P.Id).Skip(i * _batchSize).Take(_batchSize).ToList()));
+                        tasks.Add(_dMChargeGateway.BatchInsert(transformedList.OrderBy(p => p.Id).
+                            Skip(i * _batchSize).Take(_batchSize).ToList()));
                     }
-                    DateTime startDateTime = DateTime.Now;
                     await Task.WhenAll(tasks).ConfigureAwait(false);
                 }
-
-                if (!transformedList.Any())
+                else
                 {
-                    LoggingHandler.LogInfo($"No records to {DataMigrationTask} for {DMEntityNames.Charges} Entity");
+                    LoggingHandler.LogInfo($"No records to {DataMigrationTask} for {DMEntityNames.Charges} Entity.");
+                    return new StepResponse()
+                    {
+                        Continue = false
+                    };
                 }
-
-                LoggingHandler.LogInfo($"End of {DataMigrationTask} task for {DMEntityNames.Charges} Entity");
 
                 return new StepResponse()
                 {
@@ -67,7 +63,11 @@ namespace FinanceDataMigrationApi.V1.UseCase
                     $".{nameof(Handler)}" +
                     $".{nameof(ExecuteAsync)}" +
                     $" load charge exception: {ex.Message}");
-                throw;
+                return new StepResponse()
+                {
+                    Continue = true,
+                    NextStepTime = DateTime.Now.AddSeconds(int.Parse(_waitDuration))
+                };
             }
         }
 

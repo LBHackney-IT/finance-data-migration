@@ -19,9 +19,10 @@ provider:
     SEARCH_API_TOKEN: ${ssm:/housing-finance/${self:provider.stage}/search-api-key}
     PERSON_API_URL: ${ssm:/housing-tl/${self:provider.stage}/person-api-url}
     PERSON_API_TOKEN: ${ssm:/housing-tl/${self:provider.stage}/person-token}
+    REQUIRED_GOOGL_GROUPS: ${ssm:/housing-finance/${self:provider.stage}/authorization/required-google-groups}
     ASSET_DOWNLOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/asset-download-batch-size}
     TENURE_DOWNLOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/tenure-download-batch-size}
-    REQUIRED_GOOGL_GROUPS: ${ssm:/housing-finance/${self:provider.stage}/authorization/required-google-groups}
+    CHARGE_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/charge-load-batch-size}
 package:
   artifact: ./bin/release/netcoreapp3.1/finance-data-migration-api.zip
 
@@ -162,6 +163,33 @@ stepFunctions:
               - Variable: $.Continue
                 BooleanEquals: false
                 Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
+    extractCharge:
+      name: DmExtractCharge
+      events:
+        - schedule: cron(0/5 * * * ? *)
+      definition:
+        Comment: "Extracting charge entity to save them into the FFS."
+        StartAt: ExtractCharge
+        States:
+          ExtractCharge:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [extractCharge, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: EndStep
           EndStep:
             Type: Succeed
       dependsOn: lambdaExecutionRole
@@ -371,6 +399,5 @@ custom:
       subnetIds:
         - subnet-0beb266003a56ca82
         - subnet-06a697d86a9b6ed01
-
 plugins:
   - serverless-step-functions

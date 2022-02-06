@@ -40,6 +40,7 @@ namespace FinanceDataMigrationApi
         readonly IDmRunStatusGetUseCase _dmRunStatusGetUseCase;
         readonly IDmAssetRunStatusSaveUseCase _dmAssetRunStatusSaveUseCase;
         readonly IDmTenureRunStatusSaveUseCase _dmTenureRunStatusSaveUseCase;
+        readonly IDmChargeExtractRunStatusSaveUseCase _dmChargeExtractRunStatusSaveUseCase;
         readonly ITimeLogSaveUseCase _timeLogSaveUseCase;
         /// <summary>
         /// Waiting time for next run, in second
@@ -103,6 +104,7 @@ namespace FinanceDataMigrationApi
             _dmRunStatusGetUseCase = new DmRunStatusGetUseCase(dmRunStatusGateway);
             _dmAssetRunStatusSaveUseCase = new DmAssetRunStatusSaveUseCase(dmRunStatusGateway);
             _dmTenureRunStatusSaveUseCase = new DmTenureRunStatusSaveUseCase(dmRunStatusGateway);
+            _dmChargeExtractRunStatusSaveUseCase = new DmChargeExtractRunStatusSaveUseCase(dmRunStatusGateway);
             _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
         }
 
@@ -121,14 +123,47 @@ namespace FinanceDataMigrationApi
             return await _loadTransactionsUseCase.ExecuteAsync().ConfigureAwait(false);
         }*/
 
-        public async Task<StepResponse> LoadCharge(int count)
+        public async Task<StepResponse> LoadCharge()
         {
-            return await _loadChargeEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
+            int count = int.Parse(Environment.GetEnvironmentVariable("CHARGE_LOAD_BATCH_SIZE") ??
+                                  throw new Exception("Tenure download batch size is null."));
+
+            DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
+            {
+                ProcName = $"{nameof(LoadCharge)}",
+                StartTime = DateTime.Now
+            };
+            var result = await _loadChargeEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
+            await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+            return result;
         }
 
         public async Task<StepResponse> ExtractCharge()
         {
-            return await _extractChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
+            try
+            {
+                var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
+                if (runStatus.AllAssetDmCompleted && runStatus.ChargeExtractDate != DateTime.Now)
+                {
+                    DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
+                    {
+                        ProcName = $"{nameof(ExtractCharge)}",
+                        StartTime = DateTime.Now
+                    };
+                    await _extractChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
+                    await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+                    await _dmChargeExtractRunStatusSaveUseCase.ExecuteAsync(DateTime.Now).ConfigureAwait(false);
+                }
+                return new StepResponse() { Continue = false };
+            }
+            catch (Exception exception)
+            {
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ExtractCharge)} Exception: {exception.GetFullMessage()}");
+                return new StepResponse()
+                {
+                    Continue = false
+                };
+            }
         }
 
         public async Task<StepResponse> DownloadTenureToIfs()
