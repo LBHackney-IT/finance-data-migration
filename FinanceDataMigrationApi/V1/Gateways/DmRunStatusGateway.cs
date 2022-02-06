@@ -16,7 +16,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
         {
             _context = context;
         }
-        public async Task<DmRunStatusModel> GetStatus()
+        public async Task<DmRunStatusModel> GetData()
         {
             return await _context.DmRunStatusModels.FirstAsync().ConfigureAwait(false);
         }

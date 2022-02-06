@@ -5,8 +5,7 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
 {
     public interface IDmRunStatusGateway
     {
-
-        public Task<DmRunStatusModel> GetStatus();
+        public Task<DmRunStatusModel> GetData();
         public Task SaveStatus(DmRunStatusModel model);
 
     }

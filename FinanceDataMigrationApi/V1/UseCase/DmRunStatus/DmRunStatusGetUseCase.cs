@@ -15,7 +15,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.DmRunStatus
         }
         public async Task<DmRunStatusModel> ExecuteAsync()
         {
-            return await _gateway.GetStatus().ConfigureAwait(false);
+            return await _gateway.GetData().ConfigureAwait(false);
         }
     }
 }

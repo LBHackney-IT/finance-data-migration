@@ -11,5 +11,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Entities
         public int Id { get; set; } = 1;
         [Column("all_asset_dm_completed")]
         public bool AllAssetDmCompleted { get; set; }
+        [Column("all_tenure_dm_completed")]
+        public bool AllTenureDmCompleted { get; set; }
     }
 }
