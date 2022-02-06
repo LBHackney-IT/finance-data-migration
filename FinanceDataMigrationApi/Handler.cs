@@ -131,33 +131,44 @@ namespace FinanceDataMigrationApi
 
         public async Task<StepResponse> DownloadTenureToIfs(int count)
         {
-            var dmRunStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
+            try
+            {
+                var dmRunStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
 
-            if (dmRunStatus.AllAssetDmCompleted == true)
-                return new StepResponse() { Continue = false };
+                if (dmRunStatus.AllAssetDmCompleted == true)
+                    return new StepResponse() { Continue = false };
 
-            var lastKey = await _getLastHintUseCase.ExecuteAsync("tenure").ConfigureAwait(false);
-            Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
+                var lastKey = await _getLastHintUseCase.ExecuteAsync("tenure").ConfigureAwait(false);
+                Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
                 {
                     {"id",new AttributeValue{S = lastKey.ToString()}}
                 };
 
-            var response = await _tenureGetAllUseCase.ExecuteAsync(count, lastEvaluatedKey).ConfigureAwait(false);
-            lastEvaluatedKey = response.LastKey;
-            if (response.TenureInformation.Count == 0)
-                return new StepResponse() { Continue = false };
+                var response = await _tenureGetAllUseCase.ExecuteAsync(count, lastEvaluatedKey).ConfigureAwait(false);
+                lastEvaluatedKey = response.LastKey;
+                if (response.TenureInformation.Count == 0)
+                    return new StepResponse() { Continue = false };
 
-            await _tenureSaveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(),
-                response.TenureInformation.ToXElement()).ConfigureAwait(false);
+                await _tenureSaveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(),
+                    response.TenureInformation.ToXElement()).ConfigureAwait(false);
 
-            if (response.LastKey.Count == 0)
-                return new StepResponse() { Continue = false };
+                if (response.LastKey.Count == 0)
+                    return new StepResponse() { Continue = false };
 
-            return new StepResponse()
+                return new StepResponse()
+                {
+                    Continue = true,
+                    NextStepTime = DateTime.Now.AddSeconds(_waitDuration)
+                };
+            }
+            catch (Exception exception)
             {
-                Continue = true,
-                NextStepTime = DateTime.Now.AddSeconds(_waitDuration)
-            };
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(DownloadAssetToIfs)} Exception: {exception.GetFullMessage()}");
+                return new StepResponse()
+                {
+                    Continue = false
+                };
+            }
         }
 
         public async Task<StepResponse> DownloadAssetToIfs()
