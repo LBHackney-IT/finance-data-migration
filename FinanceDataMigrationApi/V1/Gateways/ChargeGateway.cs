@@ -41,7 +41,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
         public async Task<IList<Charge>> GetExtractedListAsync(int count)
         {
             var results = await _context.GetExtractedChargeListAsync(count).ConfigureAwait(false);
-            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Extracted);
+            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomain();
         }
@@ -49,7 +49,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
         public async Task<IList<Charge>> GetTransformedListAsync(int count)
         {
             var results = await _context.GetTransformedChargeListAsync(count).ConfigureAwait(false);
-            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Transformed);
+            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomain();
         }
