@@ -15,13 +15,22 @@ namespace FinanceDataMigrationApi.V1.Controllers
     {
 
         [HttpGet]
-        public async Task<IActionResult> TestHandler()
+        [Route("charge-load")]
+        public async Task<IActionResult> Load()
         {
             Handler handler = new Handler();
             await handler.LoadCharge().ConfigureAwait(false);
             return Ok("Done");
         }
 
+        [HttpGet]
+        [Route("charge-extract")]
+        public async Task<IActionResult> Extract()
+        {
+            Handler handler = new Handler();
+            await handler.ExtractCharge().ConfigureAwait(false);
+            return Ok("Done");
+        }
         /*readonly IExtractChargeEntityUseCase _extractChargeEntityUseCase;
         readonly ILoadChargeEntityUseCase _loadChargeEntityUseCase;
         readonly IChargeBatchInsertUseCase _batchInsertUseCase;
