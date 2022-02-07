@@ -39,7 +39,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
         /// </summary>
         /// <returns>the accounts to migrate.</returns>
         //public async Task<int> ExtractDMAccountsAsync(DateTime? processingDate)
-        public async Task<int> ExtractDMAccountsAsync()
+        public async Task<int> ExtractDmAccountsAsync()
         {
             var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_ExtractAccountsEntity]", 600).ConfigureAwait(false);
             return affectedRows;

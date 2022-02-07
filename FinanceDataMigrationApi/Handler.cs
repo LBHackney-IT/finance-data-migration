@@ -45,10 +45,7 @@ namespace FinanceDataMigrationApi
         readonly ILoadTransactionEntityUseCase _loadTransactionEntityUseCase;
         readonly IDmTransactionExtractRunStatusSaveUseCase _dmTransactionExtractRunStatusSaveUseCase;
         readonly IDmTransactionLoadRunStatusSaveUseCase _dmTransactionLoadRunStatusSaveUseCase;
-        /// <summary>
-        /// Waiting time for next run, in second
-        /// </summary>
-        private readonly int _waitDuration;
+        readonly int _waitDuration;
 
         private readonly int _batchSize;
 

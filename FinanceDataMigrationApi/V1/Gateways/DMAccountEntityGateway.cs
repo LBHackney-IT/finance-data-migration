@@ -32,7 +32,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
         {
             try
             {
-                return await _context.ExtractDMAccountsAsync().ConfigureAwait(false);
+                return await _context.ExtractDmAccountsAsync().ConfigureAwait(false);
             }
             catch (Exception e)
             {
