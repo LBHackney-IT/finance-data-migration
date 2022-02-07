@@ -49,7 +49,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public async Task BatchInsert(List<DmTransaction> transactions)
         {
-            _context = DatabaseContext.Create();
+            DatabaseContext context = DatabaseContext.Create();
             List<TransactWriteItem> actions = new List<TransactWriteItem>();
             foreach (DmTransaction transaction in transactions)
             {
@@ -80,51 +80,47 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 if (writeResult.HttpStatusCode != HttpStatusCode.OK)
                     throw new Exception(writeResult.ResponseMetadata.ToString());
 
-                _context.DmTransactionEntities.Where(p =>
+                context.DmTransactionEntities.Where(p =>
                         transactions.Select(i => i.Id).Contains(p.Id))
                     .ForAll(p => p.MigrationStatus = EMigrationStatus.Loaded);
-                await _context.SaveChangesAsync().ConfigureAwait(false);
+                await context.SaveChangesAsync().ConfigureAwait(false);
 
             }
             catch (ResourceNotFoundException rnf)
             {
                 LoggingHandler.LogError($"One of the table involved in the account is not found: {rnf.Message}");
-                _context.DmTransactionEntities.Where(p =>
+                context.DmTransactionEntities.Where(p =>
                         transactions.Select(i => i.Id).Contains(p.Id))
                     .ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
-                await _context.SaveChangesAsync().ConfigureAwait(false);
-                throw;
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
             catch (InternalServerErrorException ise)
             {
                 LoggingHandler.LogError($"Internal Server Error: {ise.Message}");
-                _context.DmTransactionEntities.Where(p =>
+                context.DmTransactionEntities.Where(p =>
                         transactions.Select(i => i.Id).Contains(p.Id))
                     .ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
-                await _context.SaveChangesAsync().ConfigureAwait(false);
-                throw;
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
             catch (TransactionCanceledException tce)
             {
                 LoggingHandler.LogError($"Transaction Canceled: {tce.Message}");
-                _context.DmTransactionEntities.Where(p =>
+                context.DmTransactionEntities.Where(p =>
                         transactions.Select(i => i.Id).Contains(p.Id))
                     .ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
-                await _context.SaveChangesAsync().ConfigureAwait(false);
-                throw;
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 LoggingHandler.LogError($"TransactWriteItemsAsync: {ex.Message}");
-                _context.DmTransactionEntities.Where(p =>
+                context.DmTransactionEntities.Where(p =>
                         transactions.Select(i => i.Id).Contains(p.Id))
                     .ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
-                await _context.SaveChangesAsync().ConfigureAwait(false);
-                throw;
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
             finally
             {
-                await _context.DisposeAsync().ConfigureAwait(false);
+                await context.DisposeAsync().ConfigureAwait(false);
             }
         }
     }

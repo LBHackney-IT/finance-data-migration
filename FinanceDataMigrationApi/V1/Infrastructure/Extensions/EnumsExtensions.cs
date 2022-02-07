@@ -2,9 +2,9 @@ using FinanceDataMigrationApi.V1.Handlers;
 using Hackney.Shared.HousingSearch.Domain.Accounts.Enum;
 using System;
 
-namespace FinanceDataMigrationApi.V1.Infrastructure.Extentions
+namespace FinanceDataMigrationApi.V1.Infrastructure.Extensions
 {
-    public static class EnumsExtentions
+    public static class EnumsExtensions
     {
         public static T ToEnumValue<T>(this string stringValue)
         {

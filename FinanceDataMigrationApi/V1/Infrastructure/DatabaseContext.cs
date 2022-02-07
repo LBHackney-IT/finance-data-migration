@@ -9,6 +9,9 @@ using System.Xml.Linq;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure.Entities;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
+using System.Threading;
+using System.Transactions;
+using FinanceDataMigrationApi.V1.Infrastructure.Extensions;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure
 {
@@ -81,7 +84,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public async Task<IList<DmChargesDbEntity>> GetDMChargeEntitiesAsync()
             => await ChargesDbEntities
                 .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
-                .ToListAsync()
+                .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
 
@@ -101,7 +104,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .Where(x => x.MigrationStatus == EMigrationStatus.Extracted)
                 .Take(count)
                 .Include(p => p.DetailedChargesDbEntities)
-                .ToListAsync()
+                .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
         public async Task<IList<DmChargesDbEntity>> GetTransformedChargeListAsync(int count)
@@ -109,7 +112,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
                 .Take(count)
                 .Include(p => p.DetailedChargesDbEntities)
-                .ToListAsync()
+                .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
         public async Task<IList<DmChargesDbEntity>> GetLoadedChargeListAsync(int count)
@@ -117,7 +120,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .Where(x => x.MigrationStatus == EMigrationStatus.Loaded)
                 .Take(count)
                 .Include(p => p.DetailedChargesDbEntities)
-                .ToListAsync()
+                .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
         ///// <summary>
@@ -135,7 +138,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         //    {
         //        var result = await DMDetailedChargesEntities
         //            .FromSqlRaw("[dbo].[usp_ExtractDetailedChargesEntity] @payment_reference", param)
-        //            .ToListAsync()
+        //            .ToListWithNoLockAsync()
         //            .ConfigureAwait(false);
 
         //        return result;
@@ -181,13 +184,13 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public async Task<IList<DmTransactionDbEntity>> GetTransformedListAsync()
             => await DmTransactionEntities
                 .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
-                .ToListAsync()
+                .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
         public async Task<IList<DmTransactionDbEntity>> GetLoadedListAsync()
             => await DmTransactionEntities
                 .Where(x => x.MigrationStatus == EMigrationStatus.Loaded)
-                .ToListAsync()
+                .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
         #endregion
@@ -226,14 +229,14 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             => await DmTransactionEntities
                 .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
                 .Take(count)
-                .ToListAsync()
+                .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
         public async Task<IList<DmTransactionDbEntity>> GetExtractedTransactionListAsync(int count)
             => await DmTransactionEntities
                 .Where(x => x.MigrationStatus == EMigrationStatus.Extracted)
                 .Take(count)
-                .ToListAsync()
+                .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
         public static DatabaseContext Create()

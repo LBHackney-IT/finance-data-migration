@@ -1,4 +1,4 @@
-using FinanceDataMigrationApi.V1.Infrastructure.Extentions;
+using FinanceDataMigrationApi.V1.Infrastructure.Extensions;
 using FluentAssertions;
 using Hackney.Shared.HousingSearch.Domain.Accounts.Enum;
 using System;
@@ -6,7 +6,7 @@ using Xunit;
 
 namespace FinanceDataMigrationApi.Tests.V1.Infrastructure.Extensions
 {
-    public class EnumsExtentionsTests
+    public class EnumsExtensionsTests
     {
         [Fact]
         public void ToEnumStringValueAccountStatusIsNotNullShouldReturnsEnumValue()

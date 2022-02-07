@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
-using FinanceDataMigrationApi.V1.Infrastructure.Extentions;
+using FinanceDataMigrationApi.V1.Infrastructure.Extensions;
 using Hackney.Shared.HousingSearch.Domain.Accounts.Enum;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
 using Hackney.Shared.HousingSearch.Gateways.Models.Accounts;
