@@ -28,11 +28,6 @@ namespace FinanceDataMigrationApi
 {
     public class Handler
     {
-
-        //private readonly IExtractTransactionEntityUseCase _extractTransactionsUseCase;
-        //private readonly ITransformTransactionEntityUseCase _transformTransactionsUseCase;
-        //private readonly ILoadTransactionEntityUseCase _loadTransactionsUseCase;
-
         readonly ILoadChargeEntityUseCase _loadChargeEntityUseCase;
         readonly IExtractChargeEntityUseCase _extractChargeEntityUseCase;
         readonly IGetLastHintUseCase _getLastHintUseCase;
@@ -73,25 +68,6 @@ namespace FinanceDataMigrationApi
 
 
             IDMRunLogGateway migrationRunGateway = new DMRunLogGateway(context);
-
-            #region Commented
-            /*IDMTransactionEntityGateway dMTransactionEntityGateway = new DMTransactionEntityGateway(context);
-            var httpClient = new HttpClient();
-            ITransactionGateway transactionGateway = new TransactionGateway(httpClient);
-
-            IGetEnvironmentVariables getEnvironmentVariables = new GetEnvironmentVariables();
-            ICustomeHttpClient _customeHttpClient = new CustomeHttpClient();
-            ITenureGateway tenureGateway = new TenureGateway(_customeHttpClient, getEnvironmentVariables);
-
-            _extractTransactionsUseCase = new ExtractTransactionEntityUseCase(migrationRunGateway, dMTransactionEntityGateway);
-
-            _transformTransactionsUseCase = new TransformTransactionEntityUseCase(migrationRunGateway, dMTransactionEntityGateway, tenureGateway);
-
-            _loadTransactionsUseCase = new LoadTransactionEntityUseCase(migrationRunGateway, dMTransactionEntityGateway, transactionGateway);*/
-            #endregion
-
-            /*var url = Environment.GetEnvironmentVariable("DynamoDb_LocalServiceUrl");
-            var clientConfig = new AmazonDynamoDBConfig { ServiceURL = url };*/
 
             IAmazonDynamoDB amazonDynamoDb = new AmazonDynamoDBClient();
             IDynamoDBContext dynamoDbContext = new DynamoDBContext(amazonDynamoDb);
