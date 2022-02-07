@@ -18,12 +18,12 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
         /// <summary>
         /// Get or sets the Data Migration Runs
         /// </summary>
-        public DbSet<DMRunLog> DMRunLogs { get; set; }
+        public DbSet<DMRunLog> DmRunLogs { get; set; }
 
         /// <summary>
         /// Get or sets the Data Migration Account Entities
         /// </summary>
-        public DbSet<DMAccountEntity> DMAccountEntities { get; set; }
+        public DbSet<DMAccountEntity> DmAccountEntities { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DbAccountsContext"/> class.
@@ -73,7 +73,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
         }
 
         public async Task<IList<DMAccountEntity>> GetLoadedListAsync()
-            => await DMAccountEntities
+            => await DmAccountEntities
                 .Where(x => x.IsTransformed && x.IsLoaded)
                 .ToListAsync()
                 .ConfigureAwait(false);

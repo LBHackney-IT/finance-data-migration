@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
-    public class DMAccountEntityGateway : IDMAccountEntityGateway
+    public class DmAccountEntityGateway : IDMAccountEntityGateway
     {
         private readonly DbAccountsContext _context;
 
         private readonly int _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE"));
 
-        public DMAccountEntityGateway(DbAccountsContext context)
+        public DmAccountEntityGateway(DbAccountsContext context)
         {
             _context = context;
         }
@@ -52,7 +52,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
         {
             try
             {
-                var results = await _context.DMAccountEntities
+                var results = await _context.DmAccountEntities
                     .Where(x => x.IsTransformed == false)
                     .ToListAsync()
                     .ConfigureAwait(false);
@@ -71,7 +71,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
         {
             try
             {
-                var results = await _context.DMAccountEntities
+                var results = await _context.DmAccountEntities
                                 .Where(x => x.IsTransformed && !x.IsLoaded)
                                 .ToListAsync()
                                 .ConfigureAwait(false);

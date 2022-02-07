@@ -78,11 +78,11 @@ functions:
     timeout: 900
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::ExtractCharge
     role: lambdaExecutionRole
-  transformTransactions:
-    name: ${self:service}-${self:provider.stage}-transform-transactions
-    description: "The scheduler to transform the extracted Transaction entity data to be migrated. "
+  extractTransactions:
+    name: ${self:service}-${self:provider.stage}-extract-transactions
+    description: "The scheduler to extract Transaction entity data to be migrated. "
     timeout: 900
-    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::TransformTransactions  
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::ExtractTransactions  
     role: lambdaExecutionRole
   loadTransactions:
     name: ${self:service}-${self:provider.stage}-load-transactions
@@ -204,7 +204,7 @@ stepFunctions:
       events:
         - schedule: cron(0/30 * * * ? *)
       definition:
-        Comment: "Save the load charge entity into charge dynamodb collection in FFS."
+        Comment: "Save the loaded charges data into charge dynamodb collection in FFS."
         StartAt: LoadCharge
         States:
           LoadCharge:
@@ -258,6 +258,46 @@ stepFunctions:
                 MaxAttempts: 3
                 BackoffRate: 2
             Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
+    loadTransactions:
+      name: DmLoadTransactions
+      events:
+        - schedule: cron(0/5 * * * ? *)
+      definition:
+        Comment: "Save the loaded transactions data into transaction dynamodb collection in FFS."
+        StartAt: LoadTransactions
+        States:
+          LoadTransactions:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [loadTransactions, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: Wait_1
+          Wait_1:
+              Type: Wait
+              TimestampPath: $.NextStepTime
+              Next: Choice_1
+          Choice_1:
+            Type: Choice
+            Choices:
+              - Variable: $.Continue
+                BooleanEquals: true
+                Next: LoadTransactions
+              - Variable: $.Continue
+                BooleanEquals: false
+                Next: EndStep
           EndStep:
             Type: Succeed
       dependsOn: lambdaExecutionRole

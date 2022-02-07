@@ -186,7 +186,7 @@ namespace FinanceDataMigrationApi
 
             services.AddScoped<IChargeGateway, ChargeGateway>();
             services.AddScoped<IDMTransactionEntityGateway, DMTransactionEntityGateway>();
-            services.AddScoped<IDMAccountEntityGateway, DMAccountEntityGateway>();
+            services.AddScoped<IDMAccountEntityGateway, DmAccountEntityGateway>();
             services.AddScoped<ITransactionGateway, TransactionGateway>();
             services.AddScoped<IDMRunLogGateway, DMRunLogGateway>();
             services.AddScoped<ITenureGateway, TenureGateway>();
