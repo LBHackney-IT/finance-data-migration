@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TransactionPerson = FinanceDataMigrationApi.V1.Domain.TransactionPerson;
 
-namespace FinanceDataMigrationApi.V1.UseCase
+namespace FinanceDataMigrationApi.V1.UseCase.Transactions
 {
     public class TransformTransactionEntityUseCase : ITransformTransactionEntityUseCase
     {

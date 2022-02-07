@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceDataMigrationApi.V1.Gateways
@@ -16,8 +17,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
     {
         private readonly DatabaseContext _context;
 
-        private readonly int _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE")
-            );
+        private readonly int _batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BATCH_SIZE"));
 
         public DMTransactionEntityGateway(DatabaseContext context)
         {
@@ -42,34 +42,34 @@ namespace FinanceDataMigrationApi.V1.Gateways
         /// <returns>
         /// The list of Transaction Entities.
         /// </returns>
-        public async Task<IList<DMTransactionEntityDomain>> ListAsync()
+        public async Task<IList<DmTransaction>> ListAsync()
         {
-            var results = await _context.DMTransactionEntities
-                .Where(x => x.IsTransformed == false)
+            var results = await _context.DmTransactionEntities
+                .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
             return results.ToDomain();
         }
 
-        public async Task UpdateDMTransactionEntityItems(IList<DMTransactionEntityDomain> dMTransactionEntityDomainItems)
+        public async Task UpdateDMTransactionEntityItems(IList<DmTransaction> dMTransactionEntityDomainItems)
         {
             await _context.BulkUpdateAsync(dMTransactionEntityDomainItems.ToDatabase(), new BulkConfig { BatchSize = _batchSize }).ConfigureAwait(false);
         }
 
-        public async Task<IList<DMTransactionEntityDomain>> GetTransformedListAsync()
+        public async Task<IList<DmTransaction>> GetTransformedListAsync()
         {
             var results = await _context.GetTransformedListAsync().ConfigureAwait(false);
             return results.ToDomain();
         }
 
-        public async Task<IList<DMTransactionEntityDomain>> GetLoadedListAsync()
+        public async Task<IList<DmTransaction>> GetLoadedListAsync()
         {
             var results = await _context.GetLoadedListAsync().ConfigureAwait(false);
             return results.ToDomain();
         }
 
-        public async Task<int> AddTransactionAsync(DMTransactionEntityDomain dmEntity)
+        public async Task<int> AddTransactionAsync(DmTransaction dmEntity)
         {
             await Task.Delay(0).ConfigureAwait(false);
             return -1;

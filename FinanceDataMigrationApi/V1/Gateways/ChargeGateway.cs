@@ -38,7 +38,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             return await _context.ExtractDMChargesAsync().ConfigureAwait(false);
         }
 
-        public async Task<IList<Charge>> GetExtractedListAsync(int count)
+        public async Task<IList<DmCharge>> GetExtractedListAsync(int count)
         {
             var results = await _context.GetExtractedChargeListAsync(count).ConfigureAwait(false);
             results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
@@ -46,7 +46,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             return results.ToDomain();
         }
 
-        public async Task<IList<Charge>> GetTransformedListAsync(int count)
+        public async Task<IList<DmCharge>> GetTransformedListAsync(int count)
         {
             var results = await _context.GetTransformedChargeListAsync(count).ConfigureAwait(false);
             results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
@@ -54,10 +54,10 @@ namespace FinanceDataMigrationApi.V1.Gateways
             return results.ToDomain();
         }
 
-        public async Task BatchInsert(List<Charge> charges)
+        public async Task BatchInsert(List<DmCharge> charges)
         {
             List<TransactWriteItem> actions = new List<TransactWriteItem>();
-            foreach (Charge charge in charges)
+            foreach (DmCharge charge in charges)
             {
                 var columns = charge.ToQueryRequest();
 

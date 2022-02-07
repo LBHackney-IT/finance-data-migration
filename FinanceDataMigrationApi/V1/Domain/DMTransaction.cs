@@ -1,8 +1,9 @@
 using System;
+using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 
 namespace FinanceDataMigrationApi.V1.Domain
 {
-    public class DMTransactionEntityDomain
+    public class DmTransaction
     {
         public long Id { get; set; }
 
@@ -42,16 +43,22 @@ namespace FinanceDataMigrationApi.V1.Domain
 
         public decimal? BalanceAmount { get; set; }
 
-        public string Person { get; set; }
+        public string Sender { get; set; }
 
         public string Fund { get; set; }
 
-        public bool IsTransformed { get; set; }
+        public string Address { get; set; }
 
-        public bool IsLoaded { get; set; }
+        public EMigrationStatus MigrationStatus { get; set; }
 
         public bool IsIndexed { get; set; }
 
         public DateTimeOffset CreatedAt { get; set; }
+
+        public string CreatedBy { get; set; }
+
+        public DateTimeOffset LastUpdatedAt { get; set; }
+
+        public string LastUpdatedBy { get; set; }
     }
 }

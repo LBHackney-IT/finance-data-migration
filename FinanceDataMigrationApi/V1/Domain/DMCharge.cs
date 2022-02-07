@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
-using Hackney.Shared.HousingSearch.Domain.Transactions;
 
 namespace FinanceDataMigrationApi.V1.Domain
 {
-    public class Charge
+    public class DmCharge
     {
         public long Id { get; set; }
         public Guid IdDynamodb { get; set; }
@@ -17,6 +16,6 @@ namespace FinanceDataMigrationApi.V1.Domain
         public EMigrationStatus MigrationStatus { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public int ChargeYear { get; set; }
-        public List<DetailedCharges> DetailedCharges { get; set; }
+        public List<DmDetailedCharges> DetailedCharges { get; set; }
     }
 }

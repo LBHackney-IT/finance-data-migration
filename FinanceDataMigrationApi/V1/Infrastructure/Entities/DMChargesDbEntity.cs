@@ -8,7 +8,7 @@ using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 namespace FinanceDataMigrationApi.V1.Infrastructure.Entities
 {
     [Table("DMChargesEntity")]
-    public class ChargesDbEntity
+    public class DmChargesDbEntity
     {
         [Key]
         [Column("id")]
@@ -39,6 +39,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Entities
         public DateTimeOffset CreatedAt { get; set; }
 
         [Column("detailed_charges")]
-        public List<DetailedChargesDbEntity> DetailedChargesDbEntities { get; set; }
+        public List<DmDetailedChargesDbEntity> DetailedChargesDbEntities { get; set; }
     }
 }

@@ -7,16 +7,16 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
 {
     public interface IDMTransactionEntityGateway
     {
-        Task<IList<DMTransactionEntityDomain>> ListAsync();
+        Task<IList<DmTransaction>> ListAsync();
 
         Task<int> ExtractAsync(DateTimeOffset? processingDate);
 
-        Task UpdateDMTransactionEntityItems(IList<DMTransactionEntityDomain> dMTransactionEntityDomainItems);
+        Task UpdateDMTransactionEntityItems(IList<DmTransaction> dMTransactionEntityDomainItems);
 
-        Task<IList<DMTransactionEntityDomain>> GetTransformedListAsync();
+        Task<IList<DmTransaction>> GetTransformedListAsync();
 
-        Task<IList<DMTransactionEntityDomain>> GetLoadedListAsync();
+        Task<IList<DmTransaction>> GetLoadedListAsync();
 
-        Task<int> AddTransactionAsync(DMTransactionEntityDomain dmEntity);
+        Task<int> AddTransactionAsync(DmTransaction dmEntity);
     }
 }

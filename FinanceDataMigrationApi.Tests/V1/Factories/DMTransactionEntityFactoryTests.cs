@@ -10,16 +10,16 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
 {
     public class DMTransactionEntityFactoryTests
     {
-        private readonly DMTransactionEntityDomain _dMTransactionEntityDomain;
-        private readonly DMTransactionEntityDomain _dMTransactionEntityDomainWithNull;
+        private readonly DmTransaction _dMTransactionEntityDomain;
+        private readonly DmTransaction _dMTransactionEntityDomainWithNull;
         private readonly DMTransactionEntity _dMTransactionEntity;
         private readonly DMTransactionEntity _dMTransactionEntityWithNull;
         private readonly IList<DMTransactionEntity> _listOfDbEntities;
-        private readonly IList<DMTransactionEntityDomain> _listOfDbDomainEntities;
+        private readonly IList<DmTransaction> _listOfDbDomainEntities;
 
         public DMTransactionEntityFactoryTests()
         {
-            _dMTransactionEntityDomain = new DMTransactionEntityDomain
+            _dMTransactionEntityDomain = new DmTransaction
             {
                 Id = long.MaxValue,
                 BalanceAmount = decimal.MaxValue,
@@ -82,7 +82,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
             {
                 _dMTransactionEntity
             };
-            _listOfDbDomainEntities = new List<DMTransactionEntityDomain>
+            _listOfDbDomainEntities = new List<DmTransaction>
             {
                 _dMTransactionEntityDomain
             };

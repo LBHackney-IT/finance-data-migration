@@ -20,6 +20,6 @@ namespace FinanceDataMigrationApi.V1.Boundary.Request
         [AllowedValues(typeof(ChargeGroup))]
         public ChargeGroup ChargeGroup { get; set; }
 
-        public IEnumerable<DetailedCharges> DetailedCharges { get; set; }
+        public IEnumerable<DmDetailedCharges> DetailedCharges { get; set; }
     }
 }

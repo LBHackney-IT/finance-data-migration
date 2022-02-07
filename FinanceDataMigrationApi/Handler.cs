@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
@@ -15,8 +14,12 @@ using FinanceDataMigrationApi.V1.UseCase;
 using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure.Entities;
+using FinanceDataMigrationApi.V1.UseCase.Charges;
 using FinanceDataMigrationApi.V1.UseCase.DmRunStatus;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Charges;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.DmRunStatus;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions;
+using FinanceDataMigrationApi.V1.UseCase.Transactions;
 using Microsoft.EntityFrameworkCore;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -43,6 +46,8 @@ namespace FinanceDataMigrationApi
         readonly IDmChargeExtractRunStatusSaveUseCase _dmChargeExtractRunStatusSaveUseCase;
         readonly IDmChargeLoadRunStatusSaveUseCase _dmChargeLoadRunStatusSaveUseCase;
         readonly ITimeLogSaveUseCase _timeLogSaveUseCase;
+        readonly IExtractTransactionEntityUseCase _extractTransactionEntityUseCase;
+        readonly ILoadTransactionEntityUseCase _loadTransactionEntityUseCase;
         /// <summary>
         /// Waiting time for next run, in second
         /// </summary>
@@ -89,11 +94,13 @@ namespace FinanceDataMigrationApi
             IAmazonDynamoDB amazonDynamoDb = new AmazonDynamoDBClient();
             IDynamoDBContext dynamoDbContext = new DynamoDBContext(amazonDynamoDb);
             IChargeGateway chargeGateway = new ChargeGateway(context, amazonDynamoDb);
+            ITransactionGateway transactionGateway = new TransactionGateway(context, amazonDynamoDb);
             ITenureGateway tenureGateway = new TenureGateway(context, amazonDynamoDb, dynamoDbContext);
             IAssetGateway assetGateway = new AssetGateway(context, amazonDynamoDb);
             IHitsGateway hitsGateway = new HitsGateway(context);
             IDmRunStatusGateway dmRunStatusGateway = new DmRunStatusGateway(context);
             ITimeLogGateway timeLogGateway = new TimeLogGateway(context);
+            IDMRunLogGateway dmRunLogGateway = new DMRunLogGateway(context);
 
             _getLastHintUseCase = new GetLastHintUseCase(hitsGateway);
             _loadChargeEntityUseCase = new LoadChargeEntityUseCase(migrationRunGateway, chargeGateway);
@@ -107,23 +114,21 @@ namespace FinanceDataMigrationApi
             _dmTenureRunStatusSaveUseCase = new DmTenureRunStatusSaveUseCase(dmRunStatusGateway);
             _dmChargeExtractRunStatusSaveUseCase = new DmChargeExtractRunStatusSaveUseCase(dmRunStatusGateway);
             _dmChargeLoadRunStatusSaveUseCase = new DmChargeLoadRunStatusSaveUseCase(dmRunStatusGateway);
+
+            _extractTransactionEntityUseCase = new ExtractTransactionEntityUseCase(dmRunLogGateway, transactionGateway);
+            _loadTransactionEntityUseCase = new LoadTransactionEntityUseCase(dmRunLogGateway, transactionGateway);
             _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
+
         }
 
-        /*public async Task<StepResponse> ExtractTransactions()
+        public async Task<StepResponse> ExtractTransactions()
         {
-            return await _extractTransactionsUseCase.ExecuteAsync().ConfigureAwait(false);
+            return await _extractTransactionEntityUseCase.ExecuteAsync().ConfigureAwait(false);
         }
-
-        public async Task<StepResponse> TransformTransactions()
-        {
-            return await _transformTransactionsUseCase.ExecuteAsync().ConfigureAwait(false);
-        }
-
         public async Task<StepResponse> LoadTransactions()
         {
             return await _loadTransactionsUseCase.ExecuteAsync().ConfigureAwait(false);
-        }*/
+        }
 
         public async Task<StepResponse> LoadCharge()
         {

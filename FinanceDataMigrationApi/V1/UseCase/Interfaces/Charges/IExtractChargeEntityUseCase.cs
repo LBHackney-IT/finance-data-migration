@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace FinanceDataMigrationApi.V1.UseCase.Interfaces
+namespace FinanceDataMigrationApi.V1.UseCase.Interfaces.Charges
 {
     public interface IExtractChargeEntityUseCase
     {

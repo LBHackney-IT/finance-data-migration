@@ -73,11 +73,11 @@ namespace FinanceDataMigrationApi.V1.Factories
             return dmChargesEntityDomains.Select(item => item.ToAddChargeRequest()).ToList();
         }*/
 
-        public static Charge ToDomain(this ChargesDbEntity dMChargesEntity)
+        public static DmCharge ToDomain(this DmChargesDbEntity dMChargesEntity)
         {
             return dMChargesEntity == null
                 ? null
-                : new Charge()
+                : new DmCharge()
                 {
                     Id = dMChargesEntity.Id,
                     IdDynamodb = dMChargesEntity.IdDynamoDb,
@@ -87,7 +87,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                     TargetType = dMChargesEntity.TargetType,
                     ChargeGroup = dMChargesEntity.ChargeGroup,
                     DetailedCharges = dMChargesEntity.DetailedChargesDbEntities?
-                        .Select(p => new DetailedCharges
+                        .Select(p => new DmDetailedCharges
                         {
                             Amount = p.Amount,
                             ChargeCode = p.ChargeCode,
@@ -106,11 +106,11 @@ namespace FinanceDataMigrationApi.V1.Factories
                 };
         }
 
-        public static List<Charge> ToDomain(this IList<ChargesDbEntity> databaseEntity)
+        public static List<DmCharge> ToDomain(this IList<DmChargesDbEntity> databaseEntity)
         {
             return databaseEntity.Select(p => p.ToDomain()).ToList();
         }
-        public static Dictionary<string, AttributeValue> ToQueryRequest(this Charge charge)
+        public static Dictionary<string, AttributeValue> ToQueryRequest(this DmCharge charge)
         {
             return new Dictionary<string, AttributeValue>()
             {

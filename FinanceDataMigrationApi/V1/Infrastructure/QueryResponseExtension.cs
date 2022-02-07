@@ -88,7 +88,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             var consolidatedChargesList = new List<ConsolidatedCharge>();
             foreach (Dictionary<string, AttributeValue> item in response.Items)
             {
-                var detailCharges = new List<DetailedCharges>();
+                var detailCharges = new List<DmDetailedCharges>();
                 var innerItem = item["detailed_charges"].L;
                 foreach (var detail in innerItem)
                 {

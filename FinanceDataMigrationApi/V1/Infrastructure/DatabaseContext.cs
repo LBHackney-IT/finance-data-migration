@@ -26,12 +26,12 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PaidAmount).HasColumnType("decimal");
             //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PeriodNo).HasColumnType("decimal");
             //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.TransactionAmount).HasColumnType("decimal");
-            modelBuilder.Entity<DMTransactionEntity>().Property(x => x.TargetId).HasDefaultValueSql("NEWID()");
+            modelBuilder.Entity<DmTransactionDbEntity>().Property(x => x.TargetId).HasDefaultValueSql("NEWID()");
             //modelBuilder.Entity<ChargesDbEntity>()
             //    .HasMany(c => c.DetailedChargesDbEntities)
             //    .WithOne(d => d.ChargesDbEntity)
             //    .HasForeignKey(c => c.ChargeId);
-            modelBuilder.Entity<DetailedChargesDbEntity>()
+            modelBuilder.Entity<DmDetailedChargesDbEntity>()
                 .HasOne(c => c.ChargesDbEntity)
                 .WithMany(c => c.DetailedChargesDbEntities)
                 .HasForeignKey(c => c.ChargeId);
@@ -56,17 +56,17 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// <summary>
         /// Get or sets the Data Migration Transaction Entities
         /// </summary>
-        public DbSet<DMTransactionEntity> DMTransactionEntities { get; set; }
+        public DbSet<DmTransactionDbEntity> DmTransactionEntities { get; set; }
 
         /// <summary>
         /// Get or sets the Data Migration Charge Entity
         /// </summary>
-        public DbSet<ChargesDbEntity> ChargesDbEntities { get; set; }
+        public DbSet<DmChargesDbEntity> ChargesDbEntities { get; set; }
 
         /// <summary>
         /// Get Data Migration Detailed Charges Entities
         /// </summary>
-        public DbSet<DetailedChargesDbEntity> DetailedChargesEntities { get; set; }
+        public DbSet<DmDetailedChargesDbEntity> DetailedChargesEntities { get; set; }
 
         public DbSet<DmRunStatusModel> DmRunStatusModels { get; set; }
         public DbSet<DmTimeLogModel> DmTimeLogModels { get; set; }
@@ -78,7 +78,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// Get the Data Migration Charge Entities
         /// </summary>
         /// <returns>The Transactions to migrate</returns>
-        public async Task<IList<ChargesDbEntity>> GetDMChargeEntitiesAsync()
+        public async Task<IList<DmChargesDbEntity>> GetDMChargeEntitiesAsync()
             => await ChargesDbEntities
                 .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
                 .ToListAsync()
@@ -98,24 +98,24 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .ConfigureAwait(false);
         }
 
-        public async Task<IList<ChargesDbEntity>> GetExtractedChargeListAsync(int count)
-            => await this.Set<ChargesDbEntity>()
+        public async Task<IList<DmChargesDbEntity>> GetExtractedChargeListAsync(int count)
+            => await this.Set<DmChargesDbEntity>()
                 .Where(x => x.MigrationStatus == EMigrationStatus.Extracted)
                 .Take(count)
                 .Include(p => p.DetailedChargesDbEntities)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-        public async Task<IList<ChargesDbEntity>> GetTransformedChargeListAsync(int count)
-            => await this.Set<ChargesDbEntity>()
+        public async Task<IList<DmChargesDbEntity>> GetTransformedChargeListAsync(int count)
+            => await this.Set<DmChargesDbEntity>()
                 .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
                 .Take(count)
                 .Include(p => p.DetailedChargesDbEntities)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-        public async Task<IList<ChargesDbEntity>> GetLoadedChargeListAsync(int count)
-            => await this.Set<ChargesDbEntity>()
+        public async Task<IList<DmChargesDbEntity>> GetLoadedChargeListAsync(int count)
+            => await this.Set<DmChargesDbEntity>()
                 .Where(x => x.MigrationStatus == EMigrationStatus.Loaded)
                 .Take(count)
                 .Include(p => p.DetailedChargesDbEntities)
@@ -161,8 +161,8 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// Get the Data Migration Transaction Entities.
         /// </summary>
         /// <returns>The Transactions to migrate.</returns>
-        public async Task<IList<DMTransactionEntity>> GetDMTransactionEntitiesAsync()
-            => await DMTransactionEntities
+        public async Task<IList<DmTransactionDbEntity>> GetDMTransactionEntitiesAsync()
+            => await DmTransactionEntities
                 .Where(x => x.IsTransformed == false)
                 .ToListAsync()
                 .ConfigureAwait(false);
@@ -193,14 +193,14 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
 
 
 
-        public async Task<IList<DMTransactionEntity>> GetTransformedListAsync()
-            => await DMTransactionEntities
+        public async Task<IList<DmTransactionDbEntity>> GetTransformedListAsync()
+            => await DmTransactionEntities
                 .Where(x => x.IsTransformed && !x.IsLoaded)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-        public async Task<IList<DMTransactionEntity>> GetLoadedListAsync()
-            => await DMTransactionEntities
+        public async Task<IList<DmTransactionDbEntity>> GetLoadedListAsync()
+            => await DmTransactionEntities
                 .Where(x => x.IsTransformed && x.IsLoaded)
                 .ToListAsync()
                 .ConfigureAwait(false);

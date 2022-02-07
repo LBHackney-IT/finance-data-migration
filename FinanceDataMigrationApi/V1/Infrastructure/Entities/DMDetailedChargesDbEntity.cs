@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FinanceDataMigrationApi.V1.Infrastructure.Entities
 {
     [Table("DMDetailedCharges")]
-    public class DetailedChargesDbEntity
+    public class DmDetailedChargesDbEntity
     {
         [Key]
         [Column("id")]
@@ -28,10 +28,8 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Entities
         public DateTime StartDate { get; set; }
         [Column("end_date")]
         public DateTime EndDate { get; set; }
-
-
         [Column("charge_id")]
         public long ChargeId { get; set; }
-        public ChargesDbEntity ChargesDbEntity { get; set; }
+        public DmChargesDbEntity ChargesDbEntity { get; set; }
     }
 }
