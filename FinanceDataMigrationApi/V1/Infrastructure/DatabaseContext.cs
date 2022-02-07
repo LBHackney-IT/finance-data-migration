@@ -89,10 +89,8 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// Extract the data migration charges entities
         /// </summary>
         /// <returns>the charges to migrate</returns>
-        public async Task<int> ExtractDMChargesAsync()
+        public async Task<int> ExtractDmChargesAsync()
         {
-            //TODO: StoredProc does not have processingDate parameters, need to clarify with Felipe, keep it consistent
-
             return await ExecuteStoredProcedure(
                 $"EXEC @returnValue = [dbo].[usp_ExtractChargesEntity]", 60000)
                 .ConfigureAwait(false);
@@ -157,16 +155,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         #region Transaction Entity Specific
 
 
-        /// <summary>
-        /// Get the Data Migration Transaction Entities.
-        /// </summary>
-        /// <returns>The Transactions to migrate.</returns>
-        public async Task<IList<DmTransactionDbEntity>> GetDMTransactionEntitiesAsync()
-            => await DmTransactionEntities
-                .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
-                .ToListAsync()
-                .ConfigureAwait(false);
-
         public async Task<int> InsertDynamoAsset(string lastHint, XElement xml)
         {
             var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_InsertDynamoAsset] '{lastHint}','{xml}'", 6000).ConfigureAwait(false);
@@ -182,15 +170,12 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// <summary>
         /// Extract the data migration transaction entities.
         /// </summary>
-        /// <param name="processingDate">the processiing date.</param>
         /// <returns>the transactions to migrate.</returns>
-        //public async Task<int> ExtractDMTransactionsAsync(DateTime? processingDate)
-        public async Task<int> ExtractDMTransactionsAsync(DateTimeOffset? processingDate)
+        public async Task<int> ExtractDmTransactionsAsync()
         {
-            var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_ExtractTransactionEntity] '{processingDate:yyyy-MM-dd}'", 6000).ConfigureAwait(false);
+            var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_ExtractTransactionEntity]", 6000).ConfigureAwait(false);
             return affectedRows;
         }
-
 
 
         public async Task<IList<DmTransactionDbEntity>> GetTransformedListAsync()
@@ -213,8 +198,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 Database.SetCommandTimeout(timeout);
             try
             {
-                //await Database.BeginTransactionAsync(IsolationLevel.ReadCommitted).ConfigureAwait(false);
-
                 var parameterReturn = new SqlParameter
                 {
                     ParameterName = "ReturnValue",
@@ -225,12 +208,11 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 var result = await Database.ExecuteSqlRawAsync(procedureRawString, parameterReturn).ConfigureAwait(false);
 
                 int returnValue = (int) parameterReturn.Value;
-                //await Database.CommitTransactionAsync().ConfigureAwait(false);
+
                 return returnValue;
             }
             catch (Exception exception)
             {
-                //await Database.RollbackTransactionAsync().ConfigureAwait(false);
                 LoggingHandler.LogError($"Executing stores procedure error in: " +
                                         $"{nameof(FinanceDataMigrationApi)}." +
                                         $"{nameof(Handler)}." +
@@ -240,5 +222,18 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         }
 
 
+        public async Task<IList<DmTransactionDbEntity>> GetTransformedTransactionListAsync(int count)
+            => await DmTransactionEntities
+                .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
+                .Take(count)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+        public async Task<IList<DmTransactionDbEntity>> GetExtractedTransactionListAsync(int count)
+            => await DmTransactionEntities
+                .Where(x => x.MigrationStatus == EMigrationStatus.Extracted)
+                .Take(count)
+                .ToListAsync()
+                .ConfigureAwait(false);
     }
 }

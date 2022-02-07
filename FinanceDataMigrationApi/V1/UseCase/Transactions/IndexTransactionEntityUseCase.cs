@@ -1,45 +1,36 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.Boundary.Response;
-using FinanceDataMigrationApi.V1.Domain;
-using FinanceDataMigrationApi.V1.Factories;
-using FinanceDataMigrationApi.V1.Gateways.Interfaces;
-using FinanceDataMigrationApi.V1.Handlers;
-using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions;
 
 namespace FinanceDataMigrationApi.V1.UseCase.Transactions
 {
     public class IndexTransactionEntityUseCase : IIndexTransactionEntityUseCase
     {
-        private readonly IDMRunLogGateway _dMRunLogGateway;
-        private readonly IDMTransactionEntityGateway _dMTransactionEntityGateway;
+        /*private readonly IDMRunLogGateway _dMRunLogGateway;
+        private readonly ITransactionGateway _transactionGateway;
         private readonly IEsGateway _esGateway;
 
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
-        private const string DataMigrationTask = "INDEXING";
+        private const string DataMigrationTask = "INDEXING";*/
 
-        public IndexTransactionEntityUseCase(IDMRunLogGateway dMRunLogGateway, IDMTransactionEntityGateway dMTransactionEntityGateway, IEsGateway esGateway)
+        /*public IndexTransactionEntityUseCase(IDMRunLogGateway dMRunLogGateway, ITransactionGateway dMTransactionEntityGateway, IEsGateway esGateway)
         {
             _dMRunLogGateway = dMRunLogGateway;
-            _dMTransactionEntityGateway = dMTransactionEntityGateway;
+            _transactionGateway = dMTransactionEntityGateway;
             _esGateway = esGateway;
-        }
-        public async Task<StepResponse> ExecuteAsync()
+        }*/
+        public Task<StepResponse> ExecuteAsync()
         {
-            LoggingHandler.LogInfo($"Starting {DataMigrationTask} task for {DMEntityNames.Transactions} entity");
-            // Get latest successfull migrationrun item from DynamoDB Table MigrationRuns. where is_feature_enabled flag is TRUE and set status is "TransformCompleted"
+            throw new NotImplementedException("Temporary disabled!");
+            /*LoggingHandler.LogInfo($"Starting {DataMigrationTask} task for {DMEntityNames.Transactions} entity");
+            
             var dmRunLogDomain = await _dMRunLogGateway.GetDMRunLogByEntityNameAsync(DMEntityNames.Transactions).ConfigureAwait(false);
 
-            //      Update migrationrun item with set status to "LoadInprogress". 
             dmRunLogDomain.LastRunStatus = MigrationRunStatus.IndexInprogress.ToString();
             await _dMRunLogGateway.UpdateAsync(dmRunLogDomain).ConfigureAwait(false);
 
-            // Get all the Transaction entity extracted data from the SOW2b SQL Server database table DMEntityTransaction,
-            //      where isTransformed flag is TRUE and isLoaded flag is FALSE
-            //      populate the dynamodb Transaction table (using the Transaction API POST endpoint). Use a Batch mode. 
-            var loadedList = await _dMTransactionEntityGateway.GetLoadedListAsync().ConfigureAwait(false);
+            var loadedList = await _transactionGateway.GetLoadedListAsync().ConfigureAwait(false);
 
             // for each row from the Transformed List call Transaction API in batch mode,
             var transactionRequestList = loadedList.ToTransactionRequestList();
@@ -59,7 +50,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
                     loadedList.ToList().ForEach(item => item.IsIndexed = true);
 
                     // Update batched rows to staging table DMTransactionEntity. 
-                    await _dMTransactionEntityGateway.UpdateDMTransactionEntityItems(loadedList).ConfigureAwait(false);
+                    await _transactionGateway.UpdateDMTransactionEntityItems(loadedList).ConfigureAwait(false);
 
                     // Update migrationrun item with SET start_row_id & end_row_id here.
                     //      and set status to "LoadCompleted" (Data Set Migrated successfully)
@@ -87,7 +78,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
             {
                 Continue = true,
                 NextStepTime = DateTime.Now.AddSeconds(int.Parse(_waitDuration))
-            };
+            };*/
         }
     }
 }

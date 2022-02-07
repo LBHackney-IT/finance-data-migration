@@ -14,7 +14,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Charges
         private readonly IChargeGateway _dMChargeGateway;
 
 
-        private const string DataMigrationTask = "EXTRACT";
+        private const string DataMigrationTask = "ExtractCharges";
 
         public ExtractChargeEntityUseCase(
             IDMRunLogGateway dmRunLogGateway,
@@ -39,7 +39,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Charges
                 var newDmRunLogDomain = await _dMRunLogGateway.AddAsync(dmRunLogDomain).ConfigureAwait(false);
 
                 LoggingHandler.LogInfo($"Calling {DataMigrationTask} SQL Stored Procedure for {DMEntityNames.Charges} entity");
-                var numberOfRowsExtracted = await _dMChargeGateway.ExtractAsync(lastRunTimestamp).ConfigureAwait(false);
+                var numberOfRowsExtracted = await _dMChargeGateway.ExtractAsync().ConfigureAwait(false);
 
                 LoggingHandler.LogInfo($"{DataMigrationTask} SQL Stored Procedure executed successfully for {DMEntityNames.Charges} entity");
                 if (numberOfRowsExtracted >= 0)

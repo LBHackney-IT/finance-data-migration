@@ -185,7 +185,6 @@ namespace FinanceDataMigrationApi
             services.AddTransient<LoggingDelegatingHandler>();
 
             services.AddScoped<IChargeGateway, ChargeGateway>();
-            services.AddScoped<IDMTransactionEntityGateway, DMTransactionEntityGateway>();
             services.AddScoped<IDMAccountEntityGateway, DmAccountEntityGateway>();
             services.AddScoped<ITransactionGateway, TransactionGateway>();
             services.AddScoped<IDMRunLogGateway, DMRunLogGateway>();
@@ -235,7 +234,6 @@ namespace FinanceDataMigrationApi
         private static void RegisterUseCases(IServiceCollection services)
         {
             services.AddScoped<IExtractTransactionEntityUseCase, ExtractTransactionEntityUseCase>();
-            services.AddScoped<ITransformTransactionEntityUseCase, TransformTransactionEntityUseCase>();
             services.AddScoped<ILoadTransactionEntityUseCase, LoadTransactionEntityUseCase>();
             services.AddScoped<IGetTenureByIdUseCase, GetTenureByIdUseCase>();
 

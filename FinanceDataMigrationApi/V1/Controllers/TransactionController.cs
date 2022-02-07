@@ -18,7 +18,28 @@ namespace FinanceDataMigrationApi.V1.Controllers
     [ApiVersion("1.0")]
     public class TransactionController : BaseController
     {
-        private readonly ITransactionBatchInsertUseCase _transactionBatchInsertUseCase;
+
+        [HttpGet]
+        [Route("extract")]
+        public async Task<IActionResult> Extract()
+        {
+
+            Handler handler = new Handler();
+            await handler.ExtractTransactions().ConfigureAwait(false);
+            return Ok("Done");
+        }
+
+        [HttpGet]
+        [Route("load")]
+        public async Task<IActionResult> Load()
+        {
+
+            Handler handler = new Handler();
+            await handler.LoadTransactions().ConfigureAwait(false);
+            return Ok("Done");
+        }
+
+        /*private readonly ITransactionBatchInsertUseCase _transactionBatchInsertUseCase;
 
         public TransactionController(ITransactionBatchInsertUseCase transactionBatchInsertUseCase)
         {
@@ -63,6 +84,6 @@ namespace FinanceDataMigrationApi.V1.Controllers
             DateTime startDateTime = DateTime.Now;
             await Task.WhenAll(tasks).ConfigureAwait(false);
             return Ok($"Elapsed time: {DateAndTime.Now.Subtract(startDateTime).TotalSeconds}");
-        }
+        }*/
     }
 }

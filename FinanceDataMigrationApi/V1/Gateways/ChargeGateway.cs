@@ -30,12 +30,10 @@ namespace FinanceDataMigrationApi.V1.Gateways
         /// <summary>
         /// Extracts the Charge Entities to migrate async
         /// </summary>
-        /// <param name="processingDate">date of processing</param>
         /// <returns>number of records extracted</returns>
-        public async Task<int> ExtractAsync(DateTimeOffset? processingDate)
+        public async Task<int> ExtractAsync()
         {
-            if (processingDate == null) throw new ArgumentNullException(nameof(processingDate));
-            return await _context.ExtractDMChargesAsync().ConfigureAwait(false);
+            return await _context.ExtractDmChargesAsync().ConfigureAwait(false);
         }
 
         public async Task<IList<DmCharge>> GetExtractedListAsync(int count)

@@ -6,7 +6,6 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
-using Hackney.Shared.HousingSearch.Domain.Transactions;
 using System.Threading.Tasks;
 using AutoMapper.Internal;
 using FinanceDataMigrationApi.V1.Domain;
@@ -27,31 +26,25 @@ namespace FinanceDataMigrationApi.V1.Gateways
             _context = context;
         }
 
-        public async Task<IList<DmTransaction>> GetTransformedListAsync()
+        public async Task<int> ExtractAsync()
         {
-            var results = await _context.GetTransformedListAsync().ConfigureAwait(false);
+            return await _context.ExtractDmTransactionsAsync().ConfigureAwait(false);
+        }
+
+        public async Task<IList<DmTransaction>> GetTransformedListAsync(int count)
+        {
+            var results = await _context.GetTransformedTransactionListAsync(count).ConfigureAwait(false);
+            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomain();
         }
 
-        public async Task<IList<DmTransaction>> GetLoadedListAsync()
+        public async Task<IList<DmTransaction>> GetExtractedListAsync(int count)
         {
-            var results = await _context.GetLoadedListAsync().ConfigureAwait(false);
+            var results = await _context.GetExtractedTransactionListAsync(count).ConfigureAwait(false);
+            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomain();
-        }
-
-        public Task<int> ExtractAsync(DateTimeOffset? processingDate)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IList<DmTransaction>> GetTransformedListAsync(int count)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IList<DmTransaction>> GetExtractedListAsync(int count)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task BatchInsert(List<DmTransaction> transactions)
@@ -129,14 +122,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 throw;
             }
 
-        }
-
-        public Task<int> UpdateTransactionItems(IList<Transaction> transactions)
-        {
-            /*var response = await _client.PostAsJsonAsyncType(new Uri("api/v1/transactions/process-batch", UriKind.Relative), transactions)
-                .ConfigureAwait(true);
-            return response ? transactions.Count : 0;*/
-            throw new NotImplementedException("replaced by transaction batch process");
         }
     }
 }

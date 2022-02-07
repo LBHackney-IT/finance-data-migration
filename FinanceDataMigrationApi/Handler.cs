@@ -121,7 +121,7 @@ namespace FinanceDataMigrationApi
             }
             catch (Exception exception)
             {
-                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ExtractCharge)} Exception: {exception.GetFullMessage()}");
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ExtractTransactions)} Exception: {exception.GetFullMessage()}");
                 return new StepResponse()
                 {
                     Continue = false
