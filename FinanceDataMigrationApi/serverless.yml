@@ -204,7 +204,7 @@ stepFunctions:
       events:
         - schedule: cron(0/30 * * * ? *)
       definition:
-        Comment: "Save the extracted charge entity into charge dynamodb collection in FFS."
+        Comment: "Save the load charge entity into charge dynamodb collection in FFS."
         StartAt: LoadCharge
         States:
           LoadCharge:
@@ -228,6 +228,73 @@ stepFunctions:
               - Variable: $.Continue
                 BooleanEquals: true
                 Next: LoadCharge
+              - Variable: $.Continue
+                BooleanEquals: false
+                Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
+    extractTransactions:
+      name: DmExtractTransactions
+      events:
+        - schedule: cron(0/5 * * * ? *)
+      definition:
+        Comment: "Extracting transaction entity to save them into the FFS."
+        StartAt: ExtractTransactions
+        States:
+          ExtractCharge:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [extractTransactions, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
+    loadTransactions:
+      name: DmLoadTransactions
+      events:
+        - schedule: cron(0/30 * * * ? *)
+      definition:
+        Comment: "Save the load transaction entity into charge dynamodb collection in FFS."
+        StartAt: LoadTransactions
+        States:
+          LoadCharge:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [loadTransactions, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: Wait_1
+          Wait_1:
+              Type: Wait
+              TimestampPath: $.NextStepTime
+              Next: Choice_1
+          Choice_1:
+            Type: Choice
+            Choices:
+              - Variable: $.Continue
+                BooleanEquals: true
+                Next: LoadTransactions
               - Variable: $.Continue
                 BooleanEquals: false
                 Next: EndStep

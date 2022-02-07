@@ -28,7 +28,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                     PaidAmount = dMTransactionEntityDomain.PaidAmount ?? 0,
                     PaymentReference = dMTransactionEntityDomain.PaymentReference,
                     PeriodNo = (short) dMTransactionEntityDomain.PeriodNo,
-                    Sender = dMTransactionEntityDomain.Sender==null?null:JsonConvert.DeserializeObject<Sender>(dMTransactionEntityDomain.Sender),
+                    Sender = dMTransactionEntityDomain.Sender == null ? null : JsonConvert.DeserializeObject<Sender>(dMTransactionEntityDomain.Sender),
                     Address = null,
                     TargetId = dMTransactionEntityDomain.TargetId,
                     TargetType = Enum.Parse<TargetType>(dMTransactionEntityDomain.TargetType),

@@ -101,7 +101,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
             if (tenureList is null) return null;
 
             var tenure = tenureList.FirstOrDefault();
-            _targetId = tenure?.Id??Guid.Empty;
+            _targetId = tenure?.Id ?? Guid.Empty;
 
 
             var householdMembers = tenureList.SelectMany(x => x.HouseholdMembers).ToList();

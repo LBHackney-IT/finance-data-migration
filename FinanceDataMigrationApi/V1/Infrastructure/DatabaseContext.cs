@@ -163,7 +163,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// <returns>The Transactions to migrate.</returns>
         public async Task<IList<DmTransactionDbEntity>> GetDMTransactionEntitiesAsync()
             => await DmTransactionEntities
-                .Where(x => x.MigrationStatus==EMigrationStatus.Transformed)
+                .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -195,7 +195,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
 
         public async Task<IList<DmTransactionDbEntity>> GetTransformedListAsync()
             => await DmTransactionEntities
-                .Where(x => x.MigrationStatus==EMigrationStatus.Transformed)
+                .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
                 .ToListAsync()
                 .ConfigureAwait(false);
 

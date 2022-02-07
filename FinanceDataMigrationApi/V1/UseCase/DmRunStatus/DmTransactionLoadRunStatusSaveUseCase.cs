@@ -5,7 +5,7 @@ using FinanceDataMigrationApi.V1.UseCase.Interfaces.DmRunStatus;
 
 namespace FinanceDataMigrationApi.V1.UseCase.DmRunStatus
 {
-    public class DmTransactionLoadRunStatusSaveUseCase: IDmTransactionLoadRunStatusSaveUseCase
+    public class DmTransactionLoadRunStatusSaveUseCase : IDmTransactionLoadRunStatusSaveUseCase
     {
         private readonly IDmRunStatusGateway _gateway;
 

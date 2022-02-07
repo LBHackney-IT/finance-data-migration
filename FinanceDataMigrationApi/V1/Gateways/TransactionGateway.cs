@@ -21,7 +21,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
         private readonly IAmazonDynamoDB _amazonDynamoDb;
         private readonly DatabaseContext _context;
 
-        public TransactionGateway(DatabaseContext context,IAmazonDynamoDB amazonDynamoDb)
+        public TransactionGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb)
         {
             _amazonDynamoDb = amazonDynamoDb;
             _context = context;
