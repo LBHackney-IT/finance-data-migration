@@ -247,7 +247,7 @@ stepFunctions:
         Comment: "Extracting transaction entity to save them into the FFS."
         StartAt: ExtractTransactions
         States:
-          ExtractCharge:
+          ExtractTransactions:
             Type: Task
             Resource:
               Fn::GetAtt: [extractTransactions, Arn]
@@ -274,7 +274,7 @@ stepFunctions:
         Comment: "Save the load transaction entity into charge dynamodb collection in FFS."
         StartAt: LoadTransactions
         States:
-          LoadCharge:
+          LoadTransactions:
             Type: Task
             Resource:
               Fn::GetAtt: [loadTransactions, Arn]
