@@ -118,7 +118,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                 {"target_id", new AttributeValue {S = charge.TargetId.ToString()}},
                 {"target_type", new AttributeValue {S = charge.TargetType.ToString()}},
                 {"charge_group", new AttributeValue {S = charge.ChargeGroup.ToString()}},
-                {"charge_year", new AttributeValue {N = charge.ChargeYear.ToString()}},
+                {"charge_year", new AttributeValue {N = charge.DetailedCharges.FirstOrDefault()?.StartDate.Year.ToString()}},
                 {
                     "detailed_charges",charge.DetailedCharges==null?new AttributeValue(""):
                     new AttributeValue

@@ -31,13 +31,16 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
                 var extractedList = await _transactionGateway.GetExtractedListAsync(count).ConfigureAwait(false);
                 if (extractedList.Any())
                 {
-                    List<Task> tasks = new List<Task>();
+                    //List<Task> tasks = new List<Task>();
                     for (int i = 0; i <= extractedList.Count / _batchSize; i++)
                     {
-                        tasks.Add(_transactionGateway.BatchInsert(extractedList.OrderBy(p => p.Id).
-                            Skip(i * _batchSize).Take(_batchSize).ToList()));
+                        //tasks.Add();
+                        await _transactionGateway
+                            .BatchInsert(
+                                extractedList.OrderBy(p => p.Id).Skip(i * _batchSize).Take(_batchSize).ToList())
+                            .ConfigureAwait(false);
                     }
-                    await Task.WhenAll(tasks).ConfigureAwait(false);
+                    //await Task.WhenAll(tasks).ConfigureAwait(false);
                 }
                 else
                 {

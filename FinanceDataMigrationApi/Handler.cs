@@ -115,7 +115,7 @@ namespace FinanceDataMigrationApi
                     };
                     await _extractTransactionEntityUseCase.ExecuteAsync().ConfigureAwait(false);
                     await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
-                    await _dmTransactionExtractRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
+                    //await _dmTransactionExtractRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
                 }
                 return new StepResponse() { Continue = false };
             }
@@ -222,7 +222,7 @@ namespace FinanceDataMigrationApi
                     };
                     await _extractChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
                     await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
-                    await _dmChargeExtractRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
+                    //await _dmChargeExtractRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
                 }
                 return new StepResponse() { Continue = false };
             }
