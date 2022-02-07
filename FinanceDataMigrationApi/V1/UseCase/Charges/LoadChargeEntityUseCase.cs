@@ -36,8 +36,14 @@ namespace FinanceDataMigrationApi.V1.UseCase.Charges
                     {
                         tasks.Add(_chargeGateway.BatchInsert(extractedList.OrderBy(p => p.Id).
                             Skip(i * _batchSize).Take(_batchSize).ToList()));
+                        if (tasks.Count == 20)
+                        {
+                            await Task.WhenAll(tasks).ConfigureAwait(false);
+                            tasks.Clear();
+                        }
                     }
-                    await Task.WhenAll(tasks).ConfigureAwait(false);
+                    if (tasks.Count > 0)
+                        await Task.WhenAll(tasks).ConfigureAwait(false);
                 }
                 else
                 {
@@ -57,9 +63,9 @@ namespace FinanceDataMigrationApi.V1.UseCase.Charges
             catch (Exception ex)
             {
                 LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}" +
-                    $".{nameof(Handler)}" +
-                    $".{nameof(ExecuteAsync)}" +
-                    $" load charge exception: {ex.Message}");
+                                        $".{nameof(Handler)}" +
+                                        $".{nameof(ExecuteAsync)}" +
+                                        $" load charge exception: {ex.Message}");
                 return new StepResponse()
                 {
                     Continue = true,

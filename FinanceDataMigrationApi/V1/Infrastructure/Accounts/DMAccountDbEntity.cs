@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
 {
@@ -8,7 +9,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
     /// The Data Migration Transaction Entity.
     /// </summary>
     [Table("DMAccountsEntity")]
-    public class DMAccountEntity
+    public class DmAccountDbEntity
     {
         [Key]
         [Column("id")]
@@ -74,11 +75,8 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
         [Column("account_status")]
         public string AccountStatus { get; set; }
 
-        [Column("is_transformed")]
-        public bool IsTransformed { get; set; }
-
-        [Column("is_loaded")]
-        public bool IsLoaded { get; set; }
+        [Column("migration_status")]
+        public EMigrationStatus MigrationStatus { get; set; }
 
         [Column("is_indexed")]
         public bool? IsIndexed { get; set; }

@@ -45,6 +45,7 @@ namespace FinanceDataMigrationApi
         readonly ILoadTransactionEntityUseCase _loadTransactionEntityUseCase;
         readonly IDmTransactionExtractRunStatusSaveUseCase _dmTransactionExtractRunStatusSaveUseCase;
         readonly IDmTransactionLoadRunStatusSaveUseCase _dmTransactionLoadRunStatusSaveUseCase;
+        readonly IExtractAccountEntityUseCase _extractAccountEntityUseCase;
         readonly int _waitDuration;
 
         private readonly int _batchSize;
@@ -68,6 +69,7 @@ namespace FinanceDataMigrationApi
             IDmRunStatusGateway dmRunStatusGateway = new DmRunStatusGateway(context);
             ITimeLogGateway timeLogGateway = new TimeLogGateway(context);
             IDMRunLogGateway dmRunLogGateway = new DMRunLogGateway(context);
+            IDMAccountEntityGateway
 
             _getLastHintUseCase = new GetLastHintUseCase(hitsGateway);
             _loadChargeEntityUseCase = new LoadChargeEntityUseCase(migrationRunGateway, chargeGateway);

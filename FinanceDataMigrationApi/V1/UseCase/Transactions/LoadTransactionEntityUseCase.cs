@@ -41,7 +41,6 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
                             tasks.Clear();
                         }
                     }
-
                     if (tasks.Count > 0)
                         await Task.WhenAll(tasks).ConfigureAwait(false);
                 }

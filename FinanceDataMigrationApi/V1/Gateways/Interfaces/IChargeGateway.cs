@@ -9,7 +9,6 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
     public interface IChargeGateway
     {
         Task<int> ExtractAsync();
-        Task<IList<DmCharge>> GetTransformedListAsync(int count);
         Task<IList<DmCharge>> GetExtractedListAsync(int count);
         Task BatchInsert(List<DmCharge> charges);
     }

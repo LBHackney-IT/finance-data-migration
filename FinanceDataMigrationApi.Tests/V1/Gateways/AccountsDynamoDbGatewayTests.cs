@@ -18,29 +18,29 @@ namespace FinanceDataMigrationApi.Tests.V1.Gateways
     public class AccountsDynamoDbGatewayTests
     {
         private readonly Fixture _fixture;
-        private readonly AccountsDynamoDbGateway _sut;
+        private readonly AccountsGateway _sut;
         private readonly Mock<IAmazonDynamoDB> _mockAmazonDynamoDB;
-        private readonly Mock<ILogger<AccountsDynamoDbGateway>> _mockLogger;
+        private readonly Mock<ILogger<AccountsGateway>> _mockLogger;
 
 
         public AccountsDynamoDbGatewayTests()
         {
             _mockAmazonDynamoDB = new Mock<IAmazonDynamoDB>();
-            _mockLogger = new Mock<ILogger<AccountsDynamoDbGateway>>();
+            _mockLogger = new Mock<ILogger<AccountsGateway>>();
 
             _fixture = new Fixture();
-            _fixture.Customize<DMAccountEntity>(c =>
+            _fixture.Customize<DmAccountDbEntity>(c =>
                 c.With(a => a.Tenure, JsonConvert.SerializeObject(_fixture.Create<TenureDbEntity>()))
                 .With(a => a.ConsolidatedCharges, JsonConvert.SerializeObject(_fixture.Create<List<ConsolidatedChargeDbEntity>>())));
 
 
-            _sut = new AccountsDynamoDbGateway(_mockAmazonDynamoDB.Object, _mockLogger.Object);
+            _sut = new AccountsGateway(_mockAmazonDynamoDB.Object, _mockLogger.Object);
         }
 
         [Fact]
         public async Task BatchInsertNullAccountsShouldRetunrTrueAndLog()
         {
-            List<DMAccountEntity> accounts = null;
+            List<DmAccountDbEntity> accounts = null;
 
             var actualResult = await _sut.BatchInsert(accounts).ConfigureAwait(false);
 
@@ -50,7 +50,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Gateways
         [Fact]
         public async Task BatchInsertEmptyAccountsShouldRetunrTrueAndLog()
         {
-            List<DMAccountEntity> accounts = new List<DMAccountEntity>(0);
+            List<DmAccountDbEntity> accounts = new List<DmAccountDbEntity>(0);
 
             var actualResult = await _sut.BatchInsert(accounts).ConfigureAwait(false);
 
@@ -60,7 +60,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Gateways
         [Fact]
         public async Task BatchInsertPopulatedAccountsShouldReturnTrue()
         {
-            List<DMAccountEntity> accounts = _fixture.Create<List<DMAccountEntity>>();
+            List<DmAccountDbEntity> accounts = _fixture.Create<List<DmAccountDbEntity>>();
 
             var actualResult = await _sut.BatchInsert(accounts).ConfigureAwait(false);
 
@@ -72,7 +72,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Gateways
         [Fact]
         public async Task BatchInsertRepoThrowNotFoundExceptionShouldLogError()
         {
-            List<DMAccountEntity> accounts = _fixture.Create<List<DMAccountEntity>>();
+            List<DmAccountDbEntity> accounts = _fixture.Create<List<DmAccountDbEntity>>();
 
             _mockAmazonDynamoDB.Setup(_ => _.TransactWriteItemsAsync(It.IsAny<TransactWriteItemsRequest>(), It.IsAny<CancellationToken>()))
                 .Throws(new ResourceNotFoundException("some message"));
@@ -87,7 +87,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Gateways
         [Fact]
         public async Task BatchInsertRepoThrowIntrernalExceptionShouldLogError()
         {
-            List<DMAccountEntity> accounts = _fixture.Create<List<DMAccountEntity>>();
+            List<DmAccountDbEntity> accounts = _fixture.Create<List<DmAccountDbEntity>>();
 
             _mockAmazonDynamoDB.Setup(_ => _.TransactWriteItemsAsync(It.IsAny<TransactWriteItemsRequest>(), It.IsAny<CancellationToken>()))
                 .Throws(new InternalServerErrorException("some message"));
@@ -102,7 +102,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Gateways
         [Fact]
         public async Task BatchInsertRepoThrowCanceledExceptionShouldLogError()
         {
-            List<DMAccountEntity> accounts = _fixture.Create<List<DMAccountEntity>>();
+            List<DmAccountDbEntity> accounts = _fixture.Create<List<DmAccountDbEntity>>();
 
             _mockAmazonDynamoDB.Setup(_ => _.TransactWriteItemsAsync(It.IsAny<TransactWriteItemsRequest>(), It.IsAny<CancellationToken>()))
                 .Throws(new TransactionCanceledException("some message"));

@@ -192,7 +192,7 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IPersonGateway, PersonGateway>();
             services.AddScoped<IEsGateway, EsGateway>();
             services.AddScoped<IAssetGateway, AssetGateway>();
-            services.AddScoped<IAccountsDynamoDbGateway, AccountsDynamoDbGateway>();
+            services.AddScoped<IAccountsGateway, AccountsGateway>();
 
             var searchApiUrl = Environment.GetEnvironmentVariable("SEARCH_API_URL") ?? "";
             var searchApiToken = Environment.GetEnvironmentVariable("SEARCH_API_TOKEN") ?? "";

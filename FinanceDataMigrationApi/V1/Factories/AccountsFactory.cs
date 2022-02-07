@@ -1,14 +1,15 @@
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Domain.Accounts;
-using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
+using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
 
 namespace FinanceDataMigrationApi.V1.Factories
 {
     public static class AccountsFactory
     {
-        public static Dictionary<string, AttributeValue> ToQueryRequest(this DMAccountEntity account)
+        public static Dictionary<string, AttributeValue> ToQueryRequest(this DmAccount account)
         {
             var accountModel = new Dictionary<string, AttributeValue>()
             {
@@ -23,7 +24,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                 //{"last_updated_by", new AttributeValue {S = account.LastUpdatedBy}},
                 //{"created_at", new AttributeValue {S = account.CreatedAt.ToString()}},
                 //{"last_updated_at", new AttributeValue {S = account.LastUpdatedAt.ToString()}},
-                {"start_date", new AttributeValue {S = account.StartDate.ToString()}},
+                {"start_date", new AttributeValue {S = account.StartDate.ToString("F")}},
                 {"end_date", new AttributeValue {S = account.EndDate.ToString()}},
                 {"account_status", new AttributeValue {S = account.AccountStatus.ToString()}},
                 {"payment_reference", new AttributeValue {S = account.PaymentReference}},
@@ -96,6 +97,19 @@ namespace FinanceDataMigrationApi.V1.Factories
             }
 
             return accountModel;
+        }
+
+        public static DmAccount ToDomain(this DmAccountDbEntity accountDbEntity)
+        {
+            return new DmAccount
+            {
+
+            };
+        }
+
+        public static List<DmAccount> ToDomain(this IList<DmAccountDbEntity> accountDbEntities)
+        {
+            return accountDbEntities.Select(p => p.ToDomain()).ToList();
         }
     }
 }

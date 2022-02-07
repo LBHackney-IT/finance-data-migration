@@ -11,6 +11,7 @@ using FinanceDataMigrationApi.V1.Infrastructure.Entities;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using System.Threading;
 using System.Transactions;
+using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
 using FinanceDataMigrationApi.V1.Infrastructure.Extensions;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure
@@ -23,6 +24,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasDefaultSchema("dbo");
             //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.BalanceAmount).HasColumnType("decimal");
             //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.ChargedAmount).HasColumnType("decimal");
             //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.HousingBenefitAmount).HasColumnType("decimal");
@@ -59,7 +61,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// <summary>
         /// Get or sets the Data Migration Transaction Entities
         /// </summary>
-        public DbSet<DmTransactionDbEntity> DmTransactionEntities { get; set; }
+        public DbSet<DmTransactionDbEntity> TransactionEntities { get; set; }
 
         /// <summary>
         /// Get or sets the Data Migration Charge Entity
@@ -70,6 +72,12 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// Get Data Migration Detailed Charges Entities
         /// </summary>
         public DbSet<DmDetailedChargesDbEntity> DetailedChargesEntities { get; set; }
+
+        /// <summary>
+        /// Get or sets the Data Migration Account Entities
+        /// </summary>
+        public DbSet<DmAccountDbEntity> AccountDbEntities { get; set; }
+        public DbSet<>
 
         public DbSet<DmRunStatusModel> DmRunStatusModels { get; set; }
         public DbSet<DmTimeLogModel> DmTimeLogModels { get; set; }
@@ -107,57 +115,9 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
-        public async Task<IList<DmChargesDbEntity>> GetTransformedChargeListAsync(int count)
-            => await this.Set<DmChargesDbEntity>()
-                .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
-                .Take(count)
-                .Include(p => p.DetailedChargesDbEntities)
-                .ToListWithNoLockAsync()
-                .ConfigureAwait(false);
-
-        public async Task<IList<DmChargesDbEntity>> GetLoadedChargeListAsync(int count)
-            => await this.Set<DmChargesDbEntity>()
-                .Where(x => x.MigrationStatus == EMigrationStatus.Loaded)
-                .Take(count)
-                .Include(p => p.DetailedChargesDbEntities)
-                .ToListWithNoLockAsync()
-                .ConfigureAwait(false);
-
-        ///// <summary>
-        ///// Get Detailed Charge from Database Query
-        ///// </summary>
-        ///// <param name="paymentReference"></param>
-        ///// <returns>List of Details Charges</returns>
-        ///// <exception cref="Exception"></exception>
-        //public async Task<List<DmDetailedChargesEntity>> GetDetailChargesListAsync(string paymentReference)
-        //{
-
-        //    var param = new SqlParameter("@payment_reference", paymentReference.TrimEnd());
-
-        //    try
-        //    {
-        //        var result = await DMDetailedChargesEntities
-        //            .FromSqlRaw("[dbo].[usp_ExtractDetailedChargesEntity] @payment_reference", param)
-        //            .ToListWithNoLockAsync()
-        //            .ConfigureAwait(false);
-
-        //        return result;
-
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        throw new Exception(e.Message);
-        //    }
-
-        //}
-
-
-
         #endregion
 
-        #region Transaction Entity Specific
-
-
+        #region Asset & Tenure
         public async Task<int> InsertDynamoAsset(string lastHint, XElement xml)
         {
             var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_InsertDynamoAsset] '{lastHint}','{xml}'", 6000).ConfigureAwait(false);
@@ -168,8 +128,10 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         {
             var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_InsertDynamoTenure] '{lastHint}','{xml}'", 6000).ConfigureAwait(false);
             return affectedRows;
-        }
+        } 
+        #endregion
 
+        #region Transaction Entity Specific
         /// <summary>
         /// Extract the data migration transaction entities.
         /// </summary>
@@ -180,16 +142,30 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             return affectedRows;
         }
 
-
-        public async Task<IList<DmTransactionDbEntity>> GetTransformedListAsync()
-            => await DmTransactionEntities
-                .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
+        public async Task<IList<DmTransactionDbEntity>> GetExtractedTransactionListAsync(int count)
+            => await TransactionEntities
+                .Where(x => x.MigrationStatus == EMigrationStatus.Extracted)
+                .Take(count)
                 .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
-        public async Task<IList<DmTransactionDbEntity>> GetLoadedListAsync()
-            => await DmTransactionEntities
-                .Where(x => x.MigrationStatus == EMigrationStatus.Loaded)
+        #endregion
+
+        #region Account
+        /// <summary>
+        /// Extract the data migration account entities.
+        /// </summary>
+        /// <returns>the accounts to migrate.</returns>
+        public async Task<int> ExtractDmAccountsAsync()
+        {
+            var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_ExtractAccountsEntity]", 600).ConfigureAwait(false);
+            return affectedRows;
+        }
+
+        public async Task<IList<DmAccountDbEntity>> GetExtractedAccountListAsync(int count)
+            => await AccountDbEntities
+                .Where(x => x.MigrationStatus == EMigrationStatus.Extracted)
+                .Take(count)
                 .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
@@ -223,21 +199,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 throw;
             }
         }
-
-
-        public async Task<IList<DmTransactionDbEntity>> GetTransformedTransactionListAsync(int count)
-            => await DmTransactionEntities
-                .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
-                .Take(count)
-                .ToListWithNoLockAsync()
-                .ConfigureAwait(false);
-
-        public async Task<IList<DmTransactionDbEntity>> GetExtractedTransactionListAsync(int count)
-            => await DmTransactionEntities
-                .Where(x => x.MigrationStatus == EMigrationStatus.Extracted)
-                .Take(count)
-                .ToListWithNoLockAsync()
-                .ConfigureAwait(false);
 
         public static DatabaseContext Create()
         {

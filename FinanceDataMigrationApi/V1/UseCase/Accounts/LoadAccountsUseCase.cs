@@ -15,7 +15,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
         private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IDMAccountEntityGateway _dMAccountEntityGateway;
         private readonly IEsGateway _esGateway;
-        private readonly IAccountsDynamoDbGateway _accountsDynamoDbGateway;
+        private readonly IAccountsGateway _accountsDynamoDbGateway;
 
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
         private const string DataMigrationTask = "LOAD";
@@ -23,7 +23,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
         public LoadAccountsUseCase(IDMRunLogGateway dMRunLogGateway,
             IEsGateway esGateway,
             IDMAccountEntityGateway dMAccountEntityGateway,
-            IAccountsDynamoDbGateway accountsDynamoDbGateway)
+            IAccountsGateway accountsDynamoDbGateway)
         {
             _dMRunLogGateway = dMRunLogGateway;
             _esGateway = esGateway;

@@ -10,68 +10,7 @@ using FinanceDataMigrationApi.V1.Infrastructure.Entities;
 namespace FinanceDataMigrationApi.V1.Factories
 {
     public static partial class ChargeFactory
-    {
-
-        /*public static ChargeDbEntity ToDatabase(this Charge charge)
-        {
-            if (charge == null)
-            {
-                return null;
-            }
-
-            return new ChargeDbEntity
-            {
-                Id = charge.Id,
-                TargetId = charge.TargetId,
-                TargetType = charge.TargetType,
-                ChargeGroup = charge.ChargeGroup,
-                DetailedCharges = charge.DetailedCharges
-            };
-        }
-        public static DMChargesEntity ToDatabase(this DMChargeEntityDomain dMChargeEntityDomain)
-        {
-            return dMChargeEntityDomain == null
-                ? null
-                : new DMChargesEntity()
-                {
-                    Id = dMChargeEntityDomain.Id,
-                    IdDynamodb = dMChargeEntityDomain.IdDynamodb,
-                    TargetId = dMChargeEntityDomain.TargetId,
-                    PaymentReference = dMChargeEntityDomain.PaymentReference,
-                    PropertyReference = dMChargeEntityDomain.PropertyReference,
-                    TargetType = dMChargeEntityDomain.TargetType,
-                    ChargeGroup = dMChargeEntityDomain.ChargeGroup,
-                    DetailedCharges = dMChargeEntityDomain.DetailedCharges,
-                    MigrationStatus = dMChargeEntityDomain.MigrationStatus,
-                    CreatedAt = dMChargeEntityDomain.CreatedAt
-                };
-        }
-
-
-
-        public static List<DMChargesEntity> ToDatabase(this IList<DMChargeEntityDomain> dMChargeEntityDomainItems)
-        {
-            return dMChargeEntityDomainItems.Select(p => p.ToDatabase()).ToList();
-        }
-
-        public static Charge ToAddChargeRequest(this DMChargeEntityDomain dmChargesEntityDomain)
-        {
-
-            return new Charge()
-            {
-                Id = dmChargesEntityDomain.IdDynamodb,
-                TargetId = dmChargesEntityDomain.TargetId,
-                ChargeGroup = dmChargesEntityDomain.ChargeGroup*//*JsonSerializer.Deserialize<ChargeGroup>(dmChargesEntityDomain.ChargeGroup)*//*,
-                DetailedCharges = dmChargesEntityDomain?.DetailedCharges
-                    *//*JsonSerializer.Deserialize<List<DetailedCharges>>(dmChargesEntityDomain.DetailedCharges)*//*,
-                TargetType = dmChargesEntityDomain.TargetType*//*JsonSerializer.Deserialize<TargetType>(dmChargesEntityDomain.TargetType)*//*
-            };
-        }
-
-        public static List<Charge> ToAddChargeRequestList(this IList<DMChargeEntityDomain> dmChargesEntityDomains)
-        {
-            return dmChargesEntityDomains.Select(item => item.ToAddChargeRequest()).ToList();
-        }*/
+    { 
 
         public static DmCharge ToDomain(this DmChargesDbEntity dMChargesEntity)
         {

@@ -12,7 +12,6 @@ using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
-using Microsoft.Extensions.Logging;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
@@ -27,10 +26,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
             _amazonDynamoDb = amazonDynamoDb;
         }
 
-        /// <summary>
-        /// Extracts the Charge Entities to migrate async
-        /// </summary>
-        /// <returns>number of records extracted</returns>
         public async Task<int> ExtractAsync()
         {
             return await _context.ExtractDmChargesAsync().ConfigureAwait(false);
@@ -44,16 +39,9 @@ namespace FinanceDataMigrationApi.V1.Gateways
             return results.ToDomain();
         }
 
-        public async Task<IList<DmCharge>> GetTransformedListAsync(int count)
-        {
-            var results = await _context.GetTransformedChargeListAsync(count).ConfigureAwait(false);
-            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
-            await _context.SaveChangesAsync().ConfigureAwait(false);
-            return results.ToDomain();
-        }
-
         public async Task BatchInsert(List<DmCharge> charges)
         {
+            DatabaseContext context = DatabaseContext.Create();
             List<TransactWriteItem> actions = new List<TransactWriteItem>();
             foreach (DmCharge charge in charges)
             {
@@ -84,47 +72,43 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 if (writeResult.HttpStatusCode != HttpStatusCode.OK)
                     throw new Exception(writeResult.ResponseMetadata.ToString());
 
-                _context.ChargesDbEntities.Where(p =>
+                context.ChargesDbEntities.Where(p =>
                     charges.Select(i => i.Id).Contains(p.Id)).
                     ForAll(p => p.MigrationStatus = EMigrationStatus.Loaded);
-                await _context.SaveChangesAsync().ConfigureAwait(false);
+                await context.SaveChangesAsync().ConfigureAwait(false);
 
             }
             catch (ResourceNotFoundException rnf)
             {
                 LoggingHandler.LogError($"One of the table involved in the account is not found: {rnf.Message}");
-                _context.ChargesDbEntities.Where(p =>
+                context.ChargesDbEntities.Where(p =>
                         charges.Select(i => i.Id).Contains(p.Id)).
                     ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
-                await _context.SaveChangesAsync().ConfigureAwait(false);
-                throw;
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
             catch (InternalServerErrorException ise)
             {
                 LoggingHandler.LogError($"Internal Server Error: {ise.Message}");
-                _context.ChargesDbEntities.Where(p =>
+                context.ChargesDbEntities.Where(p =>
                         charges.Select(i => i.Id).Contains(p.Id)).
                     ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
-                await _context.SaveChangesAsync().ConfigureAwait(false);
-                throw;
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
             catch (TransactionCanceledException tce)
             {
                 LoggingHandler.LogError($"Transaction Canceled: {tce.Message}");
-                _context.ChargesDbEntities.Where(p =>
+                context.ChargesDbEntities.Where(p =>
                         charges.Select(i => i.Id).Contains(p.Id)).
                     ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
-                await _context.SaveChangesAsync().ConfigureAwait(false);
-                throw;
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 LoggingHandler.LogError($"TransactWriteItemsAsync: {ex.Message}");
-                _context.ChargesDbEntities.Where(p =>
+                context.ChargesDbEntities.Where(p =>
                         charges.Select(i => i.Id).Contains(p.Id)).
                     ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
-                await _context.SaveChangesAsync().ConfigureAwait(false);
-                throw;
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
         }
     }

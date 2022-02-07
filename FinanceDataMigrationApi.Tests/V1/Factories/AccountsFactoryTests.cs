@@ -11,25 +11,25 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
 {
     public class AccountsFactoryTests
     {
-        private readonly DMAccountEntity _dmAccountEntitySubmodelsAreNull;
+        private readonly DmAccountDbEntity _dmAccountEntitySubmodelsAreNull;
         private readonly Dictionary<string, AttributeValue> _expectedAccountModelSubmodelsAreNull;
 
-        private readonly DMAccountEntity _dmAccountEntityTenureIsNotNull;
+        private readonly DmAccountDbEntity _dmAccountEntityTenureIsNotNull;
         private readonly Dictionary<string, AttributeValue> _expectedAccountModelTenureIsNotNull;
 
-        private readonly DMAccountEntity _dmAccountEntityPopulatedTenure;
+        private readonly DmAccountDbEntity _dmAccountEntityPopulatedTenure;
         private readonly Dictionary<string, AttributeValue> _expectedAccountModelPopulatedTenure;
 
-        private readonly DMAccountEntity _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants;
+        private readonly DmAccountDbEntity _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants;
         private readonly Dictionary<string, AttributeValue> _expectedAccountModelTenureIsNotNullAndNotNullPrimaryTenants;
 
-        private readonly DMAccountEntity _dmAccountEntityConsolidatedChargesIsNotNull;
+        private readonly DmAccountDbEntity _dmAccountEntityConsolidatedChargesIsNotNull;
         private readonly Dictionary<string, AttributeValue> _expectedAccountModelConsolidatedChargesIsNotNull;
 
         public AccountsFactoryTests()
         {
             #region SubmodelsAreNullShouldReturnsAccountModel
-            _dmAccountEntitySubmodelsAreNull = new DMAccountEntity()
+            _dmAccountEntitySubmodelsAreNull = new DmAccountDbEntity()
             {
                 Id = long.MaxValue,
                 TargetType = string.Empty,
@@ -68,7 +68,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
             #endregion ToQueryRequestTenureIsNullAndConsolidatedChargesIsNullShouldReturnsAccountModel
 
             #region TenureIsNotNullShouldReturnsAccountModel
-            _dmAccountEntityTenureIsNotNull = new DMAccountEntity()
+            _dmAccountEntityTenureIsNotNull = new DmAccountDbEntity()
             {
                 Id = long.MaxValue,
                 TargetType = string.Empty,
@@ -116,7 +116,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
             #endregion
 
             #region PopulatedTenureShouldReturnsAccountModel
-            _dmAccountEntityPopulatedTenure = new DMAccountEntity()
+            _dmAccountEntityPopulatedTenure = new DmAccountDbEntity()
             {
                 Id = long.MaxValue,
                 TargetType = string.Empty,
@@ -175,7 +175,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
             #endregion
 
             #region TenureIsNotNullPrimaryTenantsIsNotNullShouldReturnsAccountModel
-            _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants = new DMAccountEntity()
+            _dmAccountEntityTenureIsNotNullAndNotNullPrimaryTenants = new DmAccountDbEntity()
             {
                 Id = long.MaxValue,
                 TargetType = string.Empty,
@@ -250,7 +250,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
             #endregion
 
             #region ConsolidatedChargesIsNotNullShouldReturnsAccountModel
-            _dmAccountEntityConsolidatedChargesIsNotNull = new DMAccountEntity()
+            _dmAccountEntityConsolidatedChargesIsNotNull = new DmAccountDbEntity()
             {
                 Id = long.MaxValue,
                 TargetType = string.Empty,

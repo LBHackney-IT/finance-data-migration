@@ -63,7 +63,7 @@ namespace FinanceDataMigrationApi.V1.Factories
             return transactionRequestList;
         }
 
-        public static QueryableAccount ToQueryableAccount(this DMAccountEntity accountEntity)
+        public static QueryableAccount ToQueryableAccount(this DmAccountDbEntity accountEntity)
         {
             return new QueryableAccount
             {
@@ -100,7 +100,7 @@ namespace FinanceDataMigrationApi.V1.Factories
         private static decimal ValueOrDefault(this decimal? value)
             => value.HasValue ? value.Value : 0;
 
-        public static List<QueryableAccount> ToAccountRequestList(IEnumerable<DMAccountEntity> accounts)
+        public static List<QueryableAccount> ToAccountRequestList(IEnumerable<DmAccountDbEntity> accounts)
         {
             var transactionRequestList = accounts.Select(item => item.ToQueryableAccount()).ToList();
             return transactionRequestList;

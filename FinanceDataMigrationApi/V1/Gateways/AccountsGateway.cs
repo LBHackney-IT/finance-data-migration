@@ -1,57 +1,64 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
-using AutoMapper.Internal;
-using FinanceDataMigrationApi.V1.Domain;
+using FinanceDataMigrationApi.V1.Domain.Accounts;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
+using AutoMapper.Internal;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
-    public class TransactionGateway : ITransactionGateway
+    public class AccountsGateway : IAccountsGateway
     {
+        private readonly DatabaseContext _context;
         private readonly IAmazonDynamoDB _amazonDynamoDb;
-        readonly DatabaseContext _context;
 
-        public TransactionGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb)
+        public AccountsGateway(DatabaseContext context,IAmazonDynamoDB amazonDynamoDb)
         {
-            _amazonDynamoDb = amazonDynamoDb;
             _context = context;
+            _amazonDynamoDb = amazonDynamoDb;
         }
 
         public async Task<int> ExtractAsync()
         {
-            return await _context.ExtractDmTransactionsAsync().ConfigureAwait(false);
+            return await _context.ExtractDmAccountsAsync().ConfigureAwait(false);
         }
 
-        public async Task<IList<DmTransaction>> GetExtractedListAsync(int count)
+        public async Task<IList<DmAccount>> GetExtractedListAsync(int count)
         {
-            var results = await _context.GetExtractedTransactionListAsync(count).ConfigureAwait(false);
+            var results = await _context.GetExtractedAccountListAsync(count).ConfigureAwait(false);
             results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomain();
         }
 
-        public async Task BatchInsert(List<DmTransaction> transactions)
+        public async Task BatchInsert(List<DmAccount> accounts)
         {
             DatabaseContext context = DatabaseContext.Create();
-            List<TransactWriteItem> actions = new List<TransactWriteItem>();
-            foreach (DmTransaction transaction in transactions)
+
+            if (accounts == null || !accounts.Any())
             {
-                var columns = transaction.ToQueryRequest();
+                LoggingHandler.LogError("There is no accounts to save in DynamoDm");
+                throw new ArgumentNullException(nameof(accounts));
+            }
+
+            List<TransactWriteItem> actions = new List<TransactWriteItem>(accounts.Count);
+            foreach (DmAccount account in accounts)
+            {
+                Dictionary<string, AttributeValue> columns = account.ToQueryRequest();
 
                 actions.Add(new TransactWriteItem
                 {
                     Put = new Put()
                     {
-                        TableName = "Transactions",
+                        TableName = "Accounts",
                         Item = columns,
                         ReturnValuesOnConditionCheckFailure = ReturnValuesOnConditionCheckFailure.ALL_OLD,
                         ConditionExpression = "attribute_not_exists(id)"
@@ -59,7 +66,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 });
             }
 
-            TransactWriteItemsRequest placeOrderCharge = new TransactWriteItemsRequest
+            TransactWriteItemsRequest placeOrderAccount = new TransactWriteItemsRequest
             {
                 TransactItems = actions,
                 ReturnConsumedCapacity = ReturnConsumedCapacity.TOTAL
@@ -67,52 +74,48 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
             try
             {
-                var writeResult = await _amazonDynamoDb.TransactWriteItemsAsync(placeOrderCharge).ConfigureAwait(false);
+                var writeResult = await _amazonDynamoDb.TransactWriteItemsAsync(placeOrderAccount).ConfigureAwait(false);
 
                 if (writeResult.HttpStatusCode != HttpStatusCode.OK)
                     throw new Exception(writeResult.ResponseMetadata.ToString());
 
-                context.TransactionEntities.Where(p =>
-                        transactions.Select(i => i.Id).Contains(p.Id))
-                    .ForAll(p => p.MigrationStatus = EMigrationStatus.Loaded);
+                context.AccountDbEntities.Where(p =>
+                    accounts.Select(i => i.Id).Contains(p.Id)).
+                    ForAll(p => p.MigrationStatus = EMigrationStatus.Loaded);
                 await context.SaveChangesAsync().ConfigureAwait(false);
 
             }
             catch (ResourceNotFoundException rnf)
             {
                 LoggingHandler.LogError($"One of the table involved in the account is not found: {rnf.Message}");
-                context.TransactionEntities.Where(p =>
-                        transactions.Select(i => i.Id).Contains(p.Id))
-                    .ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
+                context.AccountDbEntities.Where(p =>
+                        accounts.Select(i => i.Id).Contains(p.Id)).
+                    ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
             catch (InternalServerErrorException ise)
             {
                 LoggingHandler.LogError($"Internal Server Error: {ise.Message}");
-                context.TransactionEntities.Where(p =>
-                        transactions.Select(i => i.Id).Contains(p.Id))
-                    .ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
+                context.AccountDbEntities.Where(p =>
+                        accounts.Select(i => i.Id).Contains(p.Id)).
+                    ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
             catch (TransactionCanceledException tce)
             {
                 LoggingHandler.LogError($"Transaction Canceled: {tce.Message}");
-                context.TransactionEntities.Where(p =>
-                        transactions.Select(i => i.Id).Contains(p.Id))
-                    .ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
+                context.AccountDbEntities.Where(p =>
+                        accounts.Select(i => i.Id).Contains(p.Id)).
+                    ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 LoggingHandler.LogError($"TransactWriteItemsAsync: {ex.Message}");
-                context.TransactionEntities.Where(p =>
-                        transactions.Select(i => i.Id).Contains(p.Id))
-                    .ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
+                context.AccountDbEntities.Where(p =>
+                        accounts.Select(i => i.Id).Contains(p.Id)).
+                    ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
                 await context.SaveChangesAsync().ConfigureAwait(false);
-            }
-            finally
-            {
-                await context.DisposeAsync().ConfigureAwait(false);
             }
         }
     }
