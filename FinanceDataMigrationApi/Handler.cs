@@ -48,6 +48,8 @@ namespace FinanceDataMigrationApi
         readonly ITimeLogSaveUseCase _timeLogSaveUseCase;
         readonly IExtractTransactionEntityUseCase _extractTransactionEntityUseCase;
         readonly ILoadTransactionEntityUseCase _loadTransactionEntityUseCase;
+        readonly IDmTransactionExtractRunStatusSaveUseCase _dmTransactionExtractRunStatusSaveUseCase;
+        readonly IDmTransactionLoadRunStatusSaveUseCase _dmTransactionLoadRunStatusSaveUseCase;
         /// <summary>
         /// Waiting time for next run, in second
         /// </summary>
@@ -112,22 +114,84 @@ namespace FinanceDataMigrationApi
             _dmRunStatusGetUseCase = new DmRunStatusGetUseCase(dmRunStatusGateway);
             _dmAssetRunStatusSaveUseCase = new DmAssetRunStatusSaveUseCase(dmRunStatusGateway);
             _dmTenureRunStatusSaveUseCase = new DmTenureRunStatusSaveUseCase(dmRunStatusGateway);
+
             _dmChargeExtractRunStatusSaveUseCase = new DmChargeExtractRunStatusSaveUseCase(dmRunStatusGateway);
             _dmChargeLoadRunStatusSaveUseCase = new DmChargeLoadRunStatusSaveUseCase(dmRunStatusGateway);
 
             _extractTransactionEntityUseCase = new ExtractTransactionEntityUseCase(dmRunLogGateway, transactionGateway);
-            _loadTransactionEntityUseCase = new LoadTransactionEntityUseCase(dmRunLogGateway, transactionGateway);
+            _loadTransactionEntityUseCase = new LoadTransactionEntityUseCase(transactionGateway);
+
+            _dmTransactionExtractRunStatusSaveUseCase = new DmTransactionExtractRunStatusSaveUseCase(dmRunStatusGateway);
+            _dmTransactionLoadRunStatusSaveUseCase = new DmTransactionLoadRunStatusSaveUseCase(dmRunStatusGateway);
+
             _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
 
         }
 
         public async Task<StepResponse> ExtractTransactions()
         {
-            return await _extractTransactionEntityUseCase.ExecuteAsync().ConfigureAwait(false);
+            try
+            {
+                var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
+                if (runStatus.AllTenureDmCompleted && runStatus.TransactionExtractDate < DateTime.Today)
+                {
+                    DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
+                    {
+                        ProcName = $"{nameof(ExtractTransactions)}",
+                        StartTime = DateTime.Now
+                    };
+                    await _extractTransactionEntityUseCase.ExecuteAsync().ConfigureAwait(false);
+                    await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+                    await _dmTransactionExtractRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
+                }
+                return new StepResponse() { Continue = false };
+            }
+            catch (Exception exception)
+            {
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ExtractCharge)} Exception: {exception.GetFullMessage()}");
+                return new StepResponse()
+                {
+                    Continue = false
+                };
+            }
         }
         public async Task<StepResponse> LoadTransactions()
         {
-            return await _loadTransactionsUseCase.ExecuteAsync().ConfigureAwait(false);
+            try
+            {
+                int count = int.Parse(Environment.GetEnvironmentVariable("TRANSACTION_LOAD_BATCH_SIZE") ??
+                              throw new Exception("Tenure download batch size is null."));
+                var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
+                if (runStatus.TransactionExtractDate >= DateTime.Today && runStatus.TransactionLoadDate < DateTime.Today)
+                {
+                    DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
+                    {
+                        ProcName = $"{nameof(LoadTransactions)}",
+                        StartTime = DateTime.Now
+                    };
+                    var result = await _loadTransactionEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
+                    await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+                    if (!result.Continue)
+                        await _dmTransactionLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
+
+                    return result;
+                }
+                else
+                {
+                    return new StepResponse()
+                    {
+                        Continue = false
+                    };
+                }
+            }
+            catch (Exception exception)
+            {
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(LoadTransactions)} Exception: {exception.GetFullMessage()}");
+                return new StepResponse()
+                {
+                    Continue = false
+                };
+            }
         }
 
         public async Task<StepResponse> LoadCharge()

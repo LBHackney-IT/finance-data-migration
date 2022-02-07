@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using TransactionPerson = FinanceDataMigrationApi.V1.Domain.TransactionPerson;
 
 namespace FinanceDataMigrationApi.V1.UseCase.Transactions
@@ -55,13 +56,13 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
                 // Iterate through each row (or batched) and enrich with missing information for subsets
                 foreach (var transaction in dMTransactions)
                 {
-                    transaction.Person = await GetTransactionPersonAsync(transaction.PaymentReference.Trim()).ConfigureAwait(false);
+                    transaction.Sender = await GetTransactionPersonAsync(transaction.PaymentReference.Trim()).ConfigureAwait(false);
                     transaction.TransactionType = await TransformTransactionType(transaction.TransactionType).ConfigureAwait(false);
                     transaction.TransactionSource = transaction.TransactionSource.Trim();
                     transaction.PaymentReference = transaction.PaymentReference.Trim();
                     transaction.TargetId = _targetId;
                     // Set the row isTransformed flag to TRUE and Update the row in the staging data table (or batch them)
-                    transaction.IsTransformed = true;
+                    transaction.MigrationStatus = EMigrationStatus.Transformed;
                     transaction.IsIndexed = false;
                 }
 
@@ -100,7 +101,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
             if (tenureList is null) return null;
 
             var tenure = tenureList.FirstOrDefault();
-            _targetId = tenure.Id;
+            _targetId = tenure?.Id??Guid.Empty;
 
 
             var householdMembers = tenureList.SelectMany(x => x.HouseholdMembers).ToList();

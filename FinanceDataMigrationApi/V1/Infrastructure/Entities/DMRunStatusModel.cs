@@ -18,5 +18,13 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Entities
         public DateTime ChargeExtractDate { get; set; }
         [Column("charge_load_date")]
         public DateTime ChargeLoadDate { get; set; }
+        [Column("transaction_extract_date")]
+        public DateTime TransactionExtractDate { get; set; }
+        [Column("transaction_load_date")]
+        public DateTime TransactionLoadDate { get; set; }
+        [Column("account_extract_date")]
+        public DateTime AccountExtractDate { get; set; }
+        [Column("account_load_date")]
+        public DateTime AccountLoadDate { get; set; }
     }
 }

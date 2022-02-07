@@ -23,6 +23,7 @@ provider:
     ASSET_DOWNLOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/asset-download-batch-size}
     TENURE_DOWNLOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/tenure-download-batch-size}
     CHARGE_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/charge-load-batch-size}
+    TRANSACTION_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/transaction-load-batch-size}
 package:
   artifact: ./bin/release/netcoreapp3.1/finance-data-migration-api.zip
 

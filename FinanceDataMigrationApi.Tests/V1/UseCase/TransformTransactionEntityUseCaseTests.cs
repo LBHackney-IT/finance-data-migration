@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.UseCase;
+using FinanceDataMigrationApi.V1.UseCase.Transactions;
 using FluentAssertions;
 using Hackney.Shared.Tenure.Domain;
 using Moq;

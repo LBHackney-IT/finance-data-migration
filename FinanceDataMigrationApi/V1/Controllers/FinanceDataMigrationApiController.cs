@@ -73,11 +73,11 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseErrorResponse), StatusCodes.Status500InternalServerError)]
-        [HttpGet]
+        [HttpGet("{count}")]
         [Route("transaction-entity/load")]
-        public async Task<IActionResult> LoadTransactionEntity()
+        public async Task<IActionResult> LoadTransactionEntity(int count)
         {
-            var runLoadTransactionEntity = await _loadTransactionEntityUseCase.ExecuteAsync().ConfigureAwait(false);
+            var runLoadTransactionEntity = await _loadTransactionEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
 
             if (runLoadTransactionEntity.Continue == false)
             {

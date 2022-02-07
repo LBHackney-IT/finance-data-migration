@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Hackney.Shared.HousingSearch.Domain.Transactions;
+using FinanceDataMigrationApi.V1.Domain;
 
 namespace FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions
 {
     public interface ITransactionBatchInsertUseCase
     {
-        Task<bool> ExecuteAsync(List<Transaction> transactions);
+        Task ExecuteAsync(List<DmTransaction> transactions);
     }
 }

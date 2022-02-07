@@ -4,15 +4,16 @@ using FinanceDataMigrationApi.V1.Infrastructure;
 using FluentAssertions;
 using System;
 using System.Collections.Generic;
+using FinanceDataMigrationApi.V1.Infrastructure.Entities;
 using Xunit;
 
 namespace FinanceDataMigrationApi.Tests.V1.Factories
 {
     public class DMTransactionEntityFactoryTests
     {
-        private readonly DmTransaction _dMTransactionEntityDomain;
+        /*private readonly DmTransaction _dMTransactionEntityDomain;
         private readonly DmTransaction _dMTransactionEntityDomainWithNull;
-        private readonly DMTransactionEntity _dMTransactionEntity;
+        private readonly DmTransactionDbEntity _dMTransactionEntity;
         private readonly DMTransactionEntity _dMTransactionEntityWithNull;
         private readonly IList<DMTransactionEntity> _listOfDbEntities;
         private readonly IList<DmTransaction> _listOfDbDomainEntities;
@@ -31,14 +32,12 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
                 Fund = string.Empty,
                 HousingBenefitAmount = decimal.MaxValue,
                 IdDynamodb = new Guid("54b886f6-3970-49ab-9d96-b357015f9a48"),
-                IsLoaded = false,
                 IsIndexed = false,
                 IsSuspense = false,
-                IsTransformed = false,
                 PaidAmount = decimal.MaxValue,
                 PaymentReference = string.Empty,
                 PeriodNo = int.MaxValue,
-                Person = string.Empty,
+                Sender = string.Empty,
                 SuspenseResolutionInfo = string.Empty,
                 TargetId = new Guid("54b886f6-3970-49ab-9d96-b357015f9a48"),
                 TargetType = string.Empty,
@@ -48,7 +47,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
                 TransactionType = string.Empty
             };
             _dMTransactionEntityDomainWithNull = null;
-            _dMTransactionEntity = new DMTransactionEntity
+            _dMTransactionEntity = new DmTransactionDbEntity
             {
                 Id = long.MaxValue,
                 BalanceAmount = decimal.MaxValue,
@@ -60,14 +59,12 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
                 Fund = string.Empty,
                 HousingBenefitAmount = decimal.MaxValue,
                 IdDynamodb = new Guid("54b886f6-3970-49ab-9d96-b357015f9a48"),
-                IsLoaded = false,
                 IsIndexed = false,
                 IsSuspense = false,
-                IsTransformed = false,
                 PaidAmount = decimal.MaxValue,
                 PaymentReference = string.Empty,
                 PeriodNo = int.MaxValue,
-                Person = string.Empty,
+                Sender = string.Empty,
                 SuspenseResolutionInfo = string.Empty,
                 TargetId = new Guid("54b886f6-3970-49ab-9d96-b357015f9a48"),
                 TargetType = string.Empty,
@@ -78,7 +75,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
             };
             _dMTransactionEntityWithNull = null;
 
-            _listOfDbEntities = new List<DMTransactionEntity>
+            _listOfDbEntities = new List<DmTransactionDbEntity>
             {
                 _dMTransactionEntity
             };
@@ -134,6 +131,6 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
             var result = _listOfDbDomainEntities.ToDatabase();
 
             result.Should().BeEquivalentTo(_listOfDbEntities);
-        }
+        }*/
     }
 }

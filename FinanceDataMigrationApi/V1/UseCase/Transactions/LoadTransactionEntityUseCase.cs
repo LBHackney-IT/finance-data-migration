@@ -13,19 +13,14 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
 {
     public class LoadTransactionEntityUseCase : ILoadTransactionEntityUseCase
     {
+        readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
         readonly int _batchSize = 25;
-        private readonly IDMRunLogGateway _dMRunLogGateway;
-        private readonly IDMTransactionEntityGateway _dMTransactionEntityGateway;
-        private readonly ITransactionGateway _transactionGateway;
-        private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
+        readonly ITransactionGateway _transactionGateway;
 
         private const string DataMigrationTask = "LOAD";
 
-        public LoadTransactionEntityUseCase(
-            IDMRunLogGateway dMRunLogGateway,
-            ITransactionGateway transactionGateway)
+        public LoadTransactionEntityUseCase(ITransactionGateway transactionGateway)
         {
-            _dMRunLogGateway = dMRunLogGateway;
             _transactionGateway = transactionGateway;
         }
 

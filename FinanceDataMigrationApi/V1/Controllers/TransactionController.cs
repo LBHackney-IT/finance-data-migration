@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
+using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
@@ -25,7 +26,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> BatchInsert(List<Transaction> transactions)
+        public async Task<IActionResult> BatchInsert(List<DmTransaction> transactions)
         {
             await _transactionBatchInsertUseCase.ExecuteAsync(transactions).ConfigureAwait(false);
             return Ok("True");
@@ -40,7 +41,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
             for (int i = 0; i < count / 25; i++)
             {
                 Fixture fixture = new Fixture();
-                List<Transaction> transactions = fixture.CreateMany<Transaction>(25).ToList();
+                List<DmTransaction> transactions = fixture.CreateMany<DmTransaction>(25).ToList();
                 DateTime startDateTime = DateTime.Now;
                 await _transactionBatchInsertUseCase.ExecuteAsync(transactions).ConfigureAwait(false);
                 totlaSeconds += DateTime.Now.Subtract(startDateTime).TotalSeconds;
@@ -56,7 +57,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
             for (int i = 0; i < count / 25; i++)
             {
                 Fixture fixture = new Fixture();
-                List<Transaction> transactions = fixture.CreateMany<Transaction>(25).ToList();
+                List<DmTransaction> transactions = fixture.CreateMany<DmTransaction>(25).ToList();
                 tasks.Add(_transactionBatchInsertUseCase.ExecuteAsync(transactions));
             }
             DateTime startDateTime = DateTime.Now;

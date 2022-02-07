@@ -29,6 +29,10 @@ using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Reflection;
+using FinanceDataMigrationApi.V1.UseCase.Charges;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Charges;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions;
+using FinanceDataMigrationApi.V1.UseCase.Transactions;
 
 namespace FinanceDataMigrationApi
 {
