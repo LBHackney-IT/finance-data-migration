@@ -54,19 +54,11 @@ namespace FinanceDataMigrationApi
             _waitDuration = int.Parse(Environment.GetEnvironmentVariable("WAIT_DURATION") ?? "5");
             _batchSize = int.Parse(Environment.GetEnvironmentVariable("BATCH_SIZE") ?? "100");
 
-            DbContextOptionsBuilder<DatabaseContext> optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
-            var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-            if (connectionString != null)
-                optionsBuilder.UseSqlServer(connectionString);
-            else
-                throw new Exception($"Connection string is null.");
-
-            DatabaseContext context = new DatabaseContext(optionsBuilder.Options);
-
+            DatabaseContext context = DatabaseContext.Create();
 
             IDMRunLogGateway migrationRunGateway = new DMRunLogGateway(context);
 
-            IAmazonDynamoDB amazonDynamoDb = new AmazonDynamoDBClient();
+            IAmazonDynamoDB amazonDynamoDb = CreateAmazonDynamoDbClient();
             IDynamoDBContext dynamoDbContext = new DynamoDBContext(amazonDynamoDb);
             IChargeGateway chargeGateway = new ChargeGateway(context, amazonDynamoDb);
             ITransactionGateway transactionGateway = new TransactionGateway(context, amazonDynamoDb);
@@ -365,6 +357,19 @@ namespace FinanceDataMigrationApi
                     Continue = false
                 };
             }
+        }
+        public static AmazonDynamoDBClient CreateAmazonDynamoDbClient()
+        {
+            bool result = bool.Parse(value: Environment.GetEnvironmentVariable("DynamoDb_LocalMode") ?? "false");
+            if (result)
+            {
+                string url = Environment.GetEnvironmentVariable("DynamoDb_LocalServiceUrl");
+                return new AmazonDynamoDBClient(new AmazonDynamoDBConfig
+                {
+                    ServiceURL = url
+                });
+            }
+            return new AmazonDynamoDBClient();
         }
     }
 }

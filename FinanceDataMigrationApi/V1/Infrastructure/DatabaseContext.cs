@@ -235,5 +235,17 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .Take(count)
                 .ToListAsync()
                 .ConfigureAwait(false);
+
+        public static DatabaseContext Create()
+        {
+            DbContextOptionsBuilder<DatabaseContext> optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
+            var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+            if (connectionString != null)
+                optionsBuilder.UseSqlServer(connectionString);
+            else
+                throw new Exception($"Connection string is null.");
+
+            return new DatabaseContext(optionsBuilder.Options);
+        }
     }
 }

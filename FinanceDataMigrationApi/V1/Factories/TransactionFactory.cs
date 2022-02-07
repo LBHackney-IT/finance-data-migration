@@ -38,9 +38,9 @@ namespace FinanceDataMigrationApi.V1.Factories
                     TransactionType = dMTransactionEntityDomain.TransactionType.TransactionTypeEnumValue(),
                     FinancialYear = (short) dMTransactionEntityDomain.FinancialYear,
                     FinancialMonth = (short) dMTransactionEntityDomain.FinancialMonth,
-                    CreatedAt = dMTransactionEntityDomain.CreatedAt.UtcDateTime,
+                    CreatedAt = dMTransactionEntityDomain.CreatedAt?.UtcDateTime ?? DateTime.Now,
                     CreatedBy = dMTransactionEntityDomain.CreatedBy,
-                    LastUpdatedAt = dMTransactionEntityDomain.LastUpdatedAt.UtcDateTime,
+                    LastUpdatedAt = dMTransactionEntityDomain.LastUpdatedAt?.UtcDateTime ?? DateTime.Now,
                     LastUpdatedBy = dMTransactionEntityDomain.LastUpdatedBy
                 };
 
@@ -58,23 +58,25 @@ namespace FinanceDataMigrationApi.V1.Factories
             return new Dictionary<string, AttributeValue>()
             {
                 {"id", new AttributeValue {S = transaction.Id.ToString()}},
-                {"address", new AttributeValue {S = transaction.Address}},
-                {"balance_amount", new AttributeValue {N = transaction.BalanceAmount.ToString()}},
-                {"bank_account_number", new AttributeValue {S = transaction.BankAccountNumber}},
-                {"charged_amount", new AttributeValue {N = transaction.ChargedAmount.ToString()}},
-                {"financial_month", new AttributeValue {N = transaction.FinancialMonth.ToString()}},
+                {"address", new AttributeValue {S = transaction.Address??""}},
+                {"balance_amount", new AttributeValue {N = transaction.BalanceAmount?.ToString()??"0"}},
+                {"bank_account_number", new AttributeValue {S = transaction.BankAccountNumber??"0"}},
+                {"charged_amount", new AttributeValue {N = transaction.ChargedAmount?.ToString()??"0"}},
+                {"financial_month", new AttributeValue {N = transaction.FinancialMonth.ToString()??"0"}},
                 {"financial_year", new AttributeValue {N = transaction.FinancialYear.ToString()}},
-                {"fund", new AttributeValue {S = transaction.Fund}},
-                {"housing_benefit_amount", new AttributeValue {N = transaction.HousingBenefitAmount.ToString()}},
-                {"paid_amount", new AttributeValue {N = transaction.PaidAmount.ToString()}},
-                {"payment_reference", new AttributeValue {S = transaction.PaymentReference}},
+                {"fund", new AttributeValue {S = transaction.Fund??""}},
+                {"housing_benefit_amount", new AttributeValue {N = transaction.HousingBenefitAmount?.ToString()??"0"}},
+                {"paid_amount", new AttributeValue {N = transaction.PaidAmount?.ToString()??"0"}},
+                {"payment_reference", new AttributeValue {S = transaction.PaymentReference??""}},
                 {"period_no", new AttributeValue {N = transaction.PeriodNo.ToString("####")}},
                 {"target_id", new AttributeValue {S = transaction.TargetId.ToString()}},
                 {"is_suspense", new AttributeValue {S = transaction.IsSuspense.ToString()}},
                 {"transaction_amount", new AttributeValue {N = transaction.TransactionAmount.ToString("F")}},
                 {"transaction_date", new AttributeValue {S = transaction.TransactionDate.ToString("F")}},
-                {"transaction_source", new AttributeValue {S = transaction.TransactionSource}},
-                {"transaction_type", new AttributeValue {S = transaction.TransactionType.ToString()}},
+                {"transaction_source", new AttributeValue {S = transaction.TransactionSource??""}},
+                {"transaction_type", new AttributeValue {S = transaction.TransactionType??""}},
+                {"sender", new AttributeValue {S = ""}},
+                {"suspense_resolution_info", new AttributeValue {S = ""}},
                 /*{
                     "sender",
                     new AttributeValue
@@ -99,10 +101,10 @@ namespace FinanceDataMigrationApi.V1.Factories
                         }
                     }
                 },*/
-                {"created_at", new AttributeValue {S = transaction.CreatedAt.ToString("F")}},
-                {"created_by", new AttributeValue {S = transaction.CreatedBy}},
-                {"last_updated_at", new AttributeValue {S = transaction.LastUpdatedAt.ToString()}},
-                {"last_updated_by", new AttributeValue {S = transaction.LastUpdatedBy}}
+                {"created_at", new AttributeValue {S = transaction.CreatedAt?.ToString("F")??""}},
+                {"created_by", new AttributeValue {S = transaction.CreatedBy??""}},
+                {"last_updated_at", new AttributeValue {S = transaction.LastUpdatedAt?.ToString()??""}},
+                {"last_updated_by", new AttributeValue {S = transaction.LastUpdatedBy??""}}
             };
         }
 
@@ -133,7 +135,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                 TransactionDate = dMTransactionEntity.TransactionDate,
                 TransactionSource = dMTransactionEntity.TransactionSource,
                 TransactionType = dMTransactionEntity.TransactionType,
-                LastUpdatedAt = dMTransactionEntity.LastUpdatedAt.UtcDateTime,
+                LastUpdatedAt = dMTransactionEntity.LastUpdatedAt?.UtcDateTime,
                 LastUpdatedBy = dMTransactionEntity.LastUpdatedBy,
                 CreatedBy = dMTransactionEntity.CreatedBy,
                 MigrationStatus = dMTransactionEntity.MigrationStatus,
@@ -169,7 +171,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                 TransactionDate = dMTransactionEntity.TransactionDate,
                 TransactionSource = dMTransactionEntity.TransactionSource,
                 TransactionType = dMTransactionEntity.TransactionType,
-                LastUpdatedAt = dMTransactionEntity.LastUpdatedAt.UtcDateTime,
+                LastUpdatedAt = dMTransactionEntity.LastUpdatedAt?.UtcDateTime,
                 LastUpdatedBy = dMTransactionEntity.LastUpdatedBy,
                 CreatedBy = dMTransactionEntity.CreatedBy,
                 Address = dMTransactionEntity.Address
