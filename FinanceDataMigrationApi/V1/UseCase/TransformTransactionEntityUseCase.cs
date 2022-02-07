@@ -16,7 +16,7 @@ namespace FinanceDataMigrationApi.V1.UseCase
         private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IDMTransactionEntityGateway _dMTransactionEntityGateway;
         private readonly ITenureGateway _tenureGateway;
-        private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
+        private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION") ?? "25";
         private const string DataMigrationTask = "TRANSFORM";
         private Guid _targetId;
 

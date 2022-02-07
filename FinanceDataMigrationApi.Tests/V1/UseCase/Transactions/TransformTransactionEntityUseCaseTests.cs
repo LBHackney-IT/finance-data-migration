@@ -91,11 +91,11 @@ namespace FinanceDataMigrationApi.Tests.V1.UseCase.Transactions
         [Fact]
         public async Task NoRowsToTransformReturnsResponse()
         {
-            _fixture.Build<DMRunLogDomain>()
-                .With(x => x.ExpectedRowsToMigrate, 0);
-
             _dMRunLogGateway.Setup(_ => _.GetDMRunLogByEntityNameAsync(DMEntityNames.Transactions))
-               .ReturnsAsync(_fixture.Create<DMRunLogDomain>());
+               .ReturnsAsync(_fixture
+                                .Build<DMRunLogDomain>()
+                                .With(x => x.ExpectedRowsToMigrate, 0)
+                                .Create<DMRunLogDomain>());
             var expectedResult = new StepResponse()
             {
                 Continue = true,
@@ -107,6 +107,41 @@ namespace FinanceDataMigrationApi.Tests.V1.UseCase.Transactions
             actualResult.Should().NotBeNull();
             actualResult.Should().BeEquivalentTo(expectedResult, o => o.Excluding(_ => _.NextStepTime));
             actualResult.NextStepTime.Should().BeCloseTo(expectedResult.NextStepTime, 100);
+        }
+
+        [Fact]
+        public async Task ThansactionsGatewayThrowsShoulRethrow()
+        {
+            _dMRunLogGateway.Setup(_ => _.GetDMRunLogByEntityNameAsync(DMEntityNames.Transactions))
+               .ReturnsAsync(_fixture.Create<DMRunLogDomain>());
+
+            var expectedException = new Exception("Some message");
+            _dMTransactionEntityGateway.Setup(_ => _.ListAsync())
+               .ThrowsAsync(expectedException);
+
+            Func<Task> action = () => _sut.ExecuteAsync();
+
+            var actualException = await Assert.ThrowsAsync<Exception>(action).ConfigureAwait(false);
+            actualException.Should().BeEquivalentTo(expectedException);
+        }
+
+        [Fact]
+        public async Task TenureGatewayThrowsShouldRethrow()
+        {
+            _dMRunLogGateway.Setup(_ => _.GetDMRunLogByEntityNameAsync(DMEntityNames.Transactions))
+              .ReturnsAsync(_fixture.Create<DMRunLogDomain>());
+
+            _dMTransactionEntityGateway.Setup(x => x.ListAsync())
+                .ReturnsAsync(_fixture.Create<List<DMTransactionEntityDomain>>());
+
+            var expectedException = new Exception("Some message");
+            _tenureGateway.Setup(_ => _.GetByPrnAsync(It.IsAny<string>()))
+               .ThrowsAsync(expectedException);
+
+            Func<Task> action = () => _sut.ExecuteAsync();
+
+            var actualException = await Assert.ThrowsAsync<Exception>(action).ConfigureAwait(false);
+            actualException.Should().BeEquivalentTo(expectedException);
         }
 
         #region MockHelpers
