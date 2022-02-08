@@ -49,6 +49,7 @@ namespace FinanceDataMigrationApi
         readonly IExtractAccountEntityUseCase _extractAccountEntityUseCase;
         readonly ILoadAccountsUseCase _loadAccountsUseCase;
         readonly IDmAccountLoadRunStatusSaveUseCase _dmAccountLoadRunStatusSaveUseCase;
+        readonly IDeleteAccountEntityUseCase _deleteAccountEntityUseCase;
         readonly int _waitDuration;
 
         private readonly int _batchSize;
@@ -98,6 +99,7 @@ namespace FinanceDataMigrationApi
             _extractAccountEntityUseCase = new ExtractAccountEntityUseCase(dmRunLogGateway, accountsGateway);
             _loadAccountsUseCase = new LoadAccountsUseCase(dmRunLogGateway, accountsGateway);
             _dmAccountLoadRunStatusSaveUseCase = new DmAccountLoadRunStatusSaveUseCase(dmRunStatusGateway);
+            _deleteAccountEntityUseCase = new DeleteAccountEntityUseCase(dmRunLogGateway, accountsGateway);
 
             _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
 
@@ -306,6 +308,47 @@ namespace FinanceDataMigrationApi
             }
         }
 
+        public async Task<StepResponse> DeleteAccount()
+        {
+            try
+            {
+                int count = int.Parse(Environment.GetEnvironmentVariable("ACCOUNT_LOAD_BATCH_SIZE") ??
+                                      throw new Exception("Tenure download batch size is null."));
+
+                var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
+                if (runStatus.AccountExtractDate >= DateTime.Today && runStatus.AccountLoadDate < DateTime.Today)
+                {
+                    DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
+                    {
+                        ProcName = $"{nameof(LoadAccount)}",
+                        StartTime = DateTime.Now
+                    };
+
+                    var result = await _deleteAccountEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
+                    await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+                    if (!result.Continue)
+                        await _dmAccountLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
+
+                    return result;
+                }
+                else
+                {
+                    return new StepResponse()
+                    {
+                        Continue = false
+                    };
+                }
+            }
+            catch (Exception exception)
+            {
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(LoadCharge)} Exception: {exception.GetFullMessage()}");
+                return new StepResponse()
+                {
+                    Continue = false
+                };
+            }
+        }
+
         public async Task<StepResponse> DownloadTenureToIfs()
         {
             try
@@ -372,7 +415,6 @@ namespace FinanceDataMigrationApi
                 };
             }
         }
-
         public async Task<StepResponse> DownloadAssetToIfs()
         {
             try

@@ -105,6 +105,13 @@ functions:
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::LoadAccount
     reservedConcurrency: 1
     role: lambdaExecutionRole
+  deleteAccount:
+    name: ${self:service}-${self:provider.stage}-delete-accounts
+    description: "The scheduler to delete the loaded Account entity data in FFS"
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::DeleteAccount
+    reservedConcurrency: 1
+    role: lambdaExecutionRole
 stepFunctions:
   stateMachines:
     downloadingAsset:

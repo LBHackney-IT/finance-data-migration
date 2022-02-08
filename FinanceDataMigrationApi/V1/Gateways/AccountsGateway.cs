@@ -120,9 +120,99 @@ namespace FinanceDataMigrationApi.V1.Gateways
             }
         }
 
+        public async Task BatchDelete(List<DmAccount> accounts)
+        {
+            DatabaseContext context = DatabaseContext.Create();
+
+            if (accounts == null || !accounts.Any())
+            {
+                LoggingHandler.LogError("There is no accounts to delete from DynamoDm");
+                throw new ArgumentNullException(nameof(accounts));
+            }
+
+            List<TransactWriteItem> actions = new List<TransactWriteItem>(accounts.Count);
+            foreach (DmAccount account in accounts)
+            {
+                Dictionary<string, AttributeValue> columns = account.ToQueryRequest();
+
+                actions.Add(new TransactWriteItem
+                {
+                    Delete = new Delete()
+                    {
+                        TableName = "Accounts",
+                        Key = new Dictionary<string, AttributeValue>
+                        {
+                            {"id",new AttributeValue(account.Id.ToString())}
+                        },
+                        ReturnValuesOnConditionCheckFailure = ReturnValuesOnConditionCheckFailure.ALL_OLD
+                    },
+                });
+            }
+
+            TransactWriteItemsRequest placeOrderAccount = new TransactWriteItemsRequest
+            {
+                TransactItems = actions,
+                ReturnConsumedCapacity = ReturnConsumedCapacity.TOTAL
+            };
+
+            try
+            {
+                var writeResult = await _amazonDynamoDb.TransactWriteItemsAsync(placeOrderAccount).ConfigureAwait(false);
+
+                if (writeResult.HttpStatusCode != HttpStatusCode.OK)
+                    throw new Exception(writeResult.ResponseMetadata.ToString());
+
+                context.AccountDbEntities.Where(p =>
+                    accounts.Select(i => i.Id).Contains(p.Id)).
+                    ForAll(p => p.MigrationStatus = EMigrationStatus.Deleted);
+                await context.SaveChangesAsync().ConfigureAwait(false);
+
+            }
+            catch (ResourceNotFoundException rnf)
+            {
+                LoggingHandler.LogError($"One of the table involved in the account is not found: {rnf.Message}");
+                context.AccountDbEntities.Where(p =>
+                        accounts.Select(i => i.Id).Contains(p.Id)).
+                    ForAll(p => p.MigrationStatus = EMigrationStatus.DeleteFailed);
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }
+            catch (InternalServerErrorException ise)
+            {
+                LoggingHandler.LogError($"Internal Server Error: {ise.Message}");
+                context.AccountDbEntities.Where(p =>
+                        accounts.Select(i => i.Id).Contains(p.Id)).
+                    ForAll(p => p.MigrationStatus = EMigrationStatus.DeleteFailed);
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }
+            catch (TransactionCanceledException tce)
+            {
+                LoggingHandler.LogError($"Transaction Canceled: {tce.Message}");
+                context.AccountDbEntities.Where(p =>
+                        accounts.Select(i => i.Id).Contains(p.Id)).
+                    ForAll(p => p.MigrationStatus = EMigrationStatus.DeleteFailed);
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                LoggingHandler.LogError($"TransactWriteItemsAsync: {ex.Message}");
+                context.AccountDbEntities.Where(p =>
+                        accounts.Select(i => i.Id).Contains(p.Id)).
+                    ForAll(p => p.MigrationStatus = EMigrationStatus.DeleteFailed);
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }
+        }
+
         public Task<List<DmAccountDbEntity>> GetLoadedListAsync()
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<List<DmAccount>> GetLoadedListForDeleteAsync(int count)
+        {
+            var results = await _context.GetExtractedAccountListAsync(count).ConfigureAwait(false);
+            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Deleting);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
+            return results.ToDomain();
         }
 
         public Task UpdateDMAccountEntityItems(object loadedAccounts)

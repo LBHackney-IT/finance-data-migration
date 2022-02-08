@@ -31,6 +31,14 @@ namespace FinanceDataMigrationApi.V1.Controllers
             await handler.LoadAccount().ConfigureAwait(false);
             return Ok("Done");
         }
+        [HttpGet]
+        [Route(("delete"))]
+        public async Task<IActionResult> Delete()
+        {
+            Handler handler = new Handler();
+            await handler.DeleteAccount().ConfigureAwait(false);
+            return Ok("Done");
+        }
 
         /*private readonly IExtractAccountEntityUseCase _extractAccountEntityUseCase;
         private readonly ITransformAccountsUseCase _transformAccountsUseCase;
