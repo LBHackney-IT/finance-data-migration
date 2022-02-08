@@ -57,7 +57,7 @@ namespace FinanceDataMigrationApi.V1.Factories
         {
             return new Dictionary<string, AttributeValue>()
             {
-                {"id", new AttributeValue {S = transaction.Id.ToString()}},
+                {"id", new AttributeValue {S = transaction.IdDynamodb.ToString()}},
                 {"address", new AttributeValue {S = transaction.Address??""}},
                 {"balance_amount", new AttributeValue {N = transaction.BalanceAmount?.ToString()??"0"}},
                 {"bank_account_number", new AttributeValue {S = transaction.BankAccountNumber??"0"}},
