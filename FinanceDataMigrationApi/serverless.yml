@@ -24,6 +24,7 @@ provider:
     TENURE_DOWNLOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/tenure-download-batch-size}
     CHARGE_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/charge-load-batch-size}
     TRANSACTION_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/transaction-load-batch-size}
+    ACCOUNT_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/account-load-batch-size}
 package:
   artifact: ./bin/release/netcoreapp3.1/finance-data-migration-api.zip
 
@@ -53,42 +54,42 @@ functions:
     description: "The scheduler to download tenure data for migration of accoutn and transaction entities. Run at 12:15 AM"
     timeout: 900
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::DownloadTenureToIfs
+    reservedConcurrency: 1
     role: lambdaExecutionRole
-    #events:
-    #  - schedule: cron(15 20 * * ? *)
   downloadAssetToIfs:
     name: ${self:service}-${self:provider.stage}-download-assets
     description: "The scheduler to download asset data for migration of charges entities. by calling Asset elastic search endpoint."
     timeout: 900
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::DownloadAssetToIfs
+    reservedConcurrency: 1
     role: lambdaExecutionRole
-    #events:
-    #  - schedule: cron(15 20 * * ? *)
   loadCharge:
     name: ${self:service}-${self:provider.stage}-load-charge
     description: "The scheduler to load charge data for migration of charge entity. Run at 12:15 AM"
     timeout: 900
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::LoadCharge
+    reservedConcurrency: 1
     role: lambdaExecutionRole
-    #events:
-    #    - schedule: cron(15 0 * * ? *)
   extractCharge:
     name: ${self:service}-${self:provider.stage}-extract-charge
     description: "The scheduler to extract charge data for migration of charge entity. Run at 12:15 AM"
     timeout: 900
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::ExtractCharge
+    reservedConcurrency: 1
     role: lambdaExecutionRole
   extractTransactions:
     name: ${self:service}-${self:provider.stage}-extract-transactions
     description: "The scheduler to extract Transaction entity data to be migrated. "
     timeout: 900
-    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::ExtractTransactions  
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::ExtractTransactions
+    reservedConcurrency: 1
     role: lambdaExecutionRole
   loadTransactions:
     name: ${self:service}-${self:provider.stage}-load-transactions
     description: "The scheduler to load the transformed Transaction entity data to the final solution. "
     timeout: 900
-    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::LoadTransactions  
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::LoadTransactions
+    reservedConcurrency: 1
     role: lambdaExecutionRole
 stepFunctions:
   stateMachines:

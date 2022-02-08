@@ -40,6 +40,11 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .HasOne(c => c.ChargesDbEntity)
                 .WithMany(c => c.DetailedChargesDbEntities)
                 .HasForeignKey(c => c.ChargeId);
+
+            modelBuilder.Entity<DmConsolidatedChargeDbEntity>()
+                .HasOne(c => c.AccountDbEntity)
+                .WithMany(c => c.ConsolidatedCharges)
+                .HasForeignKey(c => c.PaymentReference);
         }
 
         /// <summary>

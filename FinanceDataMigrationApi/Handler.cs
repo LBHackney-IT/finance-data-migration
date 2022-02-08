@@ -22,7 +22,6 @@ using FinanceDataMigrationApi.V1.UseCase.Interfaces.Charges;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.DmRunStatus;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions;
 using FinanceDataMigrationApi.V1.UseCase.Transactions;
-using Microsoft.EntityFrameworkCore;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
@@ -227,6 +226,74 @@ namespace FinanceDataMigrationApi
             catch (Exception exception)
             {
                 LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ExtractCharge)} Exception: {exception.GetFullMessage()}");
+                return new StepResponse()
+                {
+                    Continue = false
+                };
+            }
+        }
+
+        public async Task<StepResponse> ExtractAccount()
+        {
+            try
+            {
+                var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
+                if (runStatus.AllTenureDmCompleted && runStatus.AccountExtractDate < DateTime.Today)
+                {
+                    DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
+                    {
+                        ProcName = $"{nameof(ExtractAccount)}",
+                        StartTime = DateTime.Now
+                    };
+                    await _extractAccountEntityUseCase.ExecuteAsync().ConfigureAwait(false);
+                    await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+                }
+                return new StepResponse() { Continue = false };
+            }
+            catch (Exception exception)
+            {
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ExtractAccount)} Exception: {exception.GetFullMessage()}");
+                return new StepResponse()
+                {
+                    Continue = false
+                };
+            }
+        }
+
+        public async Task<StepResponse> LoadAccount()
+        {
+            try
+            {
+                int count = int.Parse(Environment.GetEnvironmentVariable("ACCOUNT_LOAD_BATCH_SIZE") ??
+                                      throw new Exception("Tenure download batch size is null."));
+
+                var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
+                if (runStatus.ChargeExtractDate >= DateTime.Today && runStatus.ChargeLoadDate < DateTime.Today)
+                {
+                    DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
+                    {
+                        ProcName = $"{nameof(LoadCharge)}",
+                        StartTime = DateTime.Now
+                    };
+
+                    var result = await _loadChargeEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
+                    await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+                    if (!result.Continue)
+                        await _dmChargeLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
+
+                    return result;
+                }
+                else
+                {
+                    return new StepResponse()
+                    {
+                        Continue = false
+                    };
+                }
+            }
+            catch (Exception exception)
+            {
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(LoadCharge)} Exception: {exception.GetFullMessage()}");
                 return new StepResponse()
                 {
                     Continue = false
