@@ -39,6 +39,16 @@ namespace FinanceDataMigrationApi.V1.Controllers
             return Ok("Done");
         }
 
+        [HttpGet]
+        [Route("delete")]
+        public async Task<IActionResult> Delete()
+        {
+
+            Handler handler = new Handler();
+            await handler.DeleteTransaction().ConfigureAwait(false);
+            return Ok("Done");
+        }
+
         /*private readonly ITransactionBatchInsertUseCase _transactionBatchInsertUseCase;
 
         public TransactionController(ITransactionBatchInsertUseCase transactionBatchInsertUseCase)

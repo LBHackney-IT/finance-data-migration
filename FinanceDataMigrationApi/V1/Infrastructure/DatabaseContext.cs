@@ -159,6 +159,13 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
+        public async Task<IList<DmTransactionDbEntity>> GetLoadedTransactionListAsync(int count)
+            => await TransactionEntities
+                .Where(x => x.MigrationStatus == EMigrationStatus.Loaded)
+                .Take(count)
+                .ToListWithNoLockAsync()
+                .ConfigureAwait(false);
+
         #endregion
 
         #region Account
@@ -175,6 +182,14 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public async Task<IList<DmAccountDbEntity>> GetExtractedAccountListAsync(int count)
             => await AccountDbEntities
                 .Where(x => x.MigrationStatus == EMigrationStatus.Extracted)
+                .Take(count)
+                .Include(p => p.ConsolidatedCharges)
+                .ToListWithNoLockAsync()
+                .ConfigureAwait(false);
+
+        public async Task<IList<DmAccountDbEntity>> GetLoadedAccountListAsync(int count)
+            => await AccountDbEntities
+                .Where(x => x.MigrationStatus == EMigrationStatus.Loaded)
                 .Take(count)
                 .Include(p => p.ConsolidatedCharges)
                 .ToListWithNoLockAsync()

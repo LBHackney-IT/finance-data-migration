@@ -196,7 +196,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public async Task<List<DmTransaction>> GetLoadedListForDeleteAsync(int count)
         {
-            var results = await _context.GetExtractedTransactionListAsync(count).ConfigureAwait(false);
+            var results = await _context.GetLoadedTransactionListAsync(count).ConfigureAwait(false);
             results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Deleting);
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomain();
