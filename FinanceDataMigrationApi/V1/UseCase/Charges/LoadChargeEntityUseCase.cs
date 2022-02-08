@@ -38,7 +38,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Charges
                         if (data.Any())
                         {
                             tasks.Add(_chargeGateway.BatchInsert(data));
-                            if (tasks.Count == 20)
+                            if (tasks.Count == 10)
                             {
                                 await Task.WhenAll(tasks).ConfigureAwait(false);
                                 tasks.Clear();

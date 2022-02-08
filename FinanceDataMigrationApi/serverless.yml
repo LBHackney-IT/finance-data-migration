@@ -284,7 +284,7 @@ stepFunctions:
     loadTransactions:
       name: DmLoadTransactions
       events:
-        - schedule: cron(59 23 * * ? *)
+        - schedule: cron(0/2 * * * ? *)
       definition:
         Comment: "Save the loaded transactions data into transaction dynamodb collection in FFS."
         StartAt: LoadTransactions

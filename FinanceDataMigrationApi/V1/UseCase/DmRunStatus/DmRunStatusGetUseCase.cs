@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
+using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure.Entities;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.DmRunStatus;
 
@@ -15,7 +16,9 @@ namespace FinanceDataMigrationApi.V1.UseCase.DmRunStatus
         }
         public async Task<DmRunStatusModel> ExecuteAsync()
         {
-            return await _gateway.GetData().ConfigureAwait(false);
+            var data = await _gateway.GetData().ConfigureAwait(false);
+            LoggingHandler.LogInfo($"{data}");
+            return data;
         }
     }
 }
