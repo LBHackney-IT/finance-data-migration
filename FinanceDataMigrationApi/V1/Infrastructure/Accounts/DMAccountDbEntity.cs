@@ -67,8 +67,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
         [Column("end_reason_code")]
         public string EndReasonCode { get; set; }
 
-        [Column("tenure")]
-        public string Tenure { get; set; }
 
         [Column("account_status")]
         public string AccountStatus { get; set; }
@@ -78,6 +76,9 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
 
         [Column("is_indexed")]
         public bool? IsIndexed { get; set; }
+
+        [Column("tenure")]
+        public DmTenureDbEntity Tenure { get; set; }
 
         [Column("consolidated_charges")]
         public List<DmConsolidatedChargeDbEntity> ConsolidatedCharges { get; set; }

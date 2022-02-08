@@ -44,7 +44,12 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             modelBuilder.Entity<DmConsolidatedChargeDbEntity>()
                 .HasOne(c => c.AccountDbEntity)
                 .WithMany(c => c.ConsolidatedCharges)
-                .HasForeignKey(c => c.PaymentReference);
+                .HasForeignKey(c => c.AccountId);
+
+            modelBuilder.Entity<DmTenureDbEntity>()
+                .HasOne(c => c.AccountDbEntity)
+                .WithOne(c => c.Tenure)
+                .HasForeignKey<DmAccountDbEntity>(a => a.TargetId);
         }
 
         /// <summary>
@@ -171,6 +176,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             => await AccountDbEntities
                 .Where(x => x.MigrationStatus == EMigrationStatus.Extracted)
                 .Take(count)
+                .Include(p => p.ConsolidatedCharges)
                 .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 

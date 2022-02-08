@@ -35,12 +35,15 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
                     List<Task> tasks = new List<Task>();
                     for (int i = 0; i <= extractedList.Count / _batchSize; i++)
                     {
-                        tasks.Add(_accountsGateway.BatchInsert(extractedList.OrderBy(p => p.Id).
-                            Skip(i * _batchSize).Take(_batchSize).ToList()));
-                        if (tasks.Count == 20)
+                        var data = extractedList.OrderBy(p => p.Id).Skip(i * _batchSize).Take(_batchSize).ToList();
+                        if (data.Any())
                         {
-                            await Task.WhenAll(tasks).ConfigureAwait(false);
-                            tasks.Clear();
+                            tasks.Add(_accountsGateway.BatchInsert(data));
+                            if (tasks.Count == 20)
+                            {
+                                await Task.WhenAll(tasks).ConfigureAwait(false);
+                                tasks.Clear();
+                            }
                         }
                     }
                     if (tasks.Count > 0)

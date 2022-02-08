@@ -5,6 +5,8 @@ using Hackney.Shared.Tenure.Domain;
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Handlers;
 using System;
+using FinanceDataMigrationApi.V1.Domain.Accounts;
+using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
 
 namespace FinanceDataMigrationApi.V1.Factories
 {
@@ -90,6 +92,21 @@ namespace FinanceDataMigrationApi.V1.Factories
                 },
 
                 {"paymentReference", new AttributeValue {S = tenure.PaymentReference.ToString()}}
+            };
+        }
+
+        public static DmTenure ToDomain(this DmTenureDbEntity dbEntity)
+        {
+            return dbEntity == null ? null : new DmTenure
+            {
+                PaymentReference = dbEntity.PaymentReference,
+                PrimaryTenants = dbEntity.PrimaryTenants.Select(p => p.ToDomain()).ToList(),
+                TenureTypeCode = dbEntity.TenureTypeCode,
+                TenureTypeDesc = dbEntity.TenureTypeDesc,
+                FullAddress = dbEntity.FullAddress,
+                Id = dbEntity.Id,
+                TerminatedReasonCode = dbEntity.TerminatedReasonCode,
+                Timex = dbEntity.Timex
             };
         }
     }

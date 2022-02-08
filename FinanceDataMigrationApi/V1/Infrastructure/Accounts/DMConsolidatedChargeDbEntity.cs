@@ -7,6 +7,10 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
     {
         [Column("id")]
         public long Id { get; set; }
+
+        [Column("account_id")]
+        public long AccountId { get; set; }
+
         [Column("payment_reference")]
         public string PaymentReference { get; set; }
         [Column("type")]

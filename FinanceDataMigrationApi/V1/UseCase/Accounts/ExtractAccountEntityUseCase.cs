@@ -30,10 +30,10 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
 
             try
             {
-                var dmRunLogDomain = await _dMRunLogGateway.GetDMRunLogByEntityNameAsync(DMEntityNames.Accounts).ConfigureAwait(false);
+                var dmRunLogDomain = await _dMRunLogGateway.GetDMRunLogByEntityNameAsync(DMEntityNames.Accounts).ConfigureAwait(false) ??
+                                     new DMRunLogDomain() { DynamoDbTableName = DMEntityNames.Accounts };
 
-                var lastRunTimestamp = dmRunLogDomain.LastRunDate;
-
+                var lastRunTimestamp = dmRunLogDomain.LastRunDate ?? DateTimeOffset.UtcNow;
                 dmRunLogDomain.LastRunDate = DateTimeOffset.UtcNow;
                 dmRunLogDomain.LastRunStatus = MigrationRunStatus.ExtractInprogress.ToString();
 

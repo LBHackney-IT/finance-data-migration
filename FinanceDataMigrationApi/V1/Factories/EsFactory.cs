@@ -32,7 +32,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                 FinancialMonth = transaction.FinancialMonth,
                 Fund = transaction.Fund,
                 HousingBenefitAmount = transaction.HousingBenefitAmount,
-                //IsSuspense = transaction.IsSuspense,
+                /*IsSuspense = transaction.IsSuspense,*/
                 PaidAmount = transaction.PaidAmount,
                 PaymentReference = transaction.PaymentReference,
                 PeriodNo = transaction.PeriodNo,
@@ -85,9 +85,8 @@ namespace FinanceDataMigrationApi.V1.Factories
                 AccountType = accountEntity.AccountType.ToEnumValue<AccountType>(),
                 AgreementType = accountEntity.AgreementType,
                 RentGroupType = accountEntity.RentGroupType.ToRentGroup() /*RentGroupType.Garages,*/ /*accountEntity.RentGroupType.ToEnumValue<RentGroupType>()*/,
-                // ToDo: define domain models
-                /*ConsolidatedCharges = accountEntity.ConsolidatedBalance,*/
-                Tenure = DeserializeOrDefault<QueryableTenure>(accountEntity.Tenure)
+                /*ConsolidatedCharges = accountEntity.ConsolidatedBalance,
+                Tenure = accountEntity.Tenure*/
             };
         }
 

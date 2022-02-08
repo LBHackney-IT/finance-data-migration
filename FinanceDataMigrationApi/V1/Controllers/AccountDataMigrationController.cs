@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Threading.Tasks;
+using Nest;
 
 namespace FinanceDataMigrationApi.V1.Controllers
 {
@@ -14,6 +15,23 @@ namespace FinanceDataMigrationApi.V1.Controllers
     [ApiVersion("1.0")]
     public class AccountDataMigrationController : BaseController
     {
+        [HttpGet]
+        [Route(("extract"))]
+        public async Task<IActionResult> Extract()
+        {
+            Handler handler = new Handler();
+            await handler.ExtractAccount().ConfigureAwait(false);
+            return Ok("Done");
+        }
+        [HttpGet]
+        [Route(("load"))]
+        public async Task<IActionResult> Load()
+        {
+            Handler handler = new Handler();
+            await handler.LoadAccount().ConfigureAwait(false);
+            return Ok("Done");
+        }
+
         /*private readonly IExtractAccountEntityUseCase _extractAccountEntityUseCase;
         private readonly ITransformAccountsUseCase _transformAccountsUseCase;
         private readonly ILoadAccountsUseCase _loadAccountsUseCase;

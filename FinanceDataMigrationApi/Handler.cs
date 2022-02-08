@@ -47,6 +47,8 @@ namespace FinanceDataMigrationApi
         readonly IDmTransactionExtractRunStatusSaveUseCase _dmTransactionExtractRunStatusSaveUseCase;
         readonly IDmTransactionLoadRunStatusSaveUseCase _dmTransactionLoadRunStatusSaveUseCase;
         readonly IExtractAccountEntityUseCase _extractAccountEntityUseCase;
+        readonly ILoadAccountsUseCase _loadAccountsUseCase;
+        readonly IDmAccountLoadRunStatusSaveUseCase _dmAccountLoadRunStatusSaveUseCase;
         readonly int _waitDuration;
 
         private readonly int _batchSize;
@@ -94,6 +96,9 @@ namespace FinanceDataMigrationApi
 
 
             _extractAccountEntityUseCase = new ExtractAccountEntityUseCase(dmRunLogGateway, accountsGateway);
+            _loadAccountsUseCase = new LoadAccountsUseCase(dmRunLogGateway, accountsGateway);
+            _dmAccountLoadRunStatusSaveUseCase = new DmAccountLoadRunStatusSaveUseCase(dmRunStatusGateway);
+
             _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
 
         }
@@ -268,18 +273,18 @@ namespace FinanceDataMigrationApi
                                       throw new Exception("Tenure download batch size is null."));
 
                 var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
-                if (runStatus.ChargeExtractDate >= DateTime.Today && runStatus.ChargeLoadDate < DateTime.Today)
+                if (runStatus.AccountExtractDate >= DateTime.Today && runStatus.AccountLoadDate < DateTime.Today)
                 {
                     DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
                     {
-                        ProcName = $"{nameof(LoadCharge)}",
+                        ProcName = $"{nameof(LoadAccount)}",
                         StartTime = DateTime.Now
                     };
 
-                    var result = await _loadChargeEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
+                    var result = await _loadAccountsUseCase.ExecuteAsync(count).ConfigureAwait(false);
                     await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
                     if (!result.Continue)
-                        await _dmChargeLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
+                        await _dmAccountLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
 
                     return result;
                 }

@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions;
 
 namespace FinanceDataMigrationApi.V1.UseCase.Transactions
@@ -34,11 +33,16 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
                     List<Task> tasks = new List<Task>();
                     for (int i = 0; i <= extractedList.Count / _batchSize; i++)
                     {
-                        tasks.Add(_transactionGateway.BatchInsert(extractedList.OrderBy(p => p.Id).Skip(i * _batchSize).Take(_batchSize).ToList()));
-                        if (tasks.Count == 20)
+                        var data = extractedList.OrderBy(p => p.Id).Skip(i * _batchSize).Take(_batchSize).ToList();
+                        if (data.Any())
                         {
-                            await Task.WhenAll(tasks).ConfigureAwait(false);
-                            tasks.Clear();
+                            tasks.Add(_transactionGateway.BatchInsert(data));
+
+                            if (tasks.Count == 20)
+                            {
+                                await Task.WhenAll(tasks).ConfigureAwait(false);
+                                tasks.Clear();
+                            }
                         }
                     }
                     if (tasks.Count > 0)

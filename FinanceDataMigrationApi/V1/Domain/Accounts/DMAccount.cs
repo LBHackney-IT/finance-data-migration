@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 
 namespace FinanceDataMigrationApi.V1.Domain.Accounts
@@ -44,12 +45,14 @@ namespace FinanceDataMigrationApi.V1.Domain.Accounts
 
         public string EndReasonCode { get; set; }
 
-        public string ConsolidatedCharges { get; set; }
+        public List<DmConsolidatedCharge> ConsolidatedCharges { get; set; }
 
-        public string Tenure { get; set; }
+        public DmTenure Tenure { get; set; }
 
         public string AccountStatus { get; set; }
 
         public EMigrationStatus MigrationStatus { get; set; }
+
+        public bool? IsIndexed { get; set; }
     }
 }

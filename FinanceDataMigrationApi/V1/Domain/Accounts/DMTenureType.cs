@@ -1,6 +1,7 @@
+
 namespace FinanceDataMigrationApi.V1.Domain.Accounts
 {
-    public class TenureTypeDbEntity
+    public class DMTenureType
     {
         public string Code { get; set; }
 

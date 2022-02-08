@@ -91,12 +91,26 @@ functions:
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::LoadTransactions
     reservedConcurrency: 1
     role: lambdaExecutionRole
+  extractAccount:
+    name: ${self:service}-${self:provider.stage}-extract-accounts
+    description: "The scheduler to extract the transformed Account entity data to the final solution. "
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::ExtractAccount
+    reservedConcurrency: 1
+    role: lambdaExecutionRole
+  loadAccount:
+    name: ${self:service}-${self:provider.stage}-load-accounts
+    description: "The scheduler to load the extracted Account entity data to the final solution. "
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::LoadAccount
+    reservedConcurrency: 1
+    role: lambdaExecutionRole
 stepFunctions:
   stateMachines:
     downloadingAsset:
       name: DmDownloadingAsset
       events:
-        - schedule: cron(0/15 * * * ? *)
+        - schedule: cron(59 23 * * ? *)
       definition:
         Comment: "Download asset information by calling asset information elastic get batch endpoint."
         StartAt: DownloadAssetToIfs
@@ -136,7 +150,7 @@ stepFunctions:
     downloadTenureToIfs:
       name: DmDownloadingTenure
       events:
-        - schedule: cron(0/15 * * * ? *)
+        - schedule: cron(59 23 * * ? *)
       definition:
         Comment: "Download tenure information by scanning tenure information dynamodb table."
         StartAt: DownloadTenureToIfs
@@ -176,7 +190,7 @@ stepFunctions:
     extractCharge:
       name: DmExtractCharge
       events:
-        - schedule: cron(0 20 * * ? *)
+        - schedule: cron(59 23 * * ? *)
       definition:
         Comment: "Extracting charge entity to save them into the FFS."
         StartAt: ExtractCharge
@@ -203,7 +217,7 @@ stepFunctions:
     loadCharge:
       name: DmLoadCharge
       events:
-        - schedule: cron(0 20 * * ? *)
+        - schedule: cron(59 23 * * ? *)
       definition:
         Comment: "Save the loaded charges data into charge dynamodb collection in FFS."
         StartAt: LoadCharge
@@ -243,7 +257,7 @@ stepFunctions:
     extractTransactions:
       name: DmExtractTransactions
       events:
-        - schedule: cron(0 20 * * ? *)
+        - schedule: cron(59 23 * * ? *)
       definition:
         Comment: "Extracting transaction entity to save them into the FFS."
         StartAt: ExtractTransactions
@@ -270,7 +284,7 @@ stepFunctions:
     loadTransactions:
       name: DmLoadTransactions
       events:
-        - schedule: cron(0 20 * * ? *)
+        - schedule: cron(59 23 * * ? *)
       definition:
         Comment: "Save the loaded transactions data into transaction dynamodb collection in FFS."
         StartAt: LoadTransactions
@@ -296,6 +310,73 @@ stepFunctions:
               - Variable: $.Continue
                 BooleanEquals: true
                 Next: LoadTransactions
+              - Variable: $.Continue
+                BooleanEquals: false
+                Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
+    extractAccount:
+      name: DmExtractAccount
+      events:
+        - schedule: cron(59 23 * * ? *)
+      definition:
+        Comment: "Extracting account entity to save them into the FFS."
+        StartAt: ExtractAccount
+        States:
+          ExtractAccount:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [extractAccount, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
+    loadAccount:
+      name: DmLoadAccount
+      events:
+        - schedule: cron(59 23 * * ? *)
+      definition:
+        Comment: "Save the loaded accounts data into account dynamodb collection in FFS."
+        StartAt: LoadAccount
+        States:
+          LoadAccount:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [loadAccount, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: Wait_1
+          Wait_1:
+              Type: Wait
+              TimestampPath: $.NextStepTime
+              Next: Choice_1
+          Choice_1:
+            Type: Choice
+            Choices:
+              - Variable: $.Continue
+                BooleanEquals: true
+                Next: LoadAccount
               - Variable: $.Continue
                 BooleanEquals: false
                 Next: EndStep
