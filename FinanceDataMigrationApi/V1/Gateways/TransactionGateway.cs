@@ -115,5 +115,91 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 await context.DisposeAsync().ConfigureAwait(false);
             }
         }
+        public async Task BatchDelete(List<DmTransaction> transactions)
+        {
+            DatabaseContext context = DatabaseContext.Create();
+            List<TransactWriteItem> actions = new List<TransactWriteItem>();
+            foreach (DmTransaction transaction in transactions)
+            {
+                var columns = transaction.ToQueryRequest();
+
+                actions.Add(new TransactWriteItem
+                {
+                    Delete = new Delete()
+                    {
+                        TableName = "Transactions",
+                        Key = new Dictionary<string, AttributeValue>
+                        {
+                            {"target_id",new AttributeValue(transaction.TargetId.ToString())}
+                        },
+                        ReturnValuesOnConditionCheckFailure = ReturnValuesOnConditionCheckFailure.ALL_OLD
+                    },
+                });
+            }
+
+            TransactWriteItemsRequest placeOrderCharge = new TransactWriteItemsRequest
+            {
+                TransactItems = actions,
+                ReturnConsumedCapacity = ReturnConsumedCapacity.TOTAL
+            };
+
+            try
+            {
+                var writeResult = await _amazonDynamoDb.TransactWriteItemsAsync(placeOrderCharge).ConfigureAwait(false);
+
+                if (writeResult.HttpStatusCode != HttpStatusCode.OK)
+                    throw new Exception(writeResult.ResponseMetadata.ToString());
+
+                context.TransactionEntities.Where(p =>
+                        transactions.Select(i => i.Id).Contains(p.Id))
+                    .ForAll(p => p.MigrationStatus = EMigrationStatus.Deleted);
+                await context.SaveChangesAsync().ConfigureAwait(false);
+
+            }
+            catch (ResourceNotFoundException rnf)
+            {
+                LoggingHandler.LogError($"One of the table involved in the account is not found: {rnf.Message}");
+                context.TransactionEntities.Where(p =>
+                        transactions.Select(i => i.Id).Contains(p.Id))
+                    .ForAll(p => p.MigrationStatus = EMigrationStatus.DeleteFailed);
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }
+            catch (InternalServerErrorException ise)
+            {
+                LoggingHandler.LogError($"Internal Server Error: {ise.Message}");
+                context.TransactionEntities.Where(p =>
+                        transactions.Select(i => i.Id).Contains(p.Id))
+                    .ForAll(p => p.MigrationStatus = EMigrationStatus.DeleteFailed);
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }
+            catch (TransactionCanceledException tce)
+            {
+                LoggingHandler.LogError($"Transaction Canceled: {tce.Message}");
+                context.TransactionEntities.Where(p =>
+                        transactions.Select(i => i.Id).Contains(p.Id))
+                    .ForAll(p => p.MigrationStatus = EMigrationStatus.DeleteFailed);
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                LoggingHandler.LogError($"TransactWriteItemsAsync: {ex.Message}");
+                context.TransactionEntities.Where(p =>
+                        transactions.Select(i => i.Id).Contains(p.Id))
+                    .ForAll(p => p.MigrationStatus = EMigrationStatus.DeleteFailed);
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }
+            finally
+            {
+                await context.DisposeAsync().ConfigureAwait(false);
+            }
+        }
+
+        public async Task<List<DmTransaction>> GetLoadedListForDeleteAsync(int count)
+        {
+            var results = await _context.GetExtractedTransactionListAsync(count).ConfigureAwait(false);
+            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Deleting);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
+            return results.ToDomain();
+        }
     }
 }

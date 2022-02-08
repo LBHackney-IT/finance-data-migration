@@ -50,6 +50,7 @@ namespace FinanceDataMigrationApi
         readonly ILoadAccountsUseCase _loadAccountsUseCase;
         readonly IDmAccountLoadRunStatusSaveUseCase _dmAccountLoadRunStatusSaveUseCase;
         readonly IDeleteAccountEntityUseCase _deleteAccountEntityUseCase;
+        readonly IDeleteTransactionEntityUseCase _deleteTransactionEntityUseCase;
         readonly int _waitDuration;
 
         private readonly int _batchSize;
@@ -93,8 +94,8 @@ namespace FinanceDataMigrationApi
             _loadTransactionEntityUseCase = new LoadTransactionEntityUseCase(transactionGateway);
 
             _dmTransactionExtractRunStatusSaveUseCase = new DmTransactionExtractRunStatusSaveUseCase(dmRunStatusGateway);
+            _deleteTransactionEntityUseCase = new DeleteTransactionEntityUseCase(dmRunLogGateway, transactionGateway);
             _dmTransactionLoadRunStatusSaveUseCase = new DmTransactionLoadRunStatusSaveUseCase(dmRunStatusGateway);
-
 
             _extractAccountEntityUseCase = new ExtractAccountEntityUseCase(dmRunLogGateway, accountsGateway);
             _loadAccountsUseCase = new LoadAccountsUseCase(dmRunLogGateway, accountsGateway);
@@ -315,29 +316,44 @@ namespace FinanceDataMigrationApi
                 int count = int.Parse(Environment.GetEnvironmentVariable("ACCOUNT_LOAD_BATCH_SIZE") ??
                                       throw new Exception("Tenure download batch size is null."));
 
-                var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
-                if (runStatus.AccountExtractDate >= DateTime.Today && runStatus.AccountLoadDate < DateTime.Today)
+                DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
                 {
-                    DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
-                    {
-                        ProcName = $"{nameof(LoadAccount)}",
-                        StartTime = DateTime.Now
-                    };
+                    ProcName = $"{nameof(LoadAccount)}",
+                    StartTime = DateTime.Now
+                };
 
-                    var result = await _deleteAccountEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
-                    await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
-                    if (!result.Continue)
-                        await _dmAccountLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
+                var result = await _deleteAccountEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
+                await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
 
-                    return result;
-                }
-                else
+                return result;
+            }
+            catch (Exception exception)
+            {
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(LoadCharge)} Exception: {exception.GetFullMessage()}");
+                return new StepResponse()
                 {
-                    return new StepResponse()
-                    {
-                        Continue = false
-                    };
-                }
+                    Continue = false
+                };
+            }
+        }
+
+        public async Task<StepResponse> DeleteTransaction()
+        {
+            try
+            {
+                int count = int.Parse(Environment.GetEnvironmentVariable("TRANSACTION_LOAD_BATCH_SIZE") ??
+                                      throw new Exception("Tenure download batch size is null."));
+
+                DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
+                {
+                    ProcName = $"{nameof(LoadAccount)}",
+                    StartTime = DateTime.Now
+                };
+
+                var result = await _deleteTransactionEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
+                await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+
+                return result;
             }
             catch (Exception exception)
             {

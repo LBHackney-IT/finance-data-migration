@@ -9,6 +9,7 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
         public Task<int> ExtractAsync();
         public Task<IList<DmTransaction>> GetExtractedListAsync(int count);
         public Task BatchInsert(List<DmTransaction> transactions);
-
+        public Task BatchDelete(List<DmTransaction> transactions);
+        public Task<List<DmTransaction>> GetLoadedListForDeleteAsync(int count);
     }
 }
