@@ -39,7 +39,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
                         if (data.Any())
                         {
                             tasks.Add(_accountsGateway.BatchInsert(data));
-                            if (tasks.Count == 20)
+                            if (tasks.Count == 10)
                             {
                                 await Task.WhenAll(tasks).ConfigureAwait(false);
                                 tasks.Clear();
