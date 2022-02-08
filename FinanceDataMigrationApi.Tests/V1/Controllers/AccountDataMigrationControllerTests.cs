@@ -15,7 +15,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Controllers
 {
     public class AccountDataMigrationControllerTests
     {
-        private readonly Fixture _fixture = new Fixture();
+        /*private readonly Fixture _fixture = new Fixture();
         private readonly AccountDataMigrationController _controller;
         private readonly Mock<IExtractAccountEntityUseCase> _mockExtractAccountEntityUseCase;
         private readonly Mock<ITransformAccountsUseCase> _mockTransformAccountsUseCase;
@@ -138,6 +138,6 @@ namespace FinanceDataMigrationApi.Tests.V1.Controllers
             var result = await _controller.IndexAccountEntity().ConfigureAwait(false);
 
             result.Should().BeEquivalentTo(new NotFoundObjectResult(new BaseErrorResponse((int) HttpStatusCode.InternalServerError, "Index Account Entity Task Failed!!")));
-        }
+        }*/
     }
 }

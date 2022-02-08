@@ -13,10 +13,10 @@ namespace FinanceDataMigrationApi.V1.UseCase.Charges
     public class LoadChargeEntityUseCase : ILoadChargeEntityUseCase
     {
         readonly int _batchSize = 25;
+        private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
         private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IChargeGateway _chargeGateway;
-        private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
-        private const string DataMigrationTask = "LOAD";
+        private const string DataMigrationTask = "ChargeLoad";
 
         public LoadChargeEntityUseCase(IDMRunLogGateway dMRunLogGateway, IChargeGateway chargeGateway)
         {

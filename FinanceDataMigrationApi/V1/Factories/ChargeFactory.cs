@@ -10,7 +10,7 @@ using FinanceDataMigrationApi.V1.Infrastructure.Entities;
 namespace FinanceDataMigrationApi.V1.Factories
 {
     public static partial class ChargeFactory
-    { 
+    {
 
         public static DmCharge ToDomain(this DmChargesDbEntity dMChargesEntity)
         {

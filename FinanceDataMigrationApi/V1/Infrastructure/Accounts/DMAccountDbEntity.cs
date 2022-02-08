@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
@@ -45,8 +46,8 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
         [Column("payment_reference")]
         public string PaymentReference { get; set; }
 
-        //[Column("created_at")]
-        //public DateTime CreatedAt { get; set; }
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; }
 
         //[Column("payment_by")]
         //public string CreatedBy { get; set; }
@@ -66,9 +67,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
         [Column("end_reason_code")]
         public string EndReasonCode { get; set; }
 
-        [Column("consolidated_charges")]
-        public string ConsolidatedCharges { get; set; }
-
         [Column("tenure")]
         public string Tenure { get; set; }
 
@@ -80,5 +78,8 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
 
         [Column("is_indexed")]
         public bool? IsIndexed { get; set; }
+
+        [Column("consolidated_charges")]
+        public List<DmConsolidatedChargeDbEntity> ConsolidatedCharges { get; set; }
     }
 }

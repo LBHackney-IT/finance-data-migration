@@ -3,28 +3,28 @@ using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
-using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Accounts;
 
-namespace FinanceDataMigrationApi.V1.UseCase
+namespace FinanceDataMigrationApi.V1.UseCase.Accounts
 {
     public class IndexAccountEntityUseCase : IIndexAccountEntityUseCase
     {
         private readonly IEsGateway _esGateway;
         private readonly IDMRunLogGateway _dMRunLogGateway;
-        private readonly IDMAccountEntityGateway _dMAccountEntityGateway;
+        private readonly IAccountsGateway _accountsGateway;
 
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
         private const string DataMigrationTask = "INDEXING";
 
-        public IndexAccountEntityUseCase(IEsGateway esGateway, IDMRunLogGateway dMRunLogGateway, IDMAccountEntityGateway dMAccountEntityGateway)
+        public IndexAccountEntityUseCase(IEsGateway esGateway, IDMRunLogGateway dMRunLogGateway, IAccountsGateway accountsGateway)
         {
             _esGateway = esGateway;
             _dMRunLogGateway = dMRunLogGateway;
-            _dMAccountEntityGateway = dMAccountEntityGateway;
+            _accountsGateway = accountsGateway;
         }
 
         public async Task<StepResponse> ExecuteAsync()
@@ -42,7 +42,7 @@ namespace FinanceDataMigrationApi.V1.UseCase
 
                 // Get all the Account entities extracted data from the SOW2b SQL Server database table DMEntityAccounts,
                 //      where isTransformed flag is TRUE and isLoaded flag is TRUE 
-                var loadedAccounts = await _dMAccountEntityGateway.GetLoadedListAsync().ConfigureAwait(false);
+                var loadedAccounts = await _accountsGateway.GetLoadedListAsync().ConfigureAwait(false);
 
                 LoggingHandler.LogInfo($"End of {DataMigrationTask} task for {DMEntityNames.Accounts} Entity");
 
@@ -67,7 +67,7 @@ namespace FinanceDataMigrationApi.V1.UseCase
                     loadedAccounts.ToList().ForEach(item => item.IsIndexed = true);
 
                     // Update batched rows to staging table DMTransactionEntity. 
-                    await _dMAccountEntityGateway.UpdateDMAccountEntityItems(loadedAccounts).ConfigureAwait(false);
+                    await _accountsGateway.UpdateDMAccountEntityItems(loadedAccounts).ConfigureAwait(false);
 
                     // Update migrationrun item with SET start_row_id & end_row_id here.
                     //      and set status to "IndexCompleted" (Data Set Indexed successfully)

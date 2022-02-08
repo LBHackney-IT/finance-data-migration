@@ -12,6 +12,7 @@ using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using AutoMapper.Internal;
+using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
@@ -20,7 +21,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
         private readonly DatabaseContext _context;
         private readonly IAmazonDynamoDB _amazonDynamoDb;
 
-        public AccountsGateway(DatabaseContext context,IAmazonDynamoDB amazonDynamoDb)
+        public AccountsGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb)
         {
             _context = context;
             _amazonDynamoDb = amazonDynamoDb;
@@ -117,6 +118,16 @@ namespace FinanceDataMigrationApi.V1.Gateways
                     ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
+        }
+
+        public Task<List<DmAccountDbEntity>> GetLoadedListAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateDMAccountEntityItems(object loadedAccounts)
+        {
+            throw new NotImplementedException();
         }
     }
 }

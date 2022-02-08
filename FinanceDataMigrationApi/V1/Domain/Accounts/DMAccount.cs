@@ -27,8 +27,7 @@ namespace FinanceDataMigrationApi.V1.Domain.Accounts
 
         public string PaymentReference { get; set; }
 
-        //[Column("created_at")]
-        //public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         //[Column("payment_by")]
         //public string CreatedBy { get; set; }

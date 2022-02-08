@@ -77,7 +77,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// Get or sets the Data Migration Account Entities
         /// </summary>
         public DbSet<DmAccountDbEntity> AccountDbEntities { get; set; }
-        public DbSet<>
+        public DbSet<DmConsolidatedChargeDbEntity> ConsolidatedChargeDbEntities { get; set; }
 
         public DbSet<DmRunStatusModel> DmRunStatusModels { get; set; }
         public DbSet<DmTimeLogModel> DmTimeLogModels { get; set; }
@@ -128,7 +128,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         {
             var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_InsertDynamoTenure] '{lastHint}','{xml}'", 6000).ConfigureAwait(false);
             return affectedRows;
-        } 
+        }
         #endregion
 
         #region Transaction Entity Specific

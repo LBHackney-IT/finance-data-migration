@@ -77,7 +77,7 @@ namespace FinanceDataMigrationApi.V1.Factories
 
             if (!string.IsNullOrWhiteSpace(account.ConsolidatedCharges))
             {
-                var consolidatedCharges = JsonConvert.DeserializeObject<List<ConsolidatedChargeDbEntity>>(account.ConsolidatedCharges);
+                var consolidatedCharges = JsonConvert.DeserializeObject<List<DmConsolidatedCharge>>(account.ConsolidatedCharges);
 
                 var chargesAttributes = new List<AttributeValue>(consolidatedCharges.Count);
                 foreach (var charge in consolidatedCharges)

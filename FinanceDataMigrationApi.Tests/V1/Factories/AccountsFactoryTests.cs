@@ -1,8 +1,5 @@
 using Amazon.DynamoDBv2.Model;
-using FinanceDataMigrationApi.V1.Domain.Accounts;
-using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
-using FluentAssertions;
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -11,7 +8,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
 {
     public class AccountsFactoryTests
     {
-        private readonly DmAccountDbEntity _dmAccountEntitySubmodelsAreNull;
+        /*private readonly DmAccountDbEntity _dmAccountEntitySubmodelsAreNull;
         private readonly Dictionary<string, AttributeValue> _expectedAccountModelSubmodelsAreNull;
 
         private readonly DmAccountDbEntity _dmAccountEntityTenureIsNotNull;
@@ -44,10 +41,8 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
                 Tenure = string.Empty,
                 AccountStatus = string.Empty,
                 ParentAccountId = Guid.NewGuid(),
-                IsTransformed = false,
-                IsLoaded = false,
-                DynamoDbId = Guid.NewGuid(),
-                ConsolidatedCharges = string.Empty
+                DynamoDbId = Guid.NewGuid()*//*,
+                ConsolidatedCharges = string.Empty*//*
             };
 
             _expectedAccountModelSubmodelsAreNull = new Dictionary<string, AttributeValue>
@@ -83,10 +78,8 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
                 Tenure = @"{ ""tenureId"":""318229C6-C70C-4E0F-9226-35C01BD8471F"", ""fullAddress"":""sdfsdfsdfsdfsdf""}",
                 AccountStatus = string.Empty,
                 ParentAccountId = Guid.NewGuid(),
-                IsTransformed = false,
-                IsLoaded = false,
-                DynamoDbId = Guid.NewGuid(),
-                ConsolidatedCharges = string.Empty
+                DynamoDbId = Guid.NewGuid()*//*,
+                ConsolidatedCharges = string.Empty*//*
             };
 
             _expectedAccountModelTenureIsNotNull = new Dictionary<string, AttributeValue>
@@ -133,10 +126,8 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
                 ""code"":""1941079102"", ""description"":""kjdngk jfkjfnkjdfv""}}",
                 AccountStatus = string.Empty,
                 ParentAccountId = Guid.NewGuid(),
-                IsTransformed = false,
-                IsLoaded = false,
-                DynamoDbId = Guid.NewGuid(),
-                ConsolidatedCharges = string.Empty
+                DynamoDbId = Guid.NewGuid()*//*,
+                ConsolidatedCharges = string.Empty*//*
             };
 
             _expectedAccountModelPopulatedTenure = new Dictionary<string, AttributeValue>
@@ -189,10 +180,8 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
                 EndReasonCode = string.Empty,
                 AccountStatus = string.Empty,
                 ParentAccountId = Guid.NewGuid(),
-                IsTransformed = false,
-                IsLoaded = false,
                 DynamoDbId = Guid.NewGuid(),
-                ConsolidatedCharges = string.Empty,
+                *//*ConsolidatedCharges = string.Empty,*//*
                 Tenure = @"{ ""tenureId"":""318229C6-C70C-4E0F-9226-35C01BD8471F"", ""fullAddress"":""sdfsdfsdfsdfsdf"",
                 ""primaryTenants"":[{
                 ""id"":""76f78616-b8ed-4703-9e93-d808e21b570f"",""fullName"":""3A398F08-4712-4E78-A641-96E6F9301094""},{
@@ -264,10 +253,8 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
                 EndReasonCode = string.Empty,
                 AccountStatus = string.Empty,
                 ParentAccountId = Guid.NewGuid(),
-                IsTransformed = false,
-                IsLoaded = false,
                 DynamoDbId = Guid.NewGuid(),
-                ConsolidatedCharges = @"[{""type"":""A"", ""frequency"":""WK"", ""amount"":""10.70""}, { ""type"":""A"", ""frequency"":""WK"", ""amount"":""11.00"" }]",
+                *//*ConsolidatedCharges = @"[{""type"":""A"", ""frequency"":""WK"", ""amount"":""10.70""}, { ""type"":""A"", ""frequency"":""WK"", ""amount"":""11.00"" }]",*//*
                 Tenure = string.Empty
             };
 
@@ -353,6 +340,6 @@ namespace FinanceDataMigrationApi.Tests.V1.Factories
             var result = _dmAccountEntityConsolidatedChargesIsNotNull.ToQueryRequest();
 
             result.Should().BeEquivalentTo(_expectedAccountModelConsolidatedChargesIsNotNull);
-        }
+        }*/
     }
 }

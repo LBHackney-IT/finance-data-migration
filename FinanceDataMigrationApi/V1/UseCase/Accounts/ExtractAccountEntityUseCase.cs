@@ -2,26 +2,26 @@ using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
-using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 using System;
 using System.Threading.Tasks;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Accounts;
 
-namespace FinanceDataMigrationApi.V1.UseCase
+namespace FinanceDataMigrationApi.V1.UseCase.Accounts
 {
     public class ExtractAccountEntityUseCase : IExtractAccountEntityUseCase
     {
         private readonly IDMRunLogGateway _dMRunLogGateway;
-        private readonly IDMAccountEntityGateway _dMAccountEntityGateway;
+        private readonly IAccountsGateway _accountsGateway;
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION") ?? "25";
 
         private const string DataMigrationTask = "EXTRACT";
 
         public ExtractAccountEntityUseCase(
             IDMRunLogGateway dmRunLogGateway,
-            IDMAccountEntityGateway dMAccountEntityGateway)
+            IAccountsGateway accountsGateway)
         {
             _dMRunLogGateway = dmRunLogGateway;
-            _dMAccountEntityGateway = dMAccountEntityGateway;
+            _accountsGateway = accountsGateway;
         }
 
         public async Task<StepResponse> ExecuteAsync()
@@ -39,7 +39,7 @@ namespace FinanceDataMigrationApi.V1.UseCase
 
                 var newDmRunLogDomain = await _dMRunLogGateway.AddAsync(dmRunLogDomain).ConfigureAwait(false);
 
-                var numberOfRowsExtracted = await _dMAccountEntityGateway.ExtractAsync(lastRunTimestamp).ConfigureAwait(false);
+                var numberOfRowsExtracted = await _accountsGateway.ExtractAsync().ConfigureAwait(false);
 
                 if (numberOfRowsExtracted > 0)
                 {

@@ -173,11 +173,6 @@ namespace FinanceDataMigrationApi
                 else
                     throw new Exception("Sql connection string is not valid.");
             });
-
-            services.AddDbContext<DbAccountsContext>(opt => opt.UseSqlServer(connectionString, sqlOptions =>
-            {
-                sqlOptions.CommandTimeout(360);
-            }));
         }
 
         private static void RegisterGateways(IServiceCollection services)
@@ -185,7 +180,6 @@ namespace FinanceDataMigrationApi
             services.AddTransient<LoggingDelegatingHandler>();
 
             services.AddScoped<IChargeGateway, ChargeGateway>();
-            services.AddScoped<IDMAccountEntityGateway, DmAccountEntityGateway>();
             services.AddScoped<ITransactionGateway, TransactionGateway>();
             services.AddScoped<IDMRunLogGateway, DMRunLogGateway>();
             services.AddScoped<ITenureGateway, TenureGateway>();
@@ -251,7 +245,6 @@ namespace FinanceDataMigrationApi
             services.AddScoped<ILoadChargeEntityUseCase, LoadChargeEntityUseCase>();
 
             services.AddScoped<IExtractAccountEntityUseCase, ExtractAccountEntityUseCase>();
-            services.AddScoped<ITransformAccountsUseCase, TransformAccountsUseCase>();
             services.AddScoped<ILoadAccountsUseCase, LoadAccountsUseCase>();
             services.AddScoped<IIndexAccountEntityUseCase, IndexAccountEntityUseCase>();
         }

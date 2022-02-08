@@ -14,7 +14,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
     [ApiVersion("1.0")]
     public class AccountDataMigrationController : BaseController
     {
-        private readonly IExtractAccountEntityUseCase _extractAccountEntityUseCase;
+        /*private readonly IExtractAccountEntityUseCase _extractAccountEntityUseCase;
         private readonly ITransformAccountsUseCase _transformAccountsUseCase;
         private readonly ILoadAccountsUseCase _loadAccountsUseCase;
         private readonly IIndexAccountEntityUseCase _indexAccountEntityUseCase;
@@ -101,6 +101,6 @@ namespace FinanceDataMigrationApi.V1.Controllers
             }
 
             return Ok("Account Entities Indexed Successfully");
-        }
+        }*/
     }
 }

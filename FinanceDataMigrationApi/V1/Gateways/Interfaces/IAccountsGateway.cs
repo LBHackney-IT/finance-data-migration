@@ -10,5 +10,7 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
         Task<int> ExtractAsync();
         Task<IList<DmAccount>> GetExtractedListAsync(int count);
         Task BatchInsert(List<DmAccount> accounts);
+        Task<List<DmAccountDbEntity>> GetLoadedListAsync();
+        Task UpdateDMAccountEntityItems(object loadedAccounts);
     }
 }

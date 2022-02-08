@@ -14,8 +14,10 @@ using FinanceDataMigrationApi.V1.UseCase;
 using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure.Entities;
+using FinanceDataMigrationApi.V1.UseCase.Accounts;
 using FinanceDataMigrationApi.V1.UseCase.Charges;
 using FinanceDataMigrationApi.V1.UseCase.DmRunStatus;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Accounts;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Charges;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.DmRunStatus;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions;
@@ -69,7 +71,7 @@ namespace FinanceDataMigrationApi
             IDmRunStatusGateway dmRunStatusGateway = new DmRunStatusGateway(context);
             ITimeLogGateway timeLogGateway = new TimeLogGateway(context);
             IDMRunLogGateway dmRunLogGateway = new DMRunLogGateway(context);
-            IDMAccountEntityGateway
+            IAccountsGateway accountsGateway = new AccountsGateway(context, amazonDynamoDb);
 
             _getLastHintUseCase = new GetLastHintUseCase(hitsGateway);
             _loadChargeEntityUseCase = new LoadChargeEntityUseCase(migrationRunGateway, chargeGateway);
@@ -91,6 +93,8 @@ namespace FinanceDataMigrationApi
             _dmTransactionExtractRunStatusSaveUseCase = new DmTransactionExtractRunStatusSaveUseCase(dmRunStatusGateway);
             _dmTransactionLoadRunStatusSaveUseCase = new DmTransactionLoadRunStatusSaveUseCase(dmRunStatusGateway);
 
+
+            _extractAccountEntityUseCase = new ExtractAccountEntityUseCase(dmRunLogGateway, accountsGateway);
             _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
 
         }
