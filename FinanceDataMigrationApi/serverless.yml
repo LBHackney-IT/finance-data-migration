@@ -175,7 +175,7 @@ stepFunctions:
     extractCharge:
       name: DmExtractCharge
       events:
-        - schedule: cron(0/30 * * * ? *)
+        - schedule: cron(0 20 * * ? *)
       definition:
         Comment: "Extracting charge entity to save them into the FFS."
         StartAt: ExtractCharge
@@ -202,7 +202,7 @@ stepFunctions:
     loadCharge:
       name: DmLoadCharge
       events:
-        - schedule: cron(0/30 * * * ? *)
+        - schedule: cron(0 20 * * ? *)
       definition:
         Comment: "Save the loaded charges data into charge dynamodb collection in FFS."
         StartAt: LoadCharge
@@ -242,7 +242,7 @@ stepFunctions:
     extractTransactions:
       name: DmExtractTransactions
       events:
-        - schedule: cron(0/5 * * * ? *)
+        - schedule: cron(0 20 * * ? *)
       definition:
         Comment: "Extracting transaction entity to save them into the FFS."
         StartAt: ExtractTransactions
@@ -269,7 +269,7 @@ stepFunctions:
     loadTransactions:
       name: DmLoadTransactions
       events:
-        - schedule: cron(0/5 * * * ? *)
+        - schedule: cron(0 20 * * ? *)
       definition:
         Comment: "Save the loaded transactions data into transaction dynamodb collection in FFS."
         StartAt: LoadTransactions
