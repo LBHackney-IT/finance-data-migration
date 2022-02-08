@@ -41,6 +41,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Charges
                             if (tasks.Count == 10)
                             {
                                 await Task.WhenAll(tasks).ConfigureAwait(false);
+                                System.Threading.Thread.Sleep(5000);
                                 tasks.Clear();
                             }
                         }
