@@ -29,7 +29,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
         {
             try
             {
-                var forDeleteList = await _accountsGateway.GetLoadedListForDeleteAsync(count).ConfigureAwait(false);
+                var forDeleteList = await _accountsGateway.GetToBeDeletedListForDeleteAsync(count).ConfigureAwait(false);
                 if (forDeleteList.Any())
                 {
                     List<Task> tasks = new List<Task>();
@@ -40,10 +40,10 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
                         if (data.Any())
                         {
                             tasks.Add(_accountsGateway.BatchDelete(data));
-                            if (tasks.Count == 10)
+                            if (tasks.Count == 5)
                             {
                                 await Task.WhenAll(tasks).ConfigureAwait(false);
-                                System.Threading.Thread.Sleep(5000);
+                                System.Threading.Thread.Sleep(2000);
                                 tasks.Clear();
                             }
                         }

@@ -13,6 +13,7 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
         Task BatchDelete(List<DmAccount> accounts);
         Task<List<DmAccountDbEntity>> GetLoadedListAsync();
         Task<List<DmAccount>> GetLoadedListForDeleteAsync(int count);
+        Task<List<DmAccount>> GetToBeDeletedListForDeleteAsync(int count);
         Task UpdateDMAccountEntityItems(object loadedAccounts);
     }
 }

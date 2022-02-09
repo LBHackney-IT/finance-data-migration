@@ -42,7 +42,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
                             if (tasks.Count == 10)
                             {
                                 await Task.WhenAll(tasks).ConfigureAwait(false);
-                                System.Threading.Thread.Sleep(5000);
+                                System.Threading.Thread.Sleep(2000);
                                 tasks.Clear();
                             }
                         }

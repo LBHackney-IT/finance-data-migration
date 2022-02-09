@@ -125,6 +125,14 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
+        public async Task<IList<DmChargesDbEntity>> GetToBeDeletedChargeListAsync(int count)
+            => await this.Set<DmChargesDbEntity>()
+                .Where(x => x.MigrationStatus == EMigrationStatus.ToBeDeleted)
+                .Take(count)
+                .Include(p => p.DetailedChargesDbEntities)
+                .ToListWithNoLockAsync()
+                .ConfigureAwait(false);
+
         #endregion
 
         #region Asset & Tenure
@@ -166,6 +174,13 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
+        public async Task<IList<DmTransactionDbEntity>> GetToBeDeletedTransactionListAsync(int count)
+            => await TransactionEntities
+                .Where(x => x.MigrationStatus == EMigrationStatus.ToBeDeleted)
+                .Take(count)
+                .ToListWithNoLockAsync()
+                .ConfigureAwait(false);
+
         #endregion
 
         #region Account
@@ -190,6 +205,14 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public async Task<IList<DmAccountDbEntity>> GetLoadedAccountListAsync(int count)
             => await AccountDbEntities
                 .Where(x => x.MigrationStatus == EMigrationStatus.Loaded)
+                .Take(count)
+                .Include(p => p.ConsolidatedCharges)
+                .ToListWithNoLockAsync()
+                .ConfigureAwait(false);
+
+        public async Task<IList<DmAccountDbEntity>> GetToBeDeletedAccountListAsync(int count)
+            => await AccountDbEntities
+                .Where(x => x.MigrationStatus == EMigrationStatus.ToBeDeleted)
                 .Take(count)
                 .Include(p => p.ConsolidatedCharges)
                 .ToListWithNoLockAsync()

@@ -215,6 +215,14 @@ namespace FinanceDataMigrationApi.V1.Gateways
             return results.ToDomain();
         }
 
+        public async Task<List<DmAccount>> GetToBeDeletedListForDeleteAsync(int count)
+        {
+            var results = await _context.GetToBeDeletedAccountListAsync(count).ConfigureAwait(false);
+            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Deleting);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
+            return results.ToDomain();
+        }
+
         public Task UpdateDMAccountEntityItems(object loadedAccounts)
         {
             throw new NotImplementedException();

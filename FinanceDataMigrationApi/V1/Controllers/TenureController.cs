@@ -108,7 +108,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
                 if (response.LastKey.Count == 0)
                     break;
 
-                System.Threading.Thread.Sleep(5000);
+                System.Threading.Thread.Sleep(2000);
 
             } while (true);
             return Ok("All tenure downloaded to IFS successfully.");

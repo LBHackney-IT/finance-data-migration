@@ -335,6 +335,46 @@ stepFunctions:
               #- Variable: $.Continue
               #  BooleanEquals: false
               #  Next: ImportCashFileTransactions
+    deleteTransaction:
+      name: DmDeleteTransaction
+      events:
+        - schedule: cron(0/2 * * * ? *)
+      definition:
+        Comment: "Delete the transactions data in FFS."
+        StartAt: DeleteTransaction
+        States:
+          DeleteTransaction:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [deleteTransaction, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: Wait_1
+          Wait_1:
+              Type: Wait
+              TimestampPath: $.NextStepTime
+              Next: Choice_1
+          Choice_1:
+            Type: Choice
+            Choices:
+              - Variable: $.Continue
+                BooleanEquals: true
+                Next: DeleteTransaction
+              - Variable: $.Continue
+                BooleanEquals: false
+                Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
     extractAccount:
       name: DmExtractAccount
       events:
@@ -391,6 +431,46 @@ stepFunctions:
               - Variable: $.Continue
                 BooleanEquals: true
                 Next: LoadAccount
+              - Variable: $.Continue
+                BooleanEquals: false
+                Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
+    deleteAccount:
+      name: DmDeleteAccount
+      events:
+        - schedule: cron(0/2 * * * ? *)
+      definition:
+        Comment: "Delete the accounts data in FFS."
+        StartAt: DeleteAccount
+        States:
+          DeleteAccount:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [deleteAccount, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: Wait_1
+          Wait_1:
+              Type: Wait
+              TimestampPath: $.NextStepTime
+              Next: Choice_1
+          Choice_1:
+            Type: Choice
+            Choices:
+              - Variable: $.Continue
+                BooleanEquals: true
+                Next: DeleteAccount
               - Variable: $.Continue
                 BooleanEquals: false
                 Next: EndStep

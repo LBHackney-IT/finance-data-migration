@@ -201,5 +201,13 @@ namespace FinanceDataMigrationApi.V1.Gateways
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomain();
         }
+
+        public async Task<List<DmTransaction>> GetToBeDeletedListForDeleteAsync(int count)
+        {
+            var results = await _context.GetToBeDeletedTransactionListAsync(count).ConfigureAwait(false);
+            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Deleting);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
+            return results.ToDomain();
+        }
     }
 }
