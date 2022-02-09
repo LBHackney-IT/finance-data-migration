@@ -199,6 +199,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .Where(x => x.MigrationStatus == EMigrationStatus.Extracted)
                 .Take(count)
                 .Include(p => p.ConsolidatedCharges)
+                .Include(t => t.Tenure)
                 .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
@@ -207,6 +208,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .Where(x => x.MigrationStatus == EMigrationStatus.Loaded)
                 .Take(count)
                 .Include(p => p.ConsolidatedCharges)
+                .Include(t => t.Tenure)
                 .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
@@ -214,7 +216,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             => await AccountDbEntities
                 .Where(x => x.MigrationStatus == EMigrationStatus.ToBeDeleted)
                 .Take(count)
-                .Include(p => p.ConsolidatedCharges)
                 .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 

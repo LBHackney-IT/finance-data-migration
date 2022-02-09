@@ -100,7 +100,7 @@ namespace FinanceDataMigrationApi.V1.Factories
             return dbEntity == null ? null : new DmTenure
             {
                 PaymentReference = dbEntity.PaymentReference,
-                PrimaryTenants = dbEntity.PrimaryTenants.Select(p => p.ToDomain()).ToList(),
+                PrimaryTenants = dbEntity.PrimaryTenants?.Select(p => p.ToDomain()).ToList(),
                 TenureTypeCode = dbEntity.TenureTypeCode,
                 TenureTypeDesc = dbEntity.TenureTypeDesc,
                 FullAddress = dbEntity.FullAddress,
