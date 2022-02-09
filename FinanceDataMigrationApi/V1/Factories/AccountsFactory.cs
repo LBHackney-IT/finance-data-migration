@@ -1,8 +1,11 @@
+using System;
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Domain.Accounts;
 using System.Collections.Generic;
 using System.Linq;
 using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
+using Hackney.Shared.HousingSearch.Domain.Accounts.Enum;
+using Hackney.Shared.HousingSearch.Gateways.Entities.Accounts;
 
 namespace FinanceDataMigrationApi.V1.Factories
 {
@@ -13,8 +16,8 @@ namespace FinanceDataMigrationApi.V1.Factories
             var accountModel = new Dictionary<string, AttributeValue>()
             {
                 {"id", new AttributeValue {S = account.DynamoDbId.ToString()}},
-                {"account_balance", new AttributeValue {N = account.AccountBalance.HasValue ? account.AccountBalance.Value.ToString("F").Replace(',', '.') : "0"}},
                 {"target_id", new AttributeValue {S = account.TargetId.ToString()}},
+                {"account_balance", new AttributeValue {N = account.AccountBalance.HasValue ? account.AccountBalance.Value.ToString("F").Replace(',', '.') : "0"}},
                 {"target_type", new AttributeValue {S = account.TargetType.ToString()}},
                 {"account_type", new AttributeValue {S = account.AccountType?.ToString()??""}},
                 {"rent_group_type", new AttributeValue {S = account.RentGroupType?.ToString()??""}},
@@ -66,7 +69,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                                 }
                             }
                         }
-                }/*,
+                },
                 {
                     "consolidatedCharges",account.ConsolidatedCharges==null?new AttributeValue
                         {
@@ -80,7 +83,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                                     }
                                 }
                             }
-                        } : 
+                        } :
                         new AttributeValue
                         {
                             L=account.ConsolidatedCharges.Select(p=>
@@ -94,7 +97,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                                     }
                                 }).ToList()
                         }
-                }*/
+                }
             };
 
             if (account.ConsolidatedCharges != null && account.ConsolidatedCharges.Count > 0)
@@ -114,7 +117,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                             }).ToList()
                     };
 
-                accountModel.Add("consolidatedCharges", consolidatedCharges);
+                //accountModel.Add("consolidatedCharges", consolidatedCharges);
             }
 
             return accountModel;

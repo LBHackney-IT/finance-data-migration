@@ -15,7 +15,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
         private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IAccountsGateway _accountsGateway;
 
-        readonly int _batchSize = 25;
+        /*readonly int _batchSize = 25;*/
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
         private const string DataMigrationTask = "AccountLoad";
 
@@ -33,17 +33,19 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
                 if (extractedList.Any())
                 {
                     List<Task> tasks = new List<Task>();
-                    for (int i = 0; i <= extractedList.Count / _batchSize; i++)
+                    for (int i = 0; i < extractedList.Count; i++)
                     {
                         var data = extractedList.Where(s => s.TargetId != null)
-                            .OrderBy(p => p.Id).Skip(i * _batchSize).Take(_batchSize).ToList();
+                            .OrderBy(p => p.Id).Skip(i).Take(1).ToList();
+                        /*if (data.Count > 0)
+                            await _accountsGateway.BatchInsert(data).ConfigureAwait(false);*/
                         if (data.Any())
                         {
                             tasks.Add(_accountsGateway.BatchInsert(data));
                             if (tasks.Count == 4)
                             {
                                 await Task.WhenAll(tasks).ConfigureAwait(false);
-                                System.Threading.Thread.Sleep(4000);
+                                System.Threading.Thread.Sleep(2000);
                                 tasks.Clear();
                             }
                         }

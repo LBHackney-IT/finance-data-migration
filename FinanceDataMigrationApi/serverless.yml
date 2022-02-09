@@ -402,46 +402,46 @@ stepFunctions:
               #- Variable: $.Continue
               #  BooleanEquals: false
               #  Next: ImportCashFileTransactions
-    loadAccount:
-      name: DmLoadAccount
-      events:
-        - schedule: cron(0/2 * * * ? *)
-      definition:
-        Comment: "Save the loaded accounts data into account dynamodb collection in FFS."
-        StartAt: LoadAccount
-        States:
-          LoadAccount:
-            Type: Task
-            Resource:
-              Fn::GetAtt: [loadAccount, Arn]
-            Retry:
-              - ErrorEquals:
-                  - States.All
-                IntervalSeconds: 30
-                MaxAttempts: 3
-                BackoffRate: 2
-            Next: Wait_1
-          Wait_1:
-              Type: Wait
-              TimestampPath: $.NextStepTime
-              Next: Choice_1
-          Choice_1:
-            Type: Choice
-            Choices:
-              - Variable: $.Continue
-                BooleanEquals: true
-                Next: LoadAccount
-              - Variable: $.Continue
-                BooleanEquals: false
-                Next: EndStep
-          EndStep:
-            Type: Succeed
-      dependsOn: lambdaExecutionRole
-      tags:
-        Team: HousingFinance
-              #- Variable: $.Continue
-              #  BooleanEquals: false
-              #  Next: ImportCashFileTransactions
+    #loadAccount:
+    #  name: DmLoadAccount
+    #  events:
+    #    - schedule: cron(0/2 * * * ? *)
+    #  definition:
+    #    Comment: "Save the loaded accounts data into account dynamodb collection in FFS."
+    #    StartAt: LoadAccount
+    #    States:
+    #      LoadAccount:
+    #        Type: Task
+    #        Resource:
+    #          Fn::GetAtt: [loadAccount, Arn]
+    #        Retry:
+    #          - ErrorEquals:
+    #              - States.All
+    #            IntervalSeconds: 30
+    #            MaxAttempts: 3
+    #            BackoffRate: 2
+    #        Next: Wait_1
+    #      Wait_1:
+    #          Type: Wait
+    #          TimestampPath: $.NextStepTime
+    #          Next: Choice_1
+    #      Choice_1:
+    #        Type: Choice
+    #        Choices:
+    #          - Variable: $.Continue
+    #            BooleanEquals: true
+    #            Next: LoadAccount
+    #          - Variable: $.Continue
+    #            BooleanEquals: false
+    #            Next: EndStep
+    #      EndStep:
+    #        Type: Succeed
+    #  dependsOn: lambdaExecutionRole
+    #  tags:
+    #    Team: HousingFinance
+    #          #- Variable: $.Continue
+    #          #  BooleanEquals: false
+    #          #  Next: ImportCashFileTransactions
     deleteAccount:
       name: DmDeleteAccount
       events:

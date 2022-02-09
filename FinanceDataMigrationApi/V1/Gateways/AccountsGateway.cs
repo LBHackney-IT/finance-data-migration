@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Amazon.DynamoDBv2.DataModel;
 using FinanceDataMigrationApi.V1.Domain.Accounts;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
@@ -20,11 +21,13 @@ namespace FinanceDataMigrationApi.V1.Gateways
     {
         private readonly DatabaseContext _context;
         private readonly IAmazonDynamoDB _amazonDynamoDb;
+        private readonly IDynamoDBContext _dynamoDbContext;
 
-        public AccountsGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb)
+        public AccountsGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb, IDynamoDBContext dynamoDbContext)
         {
             _context = context;
             _amazonDynamoDb = amazonDynamoDb;
+            _dynamoDbContext = dynamoDbContext;
         }
 
         public async Task<int> ExtractAsync()
@@ -129,7 +132,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 LoggingHandler.LogError("There is no accounts to delete from DynamoDm");
                 throw new ArgumentNullException(nameof(accounts));
             }
-
 
             List<TransactWriteItem> actions = new List<TransactWriteItem>(accounts.Count);
             foreach (DmAccount account in accounts)

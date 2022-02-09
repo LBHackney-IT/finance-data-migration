@@ -275,29 +275,29 @@ namespace FinanceDataMigrationApi
                 int count = int.Parse(Environment.GetEnvironmentVariable("ACCOUNT_LOAD_BATCH_SIZE") ??
                                       throw new Exception("Tenure download batch size is null."));
 
-                var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
+                /*var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
                 if (runStatus.AccountExtractDate >= DateTime.Today && runStatus.AccountLoadDate < DateTime.Today)
+                {*/
+                DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
                 {
-                    DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
-                    {
-                        ProcName = $"{nameof(LoadAccount)}",
-                        StartTime = DateTime.Now
-                    };
+                    ProcName = $"{nameof(LoadAccount)}",
+                    StartTime = DateTime.Now
+                };
 
-                    var result = await _loadAccountsUseCase.ExecuteAsync(count).ConfigureAwait(false);
-                    await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
-                    if (!result.Continue)
-                        await _dmAccountLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
+                var result = await _loadAccountsUseCase.ExecuteAsync(count).ConfigureAwait(false);
+                await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+                if (!result.Continue)
+                    await _dmAccountLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
 
-                    return result;
-                }
+                return result;
+                /*}
                 else
                 {
                     return new StepResponse()
                     {
                         Continue = false
                     };
-                }
+                }*/
             }
             catch (Exception exception)
             {
