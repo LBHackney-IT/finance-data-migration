@@ -38,7 +38,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
                         {
                             tasks.Add(_transactionGateway.BatchInsert(data));
 
-                            if (tasks.Count == 10)
+                            if (tasks.Count == 4)
                             {
                                 await Task.WhenAll(tasks).ConfigureAwait(false);
                                 System.Threading.Thread.Sleep(2000);
