@@ -50,6 +50,11 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .HasOne(c => c.AccountDbEntity)
                 .WithOne(c => c.Tenure)
                 .HasForeignKey<DmAccountDbEntity>(a => a.TargetId);
+
+            modelBuilder.Entity<DMPrimaryTenantsDbEntity>()
+                .HasOne(c => c.TenureDbEntity)
+                .WithMany(p => p.PrimaryTenants)
+                .HasForeignKey(c => c.TenureId);
         }
 
         /// <summary>
@@ -200,6 +205,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .Take(count)
                 .Include(p => p.ConsolidatedCharges)
                 .Include(t => t.Tenure)
+                .Include(t => t.Tenure.PrimaryTenants)
                 .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
@@ -209,6 +215,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .Take(count)
                 .Include(p => p.ConsolidatedCharges)
                 .Include(t => t.Tenure)
+                .Include(t => t.Tenure.PrimaryTenants)
                 .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
@@ -216,6 +223,9 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             => await AccountDbEntities
                 .Where(x => x.MigrationStatus == EMigrationStatus.ToBeDeleted)
                 .Take(count)
+                .Include(p => p.ConsolidatedCharges)
+                .Include(t => t.Tenure)
+                .Include(t => t.Tenure.PrimaryTenants)
                 .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 

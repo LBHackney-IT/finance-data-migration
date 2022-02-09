@@ -36,7 +36,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
                     for (int i = 0; i <= forDeleteList.Count / _batchSize; i++)
                     {
                         var data = forDeleteList.OrderBy(p => p.Id).Skip(i * _batchSize).Take(_batchSize).ToList();
-                        /*await _accountsGateway.BatchDelete(data).ConfigureAwait(false);*/
+                        await _accountsGateway.BatchDelete(data).ConfigureAwait(false);
                         if (data.Any())
                         {
                             tasks.Add(_accountsGateway.BatchDelete(data));

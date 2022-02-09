@@ -130,23 +130,63 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 throw new ArgumentNullException(nameof(accounts));
             }
 
+
             List<TransactWriteItem> actions = new List<TransactWriteItem>(accounts.Count);
             foreach (DmAccount account in accounts)
             {
-                Dictionary<string, AttributeValue> columns = account.ToQueryRequest();
 
-                actions.Add(new TransactWriteItem
+                if (account.Tenure?.PrimaryTenants != null)
                 {
-                    Delete = new Delete()
+
+                    Dictionary<string, AttributeValue> columns = account.ToQueryRequest();
+
+                    actions.Add(new TransactWriteItem
                     {
-                        TableName = "Accounts",
-                        Key = new Dictionary<string, AttributeValue>
+                        /*Delete = new Delete()
                         {
-                            {"id",new AttributeValue(account.Id.ToString())}
-                        },
-                        ReturnValuesOnConditionCheckFailure = ReturnValuesOnConditionCheckFailure.ALL_OLD
-                    },
-                });
+                            TableName = "Accounts",
+                            Key = new Dictionary<string, AttributeValue>
+                            {
+                                {"id",new AttributeValue(account.Id.ToString())}
+                            },
+                            ReturnValuesOnConditionCheckFailure = ReturnValuesOnConditionCheckFailure.ALL_OLD
+                        },*/
+                        Update = new Update()
+                        {
+                            TableName = "Accounts",
+                            Key =
+                                new Dictionary<string, AttributeValue> { { "id", new AttributeValue(account.Id.ToString()) } },
+                            ReturnValuesOnConditionCheckFailure = ReturnValuesOnConditionCheckFailure.ALL_OLD,
+                            ExpressionAttributeNames = new Dictionary<string, string>()
+                            {
+                                { "#P", "primaryTenants" }/*,
+                                {"#ID","id"}*/
+                            },
+                            ExpressionAttributeValues = new Dictionary<string, AttributeValue>()
+                            {
+                                {
+                                    ":newPT", new AttributeValue()
+                                    {
+                                        L = account.Tenure.PrimaryTenants.Select(p =>
+                                            new AttributeValue
+                                            {
+                                                M = new Dictionary<string, AttributeValue>
+                                                {
+                                                    {"id", new AttributeValue(p.Id.ToString())},
+                                                    {"fullName", new AttributeValue(p.FullName?.ToString() ?? "")}
+                                                }
+                                            }
+                                        ).ToList()
+                                    }
+                                }/*,
+                                {
+                                    ":newID", new AttributeValue(account.DynamoDbId.ToString())
+                                }*/
+                            },
+                            UpdateExpression = "SET #P = :newPT"
+                        }
+                    });
+                }
             }
 
             TransactWriteItemsRequest placeOrderAccount = new TransactWriteItemsRequest
@@ -218,6 +258,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
         public async Task<List<DmAccount>> GetToBeDeletedListForDeleteAsync(int count)
         {
             var results = await _context.GetToBeDeletedAccountListAsync(count).ConfigureAwait(false);
+            /*var results = await _context.GetExtractedAccountListAsync(count).ConfigureAwait(false);*/
             results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Deleting);
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomain();
