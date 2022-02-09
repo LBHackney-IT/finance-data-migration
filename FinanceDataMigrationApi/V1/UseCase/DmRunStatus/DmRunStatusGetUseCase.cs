@@ -17,7 +17,9 @@ namespace FinanceDataMigrationApi.V1.UseCase.DmRunStatus
         public async Task<DmRunStatusModel> ExecuteAsync()
         {
             var data = await _gateway.GetData().ConfigureAwait(false);
-            LoggingHandler.LogInfo($"{data}");
+            LoggingHandler.LogInfo($"{data.AccountExtractDate}/{data.AccountLoadDate}" +
+                                   $"/{data.ChargeExtractDate}/{data.ChargeLoadDate}" +
+                                   $"/{data.TransactionExtractDate}/{data.TransactionLoadDate}");
             return data;
         }
     }
