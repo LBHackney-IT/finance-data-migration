@@ -1,11 +1,6 @@
 using FinanceDataMigrationApi.V1.Boundary.Response;
-using FinanceDataMigrationApi.V1.Domain;
-using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
-using FinanceDataMigrationApi.V1.Handlers;
 using System;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Accounts;
 
@@ -17,8 +12,8 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
         private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IAccountsGateway _accountsGateway;
 
-        private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
-        private const string DataMigrationTask = "INDEXING";
+        /*private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
+        private const string DataMigrationTask = "INDEXING";*/
 
         public IndexAccountEntityUseCase(IEsGateway esGateway, IDMRunLogGateway dMRunLogGateway, IAccountsGateway accountsGateway)
         {
@@ -27,9 +22,12 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
             _accountsGateway = accountsGateway;
         }
 
-        public async Task<StepResponse> ExecuteAsync()
+        public Task<StepResponse> ExecuteAsync()
         {
-            LoggingHandler.LogInfo($"Starting {DataMigrationTask} task for {DMEntityNames.Accounts} entity");
+
+            throw new NotImplementedException();
+
+            /*LoggingHandler.LogInfo($"Starting {DataMigrationTask} task for {DMEntityNames.Accounts} entity");
 
             try
             {
@@ -95,7 +93,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
                 LoggingHandler.LogError(ex.ToString());
 
                 throw;
-            }
+            }*/
         }
     }
 }

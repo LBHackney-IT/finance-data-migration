@@ -41,7 +41,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             var results = await _context.GetExtractedTransactionListAsync(count).ConfigureAwait(false);
             results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
             await _context.SaveChangesAsync().ConfigureAwait(false);
-            return results.ToDomain();
+            return results.ToDomains();
         }
 
         public async Task BatchInsert(List<DmTransaction> transactions)
@@ -204,7 +204,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             var results = await _context.GetLoadedTransactionListAsync(count).ConfigureAwait(false);
             results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Deleting);
             await _context.SaveChangesAsync().ConfigureAwait(false);
-            return results.ToDomain();
+            return results.ToDomains();
         }
 
         public async Task<List<DmTransaction>> GetToBeDeletedListForDeleteAsync(int count)
@@ -212,7 +212,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             var results = await _context.GetToBeDeletedTransactionListAsync(count).ConfigureAwait(false);
             results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Deleting);
             await _context.SaveChangesAsync().ConfigureAwait(false);
-            return results.ToDomain();
+            return results.ToDomains();
         }
 
         public async Task<bool> DeleteAllTransactionAsync()

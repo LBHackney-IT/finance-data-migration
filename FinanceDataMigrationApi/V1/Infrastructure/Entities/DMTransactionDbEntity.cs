@@ -60,11 +60,11 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Entities
         [Column("is_indexed")]
         public bool IsIndexed { get; set; }
         [Column("created_at")]
-        public DateTimeOffset? CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
         [Column("created_by")]
         public string CreatedBy { get; set; }
         [Column("last_updated_at")]
-        public DateTimeOffset? LastUpdatedAt { get; set; }
+        public DateTime? LastUpdatedAt { get; set; }
         [Column("last_updated_by")]
         public string LastUpdatedBy { get; set; }
     }

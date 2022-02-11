@@ -53,11 +53,11 @@ namespace FinanceDataMigrationApi.V1.Domain
 
         public bool IsIndexed { get; set; }
 
-        public DateTimeOffset? CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
         public string CreatedBy { get; set; }
 
-        public DateTimeOffset? LastUpdatedAt { get; set; }
+        public DateTime? LastUpdatedAt { get; set; }
 
         public string LastUpdatedBy { get; set; }
     }

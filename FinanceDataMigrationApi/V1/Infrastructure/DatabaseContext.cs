@@ -199,36 +199,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             return affectedRows;
         }
 
-        public async Task<IList<DmAccountDbEntity>> GetExtractedAccountListAsync(int count)
-            => await AccountDbEntities
-                .Where(x => x.MigrationStatus == EMigrationStatus.Extracted)
-                .Take(count)
-                .Include(p => p.ConsolidatedCharges)
-                .Include(t => t.Tenure)
-                .Include(t => t.Tenure.PrimaryTenants)
-                .ToListWithNoLockAsync()
-                .ConfigureAwait(false);
-
-        public async Task<IList<DmAccountDbEntity>> GetLoadedAccountListAsync(int count)
-            => await AccountDbEntities
-                .Where(x => x.MigrationStatus == EMigrationStatus.Loaded)
-                .Take(count)
-                .Include(p => p.ConsolidatedCharges)
-                .Include(t => t.Tenure)
-                .Include(t => t.Tenure.PrimaryTenants)
-                .ToListWithNoLockAsync()
-                .ConfigureAwait(false);
-
-        public async Task<IList<DmAccountDbEntity>> GetToBeDeletedAccountListAsync(int count)
-            => await AccountDbEntities
-                .Where(x => x.MigrationStatus == EMigrationStatus.ToBeDeleted)
-                .Take(count)
-                .Include(p => p.ConsolidatedCharges)
-                .Include(t => t.Tenure)
-                .Include(t => t.Tenure.PrimaryTenants)
-                .ToListWithNoLockAsync()
-                .ConfigureAwait(false);
-
         #endregion
 
         private async Task<int> ExecuteStoredProcedure(string procedureRawString, int timeout = 0)

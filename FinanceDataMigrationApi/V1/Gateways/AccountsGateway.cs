@@ -13,7 +13,8 @@ using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using AutoMapper.Internal;
-using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
+using FinanceDataMigrationApi.V1.Infrastructure.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
@@ -21,13 +22,11 @@ namespace FinanceDataMigrationApi.V1.Gateways
     {
         private readonly DatabaseContext _context;
         private readonly IAmazonDynamoDB _amazonDynamoDb;
-        private readonly IDynamoDBContext _dynamoDbContext;
 
-        public AccountsGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb, IDynamoDBContext dynamoDbContext)
+        public AccountsGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb)
         {
             _context = context;
             _amazonDynamoDb = amazonDynamoDb;
-            _dynamoDbContext = dynamoDbContext;
         }
 
         public async Task<int> ExtractAsync()
@@ -37,7 +36,31 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public async Task<IList<DmAccount>> GetExtractedListAsync(int count)
         {
-            var results = await _context.GetExtractedAccountListAsync(count).ConfigureAwait(false);
+            var results = await _context.AccountDbEntities
+                .Where(x => x.MigrationStatus == EMigrationStatus.Extracted)
+                .Take(count)
+                .Include(p => p.ConsolidatedCharges)
+                .Include(t => t.Tenure)
+                .Include(t => t.Tenure.PrimaryTenants)
+                .ToListWithNoLockAsync()
+                .ConfigureAwait(false);
+
+            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
+            return results.ToDomain();
+        }
+
+        public async Task<IList<DmAccount>> GetLoadFailedListAsync(int count)
+        {
+            var results = await _context.AccountDbEntities
+                .Where(p => p.MigrationStatus == EMigrationStatus.LoadFailed)
+                .Take(count)
+                .Include(c => c.ConsolidatedCharges)
+                .Include(t => t.Tenure)
+                .Include(p => p.Tenure.PrimaryTenants)
+                .ToListWithNoLockAsync()
+                .ConfigureAwait(false);
+
             results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomain();
@@ -56,8 +79,10 @@ namespace FinanceDataMigrationApi.V1.Gateways
             List<TransactWriteItem> actions = new List<TransactWriteItem>(accounts.Count);
             foreach (DmAccount account in accounts)
             {
-                Dictionary<string, AttributeValue> columns = account.ToQueryRequest();
+                if (account.TargetId == null)
+                    continue;
 
+                Dictionary<string, AttributeValue> columns = account.ToQueryRequest();
                 actions.Add(new TransactWriteItem
                 {
                     Put = new Put()
@@ -244,14 +269,31 @@ namespace FinanceDataMigrationApi.V1.Gateways
             }
         }
 
-        public Task<List<DmAccountDbEntity>> GetLoadedListAsync()
+        public async Task<List<DmAccount>> GetLoadedListAsync(int count)
         {
-            throw new NotImplementedException();
+            var results = await _context.AccountDbEntities
+                .Where(p => p.MigrationStatus == EMigrationStatus.LoadFailed)
+                .Take(count)
+                .Include(c => c.ConsolidatedCharges)
+                .Include(t => t.Tenure)
+                .Include(p => p.Tenure.PrimaryTenants)
+                .ToListWithNoLockAsync()
+                .ConfigureAwait(false);
+
+            return results?.ToDomain();
         }
 
         public async Task<List<DmAccount>> GetLoadedListForDeleteAsync(int count)
         {
-            var results = await _context.GetLoadedAccountListAsync(count).ConfigureAwait(false);
+            var results = await _context.AccountDbEntities
+                .Where(x => x.MigrationStatus == EMigrationStatus.Loaded)
+                .Take(count)
+                .Include(p => p.ConsolidatedCharges)
+                .Include(t => t.Tenure)
+                .Include(t => t.Tenure.PrimaryTenants)
+                .ToListWithNoLockAsync()
+                .ConfigureAwait(false);
+
             results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Deleting);
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomain();
@@ -259,8 +301,15 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public async Task<List<DmAccount>> GetToBeDeletedListForDeleteAsync(int count)
         {
-            var results = await _context.GetToBeDeletedAccountListAsync(count).ConfigureAwait(false);
-            /*var results = await _context.GetExtractedAccountListAsync(count).ConfigureAwait(false);*/
+            var results = await _context.AccountDbEntities
+                .Where(x => x.MigrationStatus == EMigrationStatus.ToBeDeleted)
+                .Take(count)
+                .Include(p => p.ConsolidatedCharges)
+                .Include(t => t.Tenure)
+                .Include(t => t.Tenure.PrimaryTenants)
+                .ToListWithNoLockAsync()
+                .ConfigureAwait(false);
+
             results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Deleting);
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomain();

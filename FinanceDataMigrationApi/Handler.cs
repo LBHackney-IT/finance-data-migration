@@ -141,28 +141,28 @@ namespace FinanceDataMigrationApi
             {
                 int count = int.Parse(Environment.GetEnvironmentVariable("TRANSACTION_LOAD_BATCH_SIZE") ??
                               throw new Exception("Tenure download batch size is null."));
-                var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
+                /*var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
                 if (runStatus.TransactionExtractDate >= DateTime.Today && runStatus.TransactionLoadDate < DateTime.Today)
+                {*/
+                DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
                 {
-                    DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
-                    {
-                        ProcName = $"{nameof(LoadTransactions)}",
-                        StartTime = DateTime.Now
-                    };
-                    var result = await _loadTransactionEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
-                    await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
-                    if (!result.Continue)
-                        await _dmTransactionLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
+                    ProcName = $"{nameof(LoadTransactions)}",
+                    StartTime = DateTime.Now
+                };
+                var result = await _loadTransactionEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
+                await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+                if (!result.Continue)
+                    await _dmTransactionLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
 
-                    return result;
-                }
+                return result;
+                /*}
                 else
                 {
                     return new StepResponse()
                     {
                         Continue = false
                     };
-                }
+                }*/
             }
             catch (Exception exception)
             {
@@ -181,29 +181,29 @@ namespace FinanceDataMigrationApi
                 int count = int.Parse(Environment.GetEnvironmentVariable("CHARGE_LOAD_BATCH_SIZE") ??
                                       throw new Exception("Tenure download batch size is null."));
 
-                var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
+                /*var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
                 if (runStatus.ChargeExtractDate >= DateTime.Today && runStatus.ChargeLoadDate < DateTime.Today)
+                {*/
+                DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
                 {
-                    DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
-                    {
-                        ProcName = $"{nameof(LoadCharge)}",
-                        StartTime = DateTime.Now
-                    };
+                    ProcName = $"{nameof(LoadCharge)}",
+                    StartTime = DateTime.Now
+                };
 
-                    var result = await _loadChargeEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
-                    await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
-                    if (!result.Continue)
-                        await _dmChargeLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
+                var result = await _loadChargeEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
+                await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+                if (!result.Continue)
+                    await _dmChargeLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
 
-                    return result;
-                }
+                return result;
+                /*}
                 else
                 {
                     return new StepResponse()
                     {
                         Continue = false
                     };
-                }
+                }*/
             }
             catch (Exception exception)
             {

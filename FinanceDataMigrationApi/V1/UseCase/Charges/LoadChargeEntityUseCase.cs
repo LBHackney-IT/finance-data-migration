@@ -35,13 +35,14 @@ namespace FinanceDataMigrationApi.V1.UseCase.Charges
                     for (int i = 0; i <= extractedList.Count / _batchSize; i++)
                     {
                         var data = extractedList.OrderBy(p => p.Id).Skip(i * _batchSize).Take(_batchSize).ToList();
+                        /*await _chargeGateway.BatchInsert(data).ConfigureAwait(false);*/
                         if (data.Any())
                         {
                             tasks.Add(_chargeGateway.BatchInsert(data));
                             if (tasks.Count == 4)
                             {
                                 await Task.WhenAll(tasks).ConfigureAwait(false);
-                                System.Threading.Thread.Sleep(4000);
+                                System.Threading.Thread.Sleep(2000);
                                 tasks.Clear();
                             }
                         }

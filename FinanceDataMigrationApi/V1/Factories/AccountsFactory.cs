@@ -1,11 +1,9 @@
-using System;
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Domain.Accounts;
 using System.Collections.Generic;
 using System.Linq;
 using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
-using Hackney.Shared.HousingSearch.Domain.Accounts.Enum;
-using Hackney.Shared.HousingSearch.Gateways.Entities.Accounts;
+using FinanceDataMigrationApi.V1.Infrastructure.Extensions;
 
 namespace FinanceDataMigrationApi.V1.Factories
 {
@@ -13,111 +11,82 @@ namespace FinanceDataMigrationApi.V1.Factories
     {
         public static Dictionary<string, AttributeValue> ToQueryRequest(this DmAccount account)
         {
-            var accountModel = new Dictionary<string, AttributeValue>()
+            var accountModel = new Dictionary<string, AttributeValue>();
+
+            accountModel.PureAdd("id", new AttributeValue { S = account.DynamoDbId.ToString() });
+            accountModel.PureAdd("target_id", new AttributeValue { S = account.TargetId?.ToString() });
+            accountModel.PureAdd("account_balance", new AttributeValue { N = account.AccountBalance?.ToString("F").Replace(',', '.') });
+            accountModel.PureAdd("target_type", new AttributeValue { S = account.TargetType.ToString() });
+            accountModel.PureAdd("account_type", new AttributeValue { S = account.AccountType?.ToString() });
+            accountModel.PureAdd("rent_group_type", new AttributeValue { S = account.RentGroupType?.ToString() });
+            accountModel.PureAdd("agreement_type", new AttributeValue { S = account.AgreementType?.ToString() });
+            accountModel.PureAdd("created_at", new AttributeValue { S = account.CreatedAt.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'") });
+            accountModel.PureAdd("start_date", new AttributeValue { S = account.StartDate.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'") });
+            accountModel.PureAdd("end_date", new AttributeValue { S = account.EndDate?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'") });
+            accountModel.PureAdd("account_status", new AttributeValue { S = account.AccountStatus?.ToString() });
+            accountModel.PureAdd("payment_reference", new AttributeValue { S = account.PaymentReference });
+            accountModel.PureAdd("end_reason_code", new AttributeValue { S = account.EndReasonCode?.ToString() });
+            accountModel.PureAdd("parent_account_id", new AttributeValue { S = account.ParentAccountId?.ToString() });
+            if (account.Tenure != null)
             {
-                {"id", new AttributeValue {S = account.DynamoDbId.ToString()}},
-                {"target_id", new AttributeValue {S = account.TargetId.ToString()}},
-                {"account_balance", new AttributeValue {N = account.AccountBalance.HasValue ? account.AccountBalance.Value.ToString("F").Replace(',', '.') : "0"}},
-                {"target_type", new AttributeValue {S = account.TargetType.ToString()}},
-                {"account_type", new AttributeValue {S = account.AccountType?.ToString()??""}},
-                {"rent_group_type", new AttributeValue {S = account.RentGroupType?.ToString()??""}},
-                {"agreement_type", new AttributeValue {S = account.AgreementType?.ToString()??""}},
-                {"created_at", new AttributeValue {S = account.CreatedAt.ToString("F")}},
-                /*{"created_by", new AttributeValue {S = account.CreatedBy}},
-                {"last_updated_by", new AttributeValue {S = account.LastUpdatedBy}},
-                {"last_updated_at", new AttributeValue {S = account.LastUpdatedAt.ToString()}},*/
-                {"start_date", new AttributeValue {S = account.StartDate.ToString("F")}},
-                {"end_date", new AttributeValue {S = account.EndDate?.ToString()??""}},
-                {"account_status", new AttributeValue {S = account.AccountStatus?.ToString()??""}},
-                {"payment_reference", new AttributeValue {S = account.PaymentReference??""}},
-                {"end_reason_code", new AttributeValue{S = account.EndReasonCode?.ToString()??""}},
-                {"parent_account_id", new AttributeValue {S = account.ParentAccountId?.ToString()??""}},
+                var accountTenureModel = new Dictionary<string, AttributeValue>();
+                accountTenureModel.PureAdd("tenureId", new AttributeValue { S = account.Tenure?.Id.ToString() });
+                accountTenureModel.PureAdd("fullAddress",
+                    new AttributeValue { S = account.Tenure?.FullAddress.ToString() });
+
+                var accountTenureTenureTypeModel = new Dictionary<string, AttributeValue>();
+                accountTenureTenureTypeModel.PureAdd("code", new AttributeValue(account.Tenure?.TenureTypeCode));
+                accountTenureTenureTypeModel.PureAdd("description", new AttributeValue(account.Tenure?.TenureTypeDesc));
+                accountTenureModel.PureAdd("tenureType", new AttributeValue { M = accountTenureTenureTypeModel });
+
+                if (account.Tenure?.PrimaryTenants != null && account.Tenure?.PrimaryTenants.Count > 0)
                 {
-                    "tenure", account.Tenure==null?new AttributeValue(""):
+                    var accountTenurePrimaryTenantsModelList = new List<AttributeValue>();
+                    foreach (var primaryTenant in account.Tenure.PrimaryTenants)
+                    {
+                        var accountTenurePrimaryTenantsModel = new Dictionary<string, AttributeValue>();
+                        accountTenurePrimaryTenantsModel.PureAdd("id", new AttributeValue(primaryTenant.Id.ToString()));
+                        accountTenurePrimaryTenantsModel.PureAdd("fullname", new AttributeValue(primaryTenant.FullName));
+                        accountTenurePrimaryTenantsModelList.Add(new AttributeValue
+                        {
+                            M = accountTenurePrimaryTenantsModel
+                        });
+                    }
+
+                    accountTenureModel.PureAdd("primaryTenants",
                         new AttributeValue
                         {
-                            M = new Dictionary<string, AttributeValue>
-                            {
-                                {"tenureId",new AttributeValue{S = account.Tenure?.Id.ToString()??""}},
-                                {
-                                    "tenureType", account.Tenure.TenureTypeCode==null?new AttributeValue("") :
-                                    new AttributeValue
-                                    {
-                                        M=new Dictionary<string, AttributeValue>
-                                        {
-                                            {"code",new AttributeValue(account.Tenure.TenureTypeCode??"")},
-                                            {"description",new AttributeValue(account.Tenure.TenureTypeDesc??"")}
-                                        }
-                                    }
-                                },
-                                {"fullAddress",new AttributeValue(account.Tenure.FullAddress)},
-                                {
-                                    "primaryTenants",account.Tenure.PrimaryTenants==null?new AttributeValue("") :
-                                        new AttributeValue
-                                        {
-                                            L=account.Tenure.PrimaryTenants.Select(p=>
-                                                new AttributeValue
-                                                {
-                                                    M = new Dictionary<string, AttributeValue>
-                                                    {
-                                                        {"id",new AttributeValue(p.Id.ToString())},
-                                                        {"fullName",new AttributeValue(p.FullName?.ToString()??"")}
-                                                    }
-                                                }
-                                            ).ToList()
-                                        }
-                                }
-                            }
-                        }
-                },
-                {
-                    "consolidatedCharges",account.ConsolidatedCharges==null?new AttributeValue
-                        {
-                            L=new List<AttributeValue>
-                            {
-                                new AttributeValue()
-                                {
-                                    M = new Dictionary<string, AttributeValue>
-                                    {
-                                        //{}
-                                    }
-                                }
-                            }
-                        } :
-                        new AttributeValue
-                        {
-                            L=account.ConsolidatedCharges.Select(p=>
-                                new AttributeValue
-                                {
-                                    M=new Dictionary<string, AttributeValue>
-                                    {
-                                        {"type",new AttributeValue(p.Type?.ToString()??"")},
-                                        {"frequency",new AttributeValue(p.Frequency?.ToString()??"")},
-                                        {"amount",new AttributeValue{N=p.Amount.ToString("F")}}
-                                    }
-                                }).ToList()
-                        }
+                            L = accountTenurePrimaryTenantsModelList
+                        });
                 }
-            };
+
+                accountModel.PureAdd("tenure", new AttributeValue { M = accountTenureModel });
+            }
+            /*{"created_by", new AttributeValue {S = account.CreatedBy}},
+            {"last_updated_by", new AttributeValue {S = account.LastUpdatedBy}},
+            {"last_updated_at", new AttributeValue {S = account.LastUpdatedAt.ToString()}},*/
+
 
             if (account.ConsolidatedCharges != null && account.ConsolidatedCharges.Count > 0)
             {
-                var consolidatedCharges =
-                    new AttributeValue
-                    {
-                        L = account.ConsolidatedCharges.Select(p =>
-                            new AttributeValue
-                            {
-                                M = new Dictionary<string, AttributeValue>
-                                {
-                                    {"type", new AttributeValue(p.Type?.ToString() ?? "")},
-                                    {"frequency", new AttributeValue(p.Frequency?.ToString() ?? "")},
-                                    {"amount", new AttributeValue {N = p.Amount.ToString("F")}}
-                                }
-                            }).ToList()
-                    };
+                var accountConsolidatedChargesModelList = new List<AttributeValue>();
+                foreach (DmConsolidatedCharge cc in account.ConsolidatedCharges)
+                {
 
-                //accountModel.Add("consolidatedCharges", consolidatedCharges);
+                    var accountConsolidatedChargesModel = new Dictionary<string, AttributeValue>();
+
+
+                    accountConsolidatedChargesModel.PureAdd("type", new AttributeValue(cc.Type?.ToString()));
+                    accountConsolidatedChargesModel.PureAdd("frequency", new AttributeValue(cc.Frequency?.ToString()));
+                    accountConsolidatedChargesModel.PureAdd("amount", new AttributeValue { N = cc.Amount.ToString("F") });
+
+                    accountConsolidatedChargesModelList.Add(new AttributeValue
+                    {
+                        M = accountConsolidatedChargesModel
+                    });
+                }
+
+                accountModel.Add("consolidatedCharges", new AttributeValue { L = accountConsolidatedChargesModelList });
             }
 
             return accountModel;
