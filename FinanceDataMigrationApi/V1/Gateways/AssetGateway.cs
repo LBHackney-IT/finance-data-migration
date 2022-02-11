@@ -26,10 +26,10 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public AssetGateway(DatabaseContext dbContext, IAmazonDynamoDB dynamoDb)
         {
-            var searchApiUrl = Environment.GetEnvironmentVariable("SEARCH_API_URL") ??
-                               throw new Exception("Housing search api url is null.");
-            var searchApiToken = Environment.GetEnvironmentVariable("SEARCH_API_TOKEN") ??
-                                  throw new Exception("Housing search api token is null.");
+            var searchApiUrl = Environment.GetEnvironmentVariable("SEARCH_API_URL") ?? "http://baseurl.com";
+                              // throw new Exception("Housing search api url is null.");
+            var searchApiToken = Environment.GetEnvironmentVariable("SEARCH_API_TOKEN") ?? "http://baseurl.com";
+            //throw new Exception("Housing search api token is null.");
 
             _client = new HttpClient();
             _dbContext = dbContext;

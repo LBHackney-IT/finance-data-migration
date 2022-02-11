@@ -51,6 +51,7 @@ namespace FinanceDataMigrationApi
         readonly IDmAccountLoadRunStatusSaveUseCase _dmAccountLoadRunStatusSaveUseCase;
         readonly IDeleteAccountEntityUseCase _deleteAccountEntityUseCase;
         readonly IDeleteTransactionEntityUseCase _deleteTransactionEntityUseCase;
+        readonly IDeleteAllTransactionEntityUseCase _deleteAllTransactionEntityUseCase;
         readonly int _waitDuration;
 
         private readonly int _batchSize;
@@ -67,14 +68,14 @@ namespace FinanceDataMigrationApi
             IAmazonDynamoDB amazonDynamoDb = CreateAmazonDynamoDbClient();
             IDynamoDBContext dynamoDbContext = new DynamoDBContext(amazonDynamoDb);
             IChargeGateway chargeGateway = new ChargeGateway(context, amazonDynamoDb);
-            ITransactionGateway transactionGateway = new TransactionGateway(context, amazonDynamoDb);
+            ITransactionGateway transactionGateway = new TransactionGateway(context, amazonDynamoDb, dynamoDbContext);
             ITenureGateway tenureGateway = new TenureGateway(context, amazonDynamoDb, dynamoDbContext);
             IAssetGateway assetGateway = new AssetGateway(context, amazonDynamoDb);
             IHitsGateway hitsGateway = new HitsGateway(context);
             IDmRunStatusGateway dmRunStatusGateway = new DmRunStatusGateway(context);
             ITimeLogGateway timeLogGateway = new TimeLogGateway(context);
             IDMRunLogGateway dmRunLogGateway = new DMRunLogGateway(context);
-            IAccountsGateway accountsGateway = new AccountsGateway(context, amazonDynamoDb);
+            IAccountsGateway accountsGateway = new AccountsGateway(context, amazonDynamoDb, dynamoDbContext);
 
             _getLastHintUseCase = new GetLastHintUseCase(hitsGateway);
             _loadChargeEntityUseCase = new LoadChargeEntityUseCase(migrationRunGateway, chargeGateway);
@@ -101,6 +102,7 @@ namespace FinanceDataMigrationApi
             _loadAccountsUseCase = new LoadAccountsUseCase(dmRunLogGateway, accountsGateway);
             _dmAccountLoadRunStatusSaveUseCase = new DmAccountLoadRunStatusSaveUseCase(dmRunStatusGateway);
             _deleteAccountEntityUseCase = new DeleteAccountEntityUseCase(dmRunLogGateway, accountsGateway);
+            _deleteAllTransactionEntityUseCase = new DeleteAllTransactionEntityUseCase(transactionGateway);
 
             _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
 
@@ -352,6 +354,26 @@ namespace FinanceDataMigrationApi
 
                 var result = await _deleteTransactionEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
                 await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+
+                return result;
+            }
+            catch (Exception exception)
+            {
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(LoadCharge)} Exception: {exception.GetFullMessage()}");
+                return new StepResponse()
+                {
+                    Continue = false
+                };
+            }
+        }
+
+
+        public async Task<StepResponse> DeleteAllTransaction()
+        {
+            try
+            {
+              
+                var result = await _deleteAllTransactionEntityUseCase.ExecuteAsync().ConfigureAwait(false);
 
                 return result;
             }

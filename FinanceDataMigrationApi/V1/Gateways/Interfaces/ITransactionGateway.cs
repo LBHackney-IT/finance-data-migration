@@ -12,5 +12,6 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
         public Task BatchDelete(List<DmTransaction> transactions);
         public Task<List<DmTransaction>> GetLoadedListForDeleteAsync(int count);
         public Task<List<DmTransaction>> GetToBeDeletedListForDeleteAsync(int count);
+        Task<bool> DeleteAllTransactionAsync();
     }
 }

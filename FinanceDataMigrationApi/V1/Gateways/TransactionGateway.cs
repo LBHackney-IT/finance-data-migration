@@ -1,17 +1,20 @@
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.DocumentModel;
+using Amazon.DynamoDBv2.Model;
+using AutoMapper.Internal;
+using FinanceDataMigrationApi.V1.Domain;
+using FinanceDataMigrationApi.V1.Factories;
+using FinanceDataMigrationApi.V1.Gateways.Interfaces;
+using FinanceDataMigrationApi.V1.Handlers;
+using FinanceDataMigrationApi.V1.Infrastructure;
+using FinanceDataMigrationApi.V1.Infrastructure.Entities.DynamoDb;
+using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.Model;
-using FinanceDataMigrationApi.V1.Factories;
-using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using System.Threading.Tasks;
-using AutoMapper.Internal;
-using FinanceDataMigrationApi.V1.Domain;
-using FinanceDataMigrationApi.V1.Handlers;
-using FinanceDataMigrationApi.V1.Infrastructure;
-using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
@@ -19,11 +22,13 @@ namespace FinanceDataMigrationApi.V1.Gateways
     {
         private readonly IAmazonDynamoDB _amazonDynamoDb;
         readonly DatabaseContext _context;
+        private readonly IDynamoDBContext _dynamoDbContext;
 
-        public TransactionGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb)
+        public TransactionGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb, IDynamoDBContext dynamoDbContext)
         {
             _amazonDynamoDb = amazonDynamoDb;
             _context = context;
+            _dynamoDbContext = dynamoDbContext;
         }
 
         public async Task<int> ExtractAsync()
@@ -208,6 +213,55 @@ namespace FinanceDataMigrationApi.V1.Gateways
             results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Deleting);
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomain();
+        }
+
+        public async Task<bool> DeleteAllTransactionAsync()
+        {
+            return await GetRecords<TransactionDbEntity>().ConfigureAwait(false);
+        }
+
+        private async Task<bool> GetRecords<T>()
+        {
+            try
+            {
+                var table = _dynamoDbContext.GetTargetTable<TransactionDbEntity>();
+                var filter = new ScanFilter();
+                string paginationToken = "{}";
+                do
+                {
+                    var result = table.Scan(new ScanOperationConfig
+                    {
+                        Limit = 100,
+                        PaginationToken = paginationToken,
+                        Filter = filter
+                    });
+                    var items = await result.GetNextSetAsync().ConfigureAwait(false);
+
+                    if(items.Count > 0)
+                    {
+
+                        IEnumerable<T> itemResults = _dynamoDbContext.FromDocuments<T>(items);
+                        await BatchDelete(itemResults).ConfigureAwait(false);
+                        paginationToken = result.PaginationToken;
+                    }
+                }
+                while (!string.Equals(paginationToken, "{}", StringComparison.Ordinal));
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.Message;
+                throw;
+            }
+        }
+
+        public async Task BatchDelete<T>(IEnumerable<T> documents)
+        {
+
+            var batch = _dynamoDbContext.CreateBatchWrite<T>();
+            batch.AddDeleteItems(documents);
+            await batch.ExecuteAsync().ConfigureAwait(false);
         }
     }
 }

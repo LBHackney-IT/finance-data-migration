@@ -79,7 +79,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                                 {
                                     M = new Dictionary<string, AttributeValue>
                                     {
-                                        {}
+                                        //{}
                                     }
                                 }
                             }
@@ -153,7 +153,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                 ParentAccountId = accountDbEntity.ParentAccountId,
                 RentGroupType = accountDbEntity.RentGroupType,
                 StartDate = accountDbEntity.StartDate,
-                TargetId = accountDbEntity.TargetId,
+                TargetId = (Guid) accountDbEntity.TargetId,
                 TargetType = accountDbEntity.TargetType,
                 Tenure = accountDbEntity.Tenure?.ToDomain()
             };
