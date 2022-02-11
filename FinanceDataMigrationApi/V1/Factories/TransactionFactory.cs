@@ -62,7 +62,7 @@ namespace FinanceDataMigrationApi.V1.Factories
             query.PureAdd("id", new AttributeValue { S = transaction.IdDynamodb.ToString() });
             query.PureAdd("address", new AttributeValue { S = transaction.Address });
             query.PureAdd("balance_amount", new AttributeValue { N = transaction.BalanceAmount?.ToString() });
-            query.PureAdd("bank_account_number", new AttributeValue { S = transaction.BankAccountNumber });
+            query.PureAdd("bank_account_number", new AttributeValue { S = transaction.BankAccountNumber ?? "NA" });
             query.PureAdd("charged_amount", new AttributeValue { N = transaction.ChargedAmount?.ToString() });
             query.PureAdd("financial_month", new AttributeValue { N = transaction.FinancialMonth.ToString() });
             query.PureAdd("financial_year", new AttributeValue { N = transaction.FinancialYear.ToString() });

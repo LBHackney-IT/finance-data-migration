@@ -1,3 +1,4 @@
+using System;
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Domain.Accounts;
 using System.Collections.Generic;
@@ -46,7 +47,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                     {
                         var accountTenurePrimaryTenantsModel = new Dictionary<string, AttributeValue>();
                         accountTenurePrimaryTenantsModel.PureAdd("id", new AttributeValue(primaryTenant.Id.ToString()));
-                        accountTenurePrimaryTenantsModel.PureAdd("fullname", new AttributeValue(primaryTenant.FullName));
+                        accountTenurePrimaryTenantsModel.PureAdd("fullName", new AttributeValue(primaryTenant.FullName));
                         accountTenurePrimaryTenantsModelList.Add(new AttributeValue
                         {
                             M = accountTenurePrimaryTenantsModel
@@ -62,6 +63,9 @@ namespace FinanceDataMigrationApi.V1.Factories
 
                 accountModel.PureAdd("tenure", new AttributeValue { M = accountTenureModel });
             }
+            accountModel.PureAdd("last_updated_at", new AttributeValue { S = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'") });
+            accountModel.PureAdd("parent_account_id", new AttributeValue { S = Guid.Empty.ToString() });
+
             /*{"created_by", new AttributeValue {S = account.CreatedBy}},
             {"last_updated_by", new AttributeValue {S = account.LastUpdatedBy}},
             {"last_updated_at", new AttributeValue {S = account.LastUpdatedAt.ToString()}},*/
