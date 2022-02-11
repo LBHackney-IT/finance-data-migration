@@ -10,7 +10,7 @@ namespace FinanceDataMigrationApi.V1.Domain.Accounts
 
         public Guid DynamoDbId { get; set; }
 
-        public Guid TargetId { get; set; }
+        public Guid? TargetId { get; set; }
 
         public string TargetType { get; set; }
 

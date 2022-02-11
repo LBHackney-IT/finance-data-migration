@@ -4,6 +4,7 @@ using System.Linq;
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Infrastructure.Entities;
+using FinanceDataMigrationApi.V1.Infrastructure.Extensions;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
 using Newtonsoft.Json;
 using TargetType = Hackney.Shared.HousingSearch.Domain.Transactions.TargetType;
@@ -38,9 +39,9 @@ namespace FinanceDataMigrationApi.V1.Factories
                     TransactionType = dMTransactionEntityDomain.TransactionType.TransactionTypeEnumValue(),
                     FinancialYear = (short) dMTransactionEntityDomain.FinancialYear,
                     FinancialMonth = (short) dMTransactionEntityDomain.FinancialMonth,
-                    CreatedAt = dMTransactionEntityDomain.CreatedAt?.UtcDateTime ?? DateTime.Now,
+                    CreatedAt = dMTransactionEntityDomain.CreatedAt ?? DateTime.Now,
                     CreatedBy = dMTransactionEntityDomain.CreatedBy,
-                    LastUpdatedAt = dMTransactionEntityDomain.LastUpdatedAt?.UtcDateTime ?? DateTime.Now,
+                    LastUpdatedAt = dMTransactionEntityDomain.LastUpdatedAt ?? DateTime.Now,
                     LastUpdatedBy = dMTransactionEntityDomain.LastUpdatedBy
                 };
 
@@ -55,57 +56,33 @@ namespace FinanceDataMigrationApi.V1.Factories
 
         public static Dictionary<string, AttributeValue> ToQueryRequest(this DmTransaction transaction)
         {
-            return new Dictionary<string, AttributeValue>()
-            {
-                {"id", new AttributeValue {S = transaction.IdDynamodb.ToString()}},
-                {"address", new AttributeValue {S = transaction.Address??""}},
-                {"balance_amount", new AttributeValue {N = transaction.BalanceAmount?.ToString()??"0"}},
-                {"bank_account_number", new AttributeValue {S = transaction.BankAccountNumber??"0"}},
-                {"charged_amount", new AttributeValue {N = transaction.ChargedAmount?.ToString()??"0"}},
-                {"financial_month", new AttributeValue {N = transaction.FinancialMonth.ToString()??"0"}},
-                {"financial_year", new AttributeValue {N = transaction.FinancialYear.ToString()}},
-                {"fund", new AttributeValue {S = transaction.Fund??""}},
-                {"housing_benefit_amount", new AttributeValue {N = transaction.HousingBenefitAmount?.ToString()??"0"}},
-                {"paid_amount", new AttributeValue {N = transaction.PaidAmount?.ToString()??"0"}},
-                {"payment_reference", new AttributeValue {S = transaction.PaymentReference??""}},
-                {"period_no", new AttributeValue {N = transaction.PeriodNo.ToString("####")}},
-                {"target_id", new AttributeValue {S = transaction.TargetId.ToString()}},
-                {"is_suspense", new AttributeValue {S = transaction.IsSuspense.ToString()}},
-                {"transaction_amount", new AttributeValue {N = transaction.TransactionAmount.ToString("F")}},
-                {"transaction_date", new AttributeValue {S = transaction.TransactionDate.ToString("F")}},
-                {"transaction_source", new AttributeValue {S = transaction.TransactionSource??""}},
-                {"transaction_type", new AttributeValue {S = transaction.TransactionType??""}},
-                {"sender", new AttributeValue {S = ""}},
-                {"suspense_resolution_info", new AttributeValue {S = ""}},
-                /*{
-                    "sender",
-                    new AttributeValue
-                    {
-                        M = new Dictionary<string, AttributeValue>
-                        {
-                            {"id", new AttributeValue {S = transaction.Sender.Id.ToString()}},
-                            {"fullName", new AttributeValue {S = transaction.Sender.FullName}}
-                        }
-                    }
-                },
-                {
-                    "suspense_resolution_info",
-                    new AttributeValue
-                    {
-                        M = new Dictionary<string, AttributeValue>
-                        {
-                            {"isConfirmed",new AttributeValue {BOOL = transaction.SuspenseResolutionInfo.IsConfirmed}},
-                            {"isApproved",new AttributeValue {BOOL = transaction.SuspenseResolutionInfo.IsApproved}},
-                            {"note", new AttributeValue {S = transaction.SuspenseResolutionInfo.Note}},
-                            {"resolutionDate",new AttributeValue{S = transaction.SuspenseResolutionInfo.ResolutionDate.ToString()}}
-                        }
-                    }
-                },*/
-                {"created_at", new AttributeValue {S = transaction.CreatedAt?.ToString("F")??""}},
-                {"created_by", new AttributeValue {S = transaction.CreatedBy??""}},
-                {"last_updated_at", new AttributeValue {S = transaction.LastUpdatedAt?.ToString()??""}},
-                {"last_updated_by", new AttributeValue {S = transaction.LastUpdatedBy??""}}
-            };
+
+            Dictionary<string, AttributeValue> query = new Dictionary<string, AttributeValue>();
+
+            query.PureAdd("id", new AttributeValue { S = transaction.IdDynamodb.ToString() });
+            query.PureAdd("address", new AttributeValue { S = transaction.Address });
+            query.PureAdd("balance_amount", new AttributeValue { N = transaction.BalanceAmount?.ToString() });
+            query.PureAdd("bank_account_number", new AttributeValue { S = transaction.BankAccountNumber });
+            query.PureAdd("charged_amount", new AttributeValue { N = transaction.ChargedAmount?.ToString() });
+            query.PureAdd("financial_month", new AttributeValue { N = transaction.FinancialMonth.ToString() });
+            query.PureAdd("financial_year", new AttributeValue { N = transaction.FinancialYear.ToString() });
+            query.PureAdd("fund", new AttributeValue { S = transaction.Fund ?? "NA" });
+            query.PureAdd("housing_benefit_amount", new AttributeValue { N = transaction.HousingBenefitAmount?.ToString() });
+            query.PureAdd("paid_amount", new AttributeValue { N = transaction.PaidAmount?.ToString() });
+            query.PureAdd("payment_reference", new AttributeValue { S = transaction.PaymentReference });
+            query.PureAdd("period_no", new AttributeValue { N = transaction.PeriodNo.ToString("####") });
+            query.PureAdd("target_id", new AttributeValue { S = transaction.TargetId.ToString() });
+            query.PureAdd("is_suspense", new AttributeValue { S = transaction.IsSuspense.ToString() });
+            query.PureAdd("transaction_amount", new AttributeValue { N = transaction.TransactionAmount.ToString("F") });
+            query.PureAdd("transaction_date", new AttributeValue { S = transaction.TransactionDate.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'") });
+            query.PureAdd("transaction_source", new AttributeValue { S = transaction.TransactionSource });
+            query.PureAdd("transaction_type", new AttributeValue { S = transaction.TransactionType });
+            query.PureAdd("created_at", new AttributeValue { S = transaction.CreatedAt?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'") });
+            query.PureAdd("created_by", new AttributeValue { S = transaction.CreatedBy });
+            query.PureAdd("last_updated_at", new AttributeValue { S = transaction.LastUpdatedAt?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'") });
+            query.PureAdd("last_updated_by", new AttributeValue { S = transaction.LastUpdatedBy });
+            /*query.PureAdd("sender", new AttributeValue { S = "" });*/
+            return query;
         }
 
         public static DmTransactionDbEntity ToDatabase(this DmTransaction dMTransactionEntity)
@@ -135,7 +112,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                 TransactionDate = dMTransactionEntity.TransactionDate,
                 TransactionSource = dMTransactionEntity.TransactionSource,
                 TransactionType = dMTransactionEntity.TransactionType,
-                LastUpdatedAt = dMTransactionEntity.LastUpdatedAt?.UtcDateTime,
+                LastUpdatedAt = dMTransactionEntity.LastUpdatedAt,
                 LastUpdatedBy = dMTransactionEntity.LastUpdatedBy,
                 CreatedBy = dMTransactionEntity.CreatedBy,
                 MigrationStatus = dMTransactionEntity.MigrationStatus,
@@ -171,19 +148,19 @@ namespace FinanceDataMigrationApi.V1.Factories
                 TransactionDate = dMTransactionEntity.TransactionDate,
                 TransactionSource = dMTransactionEntity.TransactionSource,
                 TransactionType = dMTransactionEntity.TransactionType,
-                LastUpdatedAt = dMTransactionEntity.LastUpdatedAt?.UtcDateTime,
+                LastUpdatedAt = dMTransactionEntity.LastUpdatedAt,
                 LastUpdatedBy = dMTransactionEntity.LastUpdatedBy,
                 CreatedBy = dMTransactionEntity.CreatedBy,
                 Address = dMTransactionEntity.Address
             };
         }
 
-        public static List<DmTransaction> ToDomain(this IList<DmTransactionDbEntity> databaseEntity)
+        public static List<DmTransaction> ToDomains(this IList<DmTransactionDbEntity> databaseEntity)
         {
             return databaseEntity.Select(p => p.ToDomain()).ToList();
         }
 
-        public static List<DmTransactionDbEntity> ToDatabase(this IList<DmTransaction> dMTransactionEntityDomainItems)
+        public static List<DmTransactionDbEntity> ToDatabases(this IList<DmTransaction> dMTransactionEntityDomainItems)
         {
             return dMTransactionEntityDomainItems.Select(p => p.ToDatabase()).ToList();
         }
