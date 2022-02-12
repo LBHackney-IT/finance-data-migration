@@ -11,7 +11,10 @@ using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
+using FinanceDataMigrationApi.V1.Infrastructure.Entities;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
+using FinanceDataMigrationApi.V1.Infrastructure.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
@@ -33,7 +36,15 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public async Task<IList<DmCharge>> GetExtractedListAsync(int count)
         {
-            var results = await _context.GetExtractedChargeListAsync(count).ConfigureAwait(false);
+            var results = await _context.Set<DmChargesDbEntity>()
+                .Where(x => x.MigrationStatus == EMigrationStatus.Extracted &&
+                            x.DetailedChargesDbEntities != null &&
+                            x.DetailedChargesDbEntities.Count > 0)
+                .Take(count)
+                .Include(p => p.DetailedChargesDbEntities)
+                .ToListWithNoLockAsync()
+                .ConfigureAwait(false);
+
             results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomain();

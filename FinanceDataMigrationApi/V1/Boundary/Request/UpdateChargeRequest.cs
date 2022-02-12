@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Infrastructure;
-using FinancialTransactionsApi.V1.Infrastructure;
+using Hackney.Shared.HousingSearch.Validations;
 
 namespace FinanceDataMigrationApi.V1.Boundary.Request
 {

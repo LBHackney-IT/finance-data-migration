@@ -15,8 +15,8 @@ namespace FinanceDataMigrationApi.Tests.V1.Gateways
         /*public DmTransactionEntityGatewayProxy(DatabaseContext context) : base(context,)
         {
         }*/
-        public DmTransactionEntityGatewayProxy(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb, IDynamoDBContext dynamoDbContext) :
-            base(context, amazonDynamoDb, dynamoDbContext)
+        public DmTransactionEntityGatewayProxy(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb) :
+            base(context, amazonDynamoDb)
         {
         }
 

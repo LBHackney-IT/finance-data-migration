@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
-using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Charges;
 
 namespace FinanceDataMigrationApi.V1.UseCase.Charges
