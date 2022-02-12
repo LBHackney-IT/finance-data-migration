@@ -372,7 +372,7 @@ namespace FinanceDataMigrationApi
         {
             try
             {
-              
+
                 var result = await _deleteAllTransactionEntityUseCase.ExecuteAsync().ConfigureAwait(false);
 
                 return result;

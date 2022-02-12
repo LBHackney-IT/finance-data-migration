@@ -237,7 +237,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
                     });
                     var items = await result.GetNextSetAsync().ConfigureAwait(false);
 
-                    if(items.Count > 0)
+                    if (items.Count > 0)
                     {
 
                         IEnumerable<T> itemResults = _dynamoDbContext.FromDocuments<T>(items);
