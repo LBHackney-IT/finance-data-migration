@@ -133,6 +133,7 @@ namespace FinanceDataMigrationApi
                 };
             }
         }
+
         public async Task<StepResponse> LoadTransactions()
         {
             try
@@ -431,6 +432,7 @@ namespace FinanceDataMigrationApi
                 };
             }
         }
+
         public async Task<StepResponse> DownloadAssetToIfs()
         {
             try
@@ -494,6 +496,7 @@ namespace FinanceDataMigrationApi
                 };
             }
         }
+
         public static AmazonDynamoDBClient CreateAmazonDynamoDbClient()
         {
             bool result = bool.Parse(value: Environment.GetEnvironmentVariable("DynamoDb_LocalMode") ?? "false");

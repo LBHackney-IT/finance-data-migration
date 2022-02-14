@@ -3,7 +3,6 @@ using FinanceDataMigrationApi.V1.Common;
 using FinanceDataMigrationApi.V1.Gateways;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Infrastructure;
-using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
 using FinanceDataMigrationApi.V1.UseCase;
 using FinanceDataMigrationApi.V1.UseCase.Accounts;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
