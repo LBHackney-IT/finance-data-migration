@@ -228,46 +228,46 @@ stepFunctions:
               #- Variable: $.Continue
               #  BooleanEquals: false
               #  Next: ImportCashFileTransactions
-    #loadCharge:
-    #  name: DmLoadCharge
-    #  events:
-    #    - schedule: cron(59 23 * * ? *)
-    #  definition:
-    #    Comment: "Save the loaded charges data into charge dynamodb collection in FFS."
-    #    StartAt: LoadCharge
-    #    States:
-    #      LoadCharge:
-    #        Type: Task
-    #        Resource:
-    #          Fn::GetAtt: [loadCharge, Arn]
-    #        Retry:
-    #          - ErrorEquals:
-    #              - States.All
-    #            IntervalSeconds: 30
-    #            MaxAttempts: 3
-    #            BackoffRate: 2
-    #        Next: Wait_1
-    #      Wait_1:
-    #          Type: Wait
-    #          TimestampPath: $.NextStepTime
-    #          Next: Choice_1
-    #      Choice_1:
-    #        Type: Choice
-    #        Choices:
-    #          - Variable: $.Continue
-    #            BooleanEquals: true
-    #            Next: LoadCharge
-    #          - Variable: $.Continue
-    #            BooleanEquals: false
-    #            Next: EndStep
-    #      EndStep:
-    #        Type: Succeed
-    #  dependsOn: lambdaExecutionRole
-    #  tags:
-    #    Team: HousingFinance
-    #          #- Variable: $.Continue
-    #          #  BooleanEquals: false
-    #          #  Next: ImportCashFileTransactions
+    loadCharge:
+      name: DmLoadCharge
+      events:
+        - schedule: cron(0/2 * * * ? *)
+      definition:
+        Comment: "Save the loaded charges data into charge dynamodb collection in FFS."
+        StartAt: LoadCharge
+        States:
+          LoadCharge:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [loadCharge, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: Wait_1
+          Wait_1:
+              Type: Wait
+              TimestampPath: $.NextStepTime
+              Next: Choice_1
+          Choice_1:
+            Type: Choice
+            Choices:
+              - Variable: $.Continue
+                BooleanEquals: true
+                Next: LoadCharge
+              - Variable: $.Continue
+                BooleanEquals: false
+                Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
     extractTransactions:
       name: DmExtractTransactions
       events:
@@ -295,46 +295,46 @@ stepFunctions:
               #- Variable: $.Continue
               #  BooleanEquals: false
               #  Next: ImportCashFileTransactions
-    #loadTransactions:
-    #  name: DmLoadTransactions
-    #  events:
-    #    - schedule: cron(0/2 * * * ? *)
-    #  definition:
-    #    Comment: "Save the loaded transactions data into transaction dynamodb collection in FFS."
-    #    StartAt: LoadTransactions
-    #    States:
-    #      LoadTransactions:
-    #        Type: Task
-    #        Resource:
-    #          Fn::GetAtt: [loadTransactions, Arn]
-    #        Retry:
-    #          - ErrorEquals:
-    #              - States.All
-    #            IntervalSeconds: 30
-    #            MaxAttempts: 3
-    #            BackoffRate: 2
-    #        Next: Wait_1
-    #      Wait_1:
-    #          Type: Wait
-    #          TimestampPath: $.NextStepTime
-    #          Next: Choice_1
-    #      Choice_1:
-    #        Type: Choice
-    #        Choices:
-    #          - Variable: $.Continue
-    #            BooleanEquals: true
-    #            Next: LoadTransactions
-    #          - Variable: $.Continue
-    #            BooleanEquals: false
-    #            Next: EndStep
-    #      EndStep:
-    #        Type: Succeed
-    #  dependsOn: lambdaExecutionRole
-    #  tags:
-    #    Team: HousingFinance
-    #          #- Variable: $.Continue
-    #          #  BooleanEquals: false
-    #          #  Next: ImportCashFileTransactions
+    loadTransactions:
+      name: DmLoadTransactions
+      events:
+        - schedule: cron(0/2 * * * ? *)
+      definition:
+        Comment: "Save the loaded transactions data into transaction dynamodb collection in FFS."
+        StartAt: LoadTransactions
+        States:
+          LoadTransactions:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [loadTransactions, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: Wait_1
+          Wait_1:
+              Type: Wait
+              TimestampPath: $.NextStepTime
+              Next: Choice_1
+          Choice_1:
+            Type: Choice
+            Choices:
+              - Variable: $.Continue
+                BooleanEquals: true
+                Next: LoadTransactions
+              - Variable: $.Continue
+                BooleanEquals: false
+                Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
     deleteTransaction:
       name: DmDeleteTransaction
       events:
@@ -402,46 +402,46 @@ stepFunctions:
               #- Variable: $.Continue
               #  BooleanEquals: false
               #  Next: ImportCashFileTransactions
-    #loadAccount:
-    #  name: DmLoadAccount
-    #  events:
-    #    - schedule: cron(0/2 * * * ? *)
-    #  definition:
-    #    Comment: "Save the loaded accounts data into account dynamodb collection in FFS."
-    #    StartAt: LoadAccount
-    #    States:
-    #      LoadAccount:
-    #        Type: Task
-    #        Resource:
-    #          Fn::GetAtt: [loadAccount, Arn]
-    #        Retry:
-    #          - ErrorEquals:
-    #              - States.All
-    #            IntervalSeconds: 30
-    #            MaxAttempts: 3
-    #            BackoffRate: 2
-    #        Next: Wait_1
-    #      Wait_1:
-    #          Type: Wait
-    #          TimestampPath: $.NextStepTime
-    #          Next: Choice_1
-    #      Choice_1:
-    #        Type: Choice
-    #        Choices:
-    #          - Variable: $.Continue
-    #            BooleanEquals: true
-    #            Next: LoadAccount
-    #          - Variable: $.Continue
-    #            BooleanEquals: false
-    #            Next: EndStep
-    #      EndStep:
-    #        Type: Succeed
-    #  dependsOn: lambdaExecutionRole
-    #  tags:
-    #    Team: HousingFinance
-    #          #- Variable: $.Continue
-    #          #  BooleanEquals: false
-    #          #  Next: ImportCashFileTransactions
+    loadAccount:
+      name: DmLoadAccount
+      events:
+        - schedule: cron(0/2 * * * ? *)
+      definition:
+        Comment: "Save the loaded accounts data into account dynamodb collection in FFS."
+        StartAt: LoadAccount
+        States:
+          LoadAccount:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [loadAccount, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: Wait_1
+          Wait_1:
+              Type: Wait
+              TimestampPath: $.NextStepTime
+              Next: Choice_1
+          Choice_1:
+            Type: Choice
+            Choices:
+              - Variable: $.Continue
+                BooleanEquals: true
+                Next: LoadAccount
+              - Variable: $.Continue
+                BooleanEquals: false
+                Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
     deleteAccount:
       name: DmDeleteAccount
       events:
