@@ -31,6 +31,21 @@ namespace FinanceDataMigrationApi.V1.Controllers
             await handler.ExtractCharge().ConfigureAwait(false);
             return Ok("Done");
         }
+
+
+        [HttpGet]
+        [Route("delete/all")]
+        public async Task<IActionResult> DeleteAllAsync()
+        {
+
+            Handler handler = new Handler();
+            var response = await handler.DeleteAllCharges().ConfigureAwait(false);
+            if (response.Continue)
+                return Ok("Done");
+
+            return BadRequest("Failed");
+        }
+
         /*readonly IExtractChargeEntityUseCase _extractChargeEntityUseCase;
         readonly ILoadChargeEntityUseCase _loadChargeEntityUseCase;
         readonly IChargeBatchInsertUseCase _batchInsertUseCase;

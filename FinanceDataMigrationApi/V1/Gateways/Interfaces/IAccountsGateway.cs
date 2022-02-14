@@ -16,5 +16,6 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
         Task<List<DmAccount>> GetLoadedListForDeleteAsync(int count);
         Task<List<DmAccount>> GetToBeDeletedListForDeleteAsync(int count);
         Task UpdateDMAccountEntityItems(object loadedAccounts);
+        Task<bool> DeleteAllAccountAsync();
     }
 }

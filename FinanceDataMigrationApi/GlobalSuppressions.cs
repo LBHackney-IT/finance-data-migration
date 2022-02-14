@@ -6,7 +6,6 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "<Pending>", Scope = "member", Target = "~M:FinanceDataMigrationApi.Handler.#ctor")]
-[assembly: SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "<Pending>", Scope = "member", Target = "~M:FinanceDataMigrationApi.Handler.#ctor(AutoMapper.IMapper)")]
 [assembly: SuppressMessage("Design", "CA1055:Uri return values should not be strings", Justification = "<Pending>", Scope = "member", Target = "~M:FinanceDataMigrationApi.V1.Infrastructure.Interfaces.IGetEnvironmentVariables.GetPersonApiUrl~System.String")]
 [assembly: SuppressMessage("Design", "CA1055:Uri return values should not be strings", Justification = "<Pending>", Scope = "member", Target = "~M:FinanceDataMigrationApi.V1.Infrastructure.GetEnvironmentVariables.GetPersonApiUrl~System.String")]
 [assembly: SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "<Pending>", Scope = "member", Target = "~M:FinanceDataMigrationApi.V1.Infrastructure.EsServiceInitializer.ConfigureElasticSearch(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)")]
@@ -48,3 +47,4 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>", Scope = "member", Target = "~M:FinanceDataMigrationApi.V1.Gateways.TransactionGateway.CreateTable(System.String,System.String,Amazon.DynamoDBv2.ScalarAttributeType,System.String,Amazon.DynamoDBv2.ScalarAttributeType)~System.Threading.Tasks.Task")]
 [assembly: SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>", Scope = "member", Target = "~M:FinanceDataMigrationApi.Handler.DeleteAllTransaction~System.Threading.Tasks.Task{FinanceDataMigrationApi.V1.Boundary.Response.StepResponse}")]
 [assembly: SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>", Scope = "member", Target = "~M:FinanceDataMigrationApi.V1.Gateways.TransactionGateway.GetTableInformation(System.String)~System.Threading.Tasks.Task{System.Boolean}")]
+[assembly: SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>", Scope = "member", Target = "~M:FinanceDataMigrationApi.Handler.DeleteAllCharges~System.Threading.Tasks.Task{FinanceDataMigrationApi.V1.Boundary.Response.StepResponse}")]

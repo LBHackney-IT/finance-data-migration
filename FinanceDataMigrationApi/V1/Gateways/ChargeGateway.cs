@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using AutoMapper.Internal;
 using FinanceDataMigrationApi.V1.Domain;
@@ -11,6 +12,7 @@ using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
+using FinanceDataMigrationApi.V1.Infrastructure.Entities.DynamoDb;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 
 namespace FinanceDataMigrationApi.V1.Gateways
@@ -19,11 +21,13 @@ namespace FinanceDataMigrationApi.V1.Gateways
     {
         private readonly DatabaseContext _context;
         private readonly IAmazonDynamoDB _amazonDynamoDb;
+        private readonly IDynamoDBContext _dynamoDbContext;
 
-        public ChargeGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb)
+        public ChargeGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb, IDynamoDBContext dynamoDbContext)
         {
             _context = context;
             _amazonDynamoDb = amazonDynamoDb;
+            _dynamoDbContext = dynamoDbContext;
         }
 
         public async Task<int> ExtractAsync()
@@ -110,6 +114,12 @@ namespace FinanceDataMigrationApi.V1.Gateways
                     ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
+        }
+
+
+        public async Task<bool> DeleteAllChargesAsync()
+        {
+            return await DynamoDbHelper.GetRecords<ChargeDbEntity>(_dynamoDbContext).ConfigureAwait(false);
         }
     }
 }

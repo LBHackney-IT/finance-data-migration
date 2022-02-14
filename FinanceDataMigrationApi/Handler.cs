@@ -52,6 +52,8 @@ namespace FinanceDataMigrationApi
         readonly IDeleteAccountEntityUseCase _deleteAccountEntityUseCase;
         readonly IDeleteTransactionEntityUseCase _deleteTransactionEntityUseCase;
         readonly IDeleteAllTransactionEntityUseCase _deleteAllTransactionEntityUseCase;
+        readonly IDeleteAllAccountEntityUseCase _deleteAllAccountEntityUseCase;
+        readonly IDeleteAllChargesEntityUseCase _deleteAllChargesEntityUseCase;
         readonly int _waitDuration;
 
         private readonly int _batchSize;
@@ -67,7 +69,7 @@ namespace FinanceDataMigrationApi
 
             IAmazonDynamoDB amazonDynamoDb = CreateAmazonDynamoDbClient();
             IDynamoDBContext dynamoDbContext = new DynamoDBContext(amazonDynamoDb);
-            IChargeGateway chargeGateway = new ChargeGateway(context, amazonDynamoDb);
+            IChargeGateway chargeGateway = new ChargeGateway(context, amazonDynamoDb,dynamoDbContext);
             ITransactionGateway transactionGateway = new TransactionGateway(context, amazonDynamoDb, dynamoDbContext);
             ITenureGateway tenureGateway = new TenureGateway(context, amazonDynamoDb, dynamoDbContext);
             IAssetGateway assetGateway = new AssetGateway(context, amazonDynamoDb);
@@ -75,7 +77,7 @@ namespace FinanceDataMigrationApi
             IDmRunStatusGateway dmRunStatusGateway = new DmRunStatusGateway(context);
             ITimeLogGateway timeLogGateway = new TimeLogGateway(context);
             IDMRunLogGateway dmRunLogGateway = new DMRunLogGateway(context);
-            IAccountsGateway accountsGateway = new AccountsGateway(context, amazonDynamoDb, dynamoDbContext);
+            IAccountsGateway accountsGateway = new AccountsGateway(context, amazonDynamoDb,dynamoDbContext);
 
             _getLastHintUseCase = new GetLastHintUseCase(hitsGateway);
             _loadChargeEntityUseCase = new LoadChargeEntityUseCase(migrationRunGateway, chargeGateway);
@@ -103,6 +105,8 @@ namespace FinanceDataMigrationApi
             _dmAccountLoadRunStatusSaveUseCase = new DmAccountLoadRunStatusSaveUseCase(dmRunStatusGateway);
             _deleteAccountEntityUseCase = new DeleteAccountEntityUseCase(dmRunLogGateway, accountsGateway);
             _deleteAllTransactionEntityUseCase = new DeleteAllTransactionEntityUseCase(transactionGateway);
+            _deleteAllAccountEntityUseCase = new DeleteAllAccountEntityUseCase(accountsGateway);
+            _deleteAllChargesEntityUseCase = new DeleteAllChargesEntityUseCase(chargeGateway);
 
             _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
 
@@ -387,6 +391,45 @@ namespace FinanceDataMigrationApi
             }
         }
 
+
+        public async Task<StepResponse> DeleteAllAccount()
+        {
+            try
+            {
+
+                var result = await _deleteAllAccountEntityUseCase.ExecuteAsync().ConfigureAwait(false);
+
+                return result;
+            }
+#pragma warning disable CA1031 // Do not catch general exception types
+            catch (Exception exception)
+#pragma warning restore CA1031 // Do not catch general exception types
+            {
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(LoadCharge)} Exception: {exception.GetFullMessage()}");
+                return new StepResponse()
+                {
+                    Continue = false
+                };
+            }
+        }
+        public async Task<StepResponse> DeleteAllCharges()
+        {
+            try
+            {
+
+                var result = await _deleteAllChargesEntityUseCase.ExecuteAsync().ConfigureAwait(false);
+
+                return result;
+            }
+            catch (Exception exception)
+            {
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(LoadCharge)} Exception: {exception.GetFullMessage()}");
+                return new StepResponse()
+                {
+                    Continue = false
+                };
+            }
+        }
         public async Task<StepResponse> DownloadTenureToIfs()
         {
             try

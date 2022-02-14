@@ -56,8 +56,11 @@ namespace FinanceDataMigrationApi.V1.Controllers
         {
 
             Handler handler = new Handler();
-            await handler.DeleteAllTransaction().ConfigureAwait(false);
-            return Ok("Done");
+            var response= await handler.DeleteAllTransaction().ConfigureAwait(false);
+            if (response.Continue)
+                return Ok("Done");
+
+            return BadRequest("Failed");
         }
 
         /*private readonly ITransactionBatchInsertUseCase _transactionBatchInsertUseCase;

@@ -40,6 +40,21 @@ namespace FinanceDataMigrationApi.V1.Controllers
             return Ok("Done");
         }
 
+
+        [HttpGet]
+        [Route("delete/all")]
+        public async Task<IActionResult> DeleteAllAsync()
+        {
+
+            Handler handler = new Handler();
+            var response =  await handler.DeleteAllAccount().ConfigureAwait(false);
+            if (response.Continue)
+                return Ok("Done");
+
+            return BadRequest("Failed");
+        }
+
+
         /*private readonly IExtractAccountEntityUseCase _extractAccountEntityUseCase;
         private readonly ITransformAccountsUseCase _transformAccountsUseCase;
         private readonly ILoadAccountsUseCase _loadAccountsUseCase;

@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using FinanceDataMigrationApi.V1.Gateways;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Infrastructure;
@@ -14,8 +15,8 @@ namespace FinanceDataMigrationApi.Tests.V1.Gateways
         /*public DmTransactionEntityGatewayProxy(DatabaseContext context) : base(context,)
         {
         }*/
-        public DmTransactionEntityGatewayProxy(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb) :
-            base(context, amazonDynamoDb)
+        public DmTransactionEntityGatewayProxy(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb,IDynamoDBContext dynamoDB) :
+            base(context, amazonDynamoDb,dynamoDB)
         {
         }
 

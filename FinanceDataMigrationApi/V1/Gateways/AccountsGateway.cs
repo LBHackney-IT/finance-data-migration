@@ -15,6 +15,7 @@ using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using AutoMapper.Internal;
 using FinanceDataMigrationApi.V1.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Hackney.Shared.HousingSearch.Gateways.Entities.Accounts;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
@@ -22,11 +23,13 @@ namespace FinanceDataMigrationApi.V1.Gateways
     {
         private readonly DatabaseContext _context;
         private readonly IAmazonDynamoDB _amazonDynamoDb;
+        private readonly IDynamoDBContext _dynamoDbContext;
 
-        public AccountsGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb)
+        public AccountsGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb, IDynamoDBContext dynamoDbContext)
         {
             _context = context;
             _amazonDynamoDb = amazonDynamoDb;
+            _dynamoDbContext = dynamoDbContext;
         }
 
         public async Task<int> ExtractAsync()
@@ -313,6 +316,11 @@ namespace FinanceDataMigrationApi.V1.Gateways
             results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Deleting);
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomain();
+        }
+
+        public async Task<bool> DeleteAllAccountAsync()
+        {
+            return await DynamoDbHelper.GetRecords<AccountDbEntity>(_dynamoDbContext).ConfigureAwait(false);
         }
 
         public Task UpdateDMAccountEntityItems(object loadedAccounts)

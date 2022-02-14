@@ -28,6 +28,32 @@ namespace FinanceDataMigrationApi.V1.Domain
         Block,
         Estate
     }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum ChargeTargetType
+    {
+        Block,
+        Concierge,
+        Dwelling,
+        LettableNonDwelling,
+        MediumRiseBlock,
+        NA,
+        TravellerSite,
+        AdministrativeBuilding,
+        BoilerHouse,
+        BoosterPump,
+        CleanersFacilities,
+        CombinedHeatAndPowerUnit,
+        CommunityHall,
+        Estate,
+        HighRiseBlock,
+        Lift,
+        LowRiseBlock,
+        NBD,
+        OutBuilding,
+        TerracedBlock,
+        WalkUpBlock
+    }
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum ChargeMaintenanceStatus
     {
@@ -46,5 +72,12 @@ namespace FinanceDataMigrationApi.V1.Domain
     {
         Tenants,
         Leaseholders
+    }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum ChargeSubGroup
+    {
+        Estimate,
+        Actual
     }
 }

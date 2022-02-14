@@ -2,8 +2,6 @@ using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.UseCase.Transactions

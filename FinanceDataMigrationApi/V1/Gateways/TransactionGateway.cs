@@ -1,6 +1,5 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using AutoMapper.Internal;
 using FinanceDataMigrationApi.V1.Domain;
@@ -23,13 +22,18 @@ namespace FinanceDataMigrationApi.V1.Gateways
         private readonly IAmazonDynamoDB _amazonDynamoDb;
         readonly DatabaseContext _context;
         private readonly IDynamoDBContext _dynamoDbContext;
-
         public TransactionGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb, IDynamoDBContext dynamoDbContext)
         {
             _amazonDynamoDb = amazonDynamoDb;
             _context = context;
             _dynamoDbContext = dynamoDbContext;
         }
+
+        //public TransactionGateway(DatabaseContext context1, IAmazonDynamoDB amazonDynamoDb)
+        //{
+        //    _context1 = context1;
+        //    _amazonDynamoDb = amazonDynamoDb;
+        //}
 
         public async Task<int> ExtractAsync()
         {
@@ -217,51 +221,9 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public async Task<bool> DeleteAllTransactionAsync()
         {
-            return await GetRecords<TransactionDbEntity>().ConfigureAwait(false);
+            return await DynamoDbHelper.GetRecords<TransactionDbEntity>(_dynamoDbContext).ConfigureAwait(false);
         }
 
-        private async Task<bool> GetRecords<T>()
-        {
-            try
-            {
-                var table = _dynamoDbContext.GetTargetTable<TransactionDbEntity>();
-                var filter = new ScanFilter();
-                string paginationToken = "{}";
-                do
-                {
-                    var result = table.Scan(new ScanOperationConfig
-                    {
-                        Limit = 100,
-                        PaginationToken = paginationToken,
-                        Filter = filter
-                    });
-                    var items = await result.GetNextSetAsync().ConfigureAwait(false);
 
-                    if(items.Count > 0)
-                    {
-
-                        IEnumerable<T> itemResults = _dynamoDbContext.FromDocuments<T>(items);
-                        await BatchDelete(itemResults).ConfigureAwait(false);
-                        paginationToken = result.PaginationToken;
-                    }
-                }
-                while (!string.Equals(paginationToken, "{}", StringComparison.Ordinal));
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                var msg = ex.Message;
-                throw;
-            }
-        }
-
-        public async Task BatchDelete<T>(IEnumerable<T> documents)
-        {
-
-            var batch = _dynamoDbContext.CreateBatchWrite<T>();
-            batch.AddDeleteItems(documents);
-            await batch.ExecuteAsync().ConfigureAwait(false);
-        }
     }
 }
