@@ -140,7 +140,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public async Task<IList<DmTransactionDbEntity>> GetExtractedTransactionListAsync(int count)
             => await TransactionEntities
                 .Where(x => x.MigrationStatus == EMigrationStatus.Extracted)
-                .Join(AccountDbEntities.Where(ac => ac.MigrationStatus == EMigrationStatus.Loaded && ac.TargetId != null),
+                .Join(AccountDbEntities.Where(ac => ac.MigrationStatus == EMigrationStatus.Loaded && ac.TargetId != null).Take(count),
                     t => t.TargetId,
                     a => a.TargetId,
                     (t, a) => t)
