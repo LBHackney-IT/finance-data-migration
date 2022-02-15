@@ -168,7 +168,9 @@ namespace FinanceDataMigrationApi
             services.AddDbContext<DatabaseContext>(opt =>
             {
                 if (connectionString != null)
-                    opt.UseSqlServer(connectionString, sqlOptions => { sqlOptions.CommandTimeout(360); });
+                    opt.UseSqlServer(connectionString, sqlOptions => {
+                        sqlOptions.CommandTimeout(360);
+                        sqlOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null); });
                 else
                     throw new Exception("Sql connection string is not valid.");
             });
