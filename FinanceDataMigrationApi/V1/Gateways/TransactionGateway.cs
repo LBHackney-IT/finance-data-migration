@@ -89,7 +89,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             }
             catch (ResourceNotFoundException rnf)
             {
-                LoggingHandler.LogError($"One of the table involved in the account is not found: {rnf.Message}");
+                LoggingHandler.LogError($"One of the table involved in the account is not found: {rnf.Message}.");
                 context.TransactionEntities.Where(p =>
                         transactions.Select(i => i.Id).Contains(p.Id))
                     .ForAll(p => p.MigrationStatus = EMigrationStatus.LoadFailed);

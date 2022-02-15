@@ -17,7 +17,8 @@
         "FINANCIAL_TRANSACTION_API_URL": ";SEARCH_API_TOKEN=KLO",
         "DynamoDb_LocalServiceUrl": "http://localhost:8000",
         "ACCEPTED_ORIGINS": "True",
-        "FINANCIAL_TRANSACTION_API_TOKEN": "dhdhhhhhhhhdhdhd",
+        "FINANCIAL_TRANSACTION_API_TOKEN": "",
+        "TRANSACTION_LOAD_BATCH_SIZE": "40",
         "DynamoDb_LocalMode": "true",
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

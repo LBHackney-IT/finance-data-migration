@@ -61,26 +61,28 @@ namespace FinanceDataMigrationApi.V1.Factories
 
             query.PureAdd("id", new AttributeValue { S = transaction.IdDynamodb.ToString() });
             query.PureAdd("address", new AttributeValue { S = transaction.Address });
-            query.PureAdd("balance_amount", new AttributeValue { N = transaction.BalanceAmount?.ToString() });
-            query.PureAdd("bank_account_number", new AttributeValue { S = transaction.BankAccountNumber });
-            query.PureAdd("charged_amount", new AttributeValue { N = transaction.ChargedAmount?.ToString() });
+            query.PureAdd("balance_amount", new AttributeValue { N = transaction.BalanceAmount?.ToString() ?? "0" });
+            query.PureAdd("bank_account_number", new AttributeValue { S = transaction.BankAccountNumber ?? "NA" });
+            query.PureAdd("charged_amount", new AttributeValue { N = transaction.ChargedAmount?.ToString() ?? "0" });
             query.PureAdd("financial_month", new AttributeValue { N = transaction.FinancialMonth.ToString() });
             query.PureAdd("financial_year", new AttributeValue { N = transaction.FinancialYear.ToString() });
             query.PureAdd("fund", new AttributeValue { S = transaction.Fund ?? "NA" });
-            query.PureAdd("housing_benefit_amount", new AttributeValue { N = transaction.HousingBenefitAmount?.ToString() });
-            query.PureAdd("paid_amount", new AttributeValue { N = transaction.PaidAmount?.ToString() });
+            query.PureAdd("housing_benefit_amount", new AttributeValue { N = transaction.HousingBenefitAmount?.ToString() ?? "0" });
+            query.PureAdd("paid_amount", new AttributeValue { N = transaction.PaidAmount?.ToString() ?? "0" });
             query.PureAdd("payment_reference", new AttributeValue { S = transaction.PaymentReference });
-            query.PureAdd("period_no", new AttributeValue { N = transaction.PeriodNo.ToString("####") });
+            query.PureAdd("period_no", new AttributeValue { N = transaction.PeriodNo.ToString("####") ?? "0" });
             query.PureAdd("target_id", new AttributeValue { S = transaction.TargetId.ToString() });
             query.PureAdd("is_suspense", new AttributeValue { S = transaction.IsSuspense.ToString() });
-            query.PureAdd("transaction_amount", new AttributeValue { N = transaction.TransactionAmount.ToString("F") });
+            query.PureAdd("transaction_amount", new AttributeValue { N = transaction.TransactionAmount.ToString("F") ?? "0" });
             query.PureAdd("transaction_date", new AttributeValue { S = transaction.TransactionDate.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'") });
             query.PureAdd("transaction_source", new AttributeValue { S = transaction.TransactionSource });
-            query.PureAdd("transaction_type", new AttributeValue { S = transaction.TransactionType });
+            query.PureAdd("transaction_type", new AttributeValue { S = transaction.TransactionType.Trim().Replace(@"\", "").Replace("/", "").Replace(" ", "").Trim() });
             query.PureAdd("created_at", new AttributeValue { S = transaction.CreatedAt?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'") });
             query.PureAdd("created_by", new AttributeValue { S = transaction.CreatedBy });
             query.PureAdd("last_updated_at", new AttributeValue { S = transaction.LastUpdatedAt?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'") });
             query.PureAdd("last_updated_by", new AttributeValue { S = transaction.LastUpdatedBy });
+            query.PureAdd("sort_code", new AttributeValue { S = "NA" });
+            query.PureAdd("target_type", new AttributeValue { S = "Tenure" });
             /*query.PureAdd("sender", new AttributeValue { S = "" });*/
             return query;
         }

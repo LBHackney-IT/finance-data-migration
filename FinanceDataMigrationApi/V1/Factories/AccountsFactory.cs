@@ -1,3 +1,4 @@
+using System;
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Domain.Accounts;
 using System.Collections.Generic;
@@ -17,11 +18,15 @@ namespace FinanceDataMigrationApi.V1.Factories
             accountModel.PureAdd("id", new AttributeValue { S = account.DynamoDbId.ToString() });
             accountModel.PureAdd("target_id", new AttributeValue { S = account.TargetId?.ToString() });
             accountModel.PureAdd("account_balance", new AttributeValue { N = account.AccountBalance?.ToString("F").Replace(',', '.') });
+            accountModel.PureAdd("consolidated_balance", new AttributeValue { N = account.ConsolidatedBalance?.ToString("F").Replace(',', '.') });
             accountModel.PureAdd("target_type", new AttributeValue { S = account.TargetType.ToString() });
             accountModel.PureAdd("account_type", new AttributeValue { S = account.AccountType?.ToString() });
             accountModel.PureAdd("rent_group_type", new AttributeValue { S = account.RentGroupType?.ToString() });
             accountModel.PureAdd("agreement_type", new AttributeValue { S = account.AgreementType?.ToString() });
+            accountModel.PureAdd("created_by", new AttributeValue { S = "Migration" });
             accountModel.PureAdd("created_at", new AttributeValue { S = account.CreatedAt.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'") });
+            accountModel.PureAdd("last_updated_by", new AttributeValue { S = "Migration" });
+            accountModel.PureAdd("last_updated_at", new AttributeValue { S = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'") });
             accountModel.PureAdd("start_date", new AttributeValue { S = account.StartDate.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'") });
             accountModel.PureAdd("end_date", new AttributeValue { S = account.EndDate?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'") });
             accountModel.PureAdd("account_status", new AttributeValue { S = account.AccountStatus?.ToString() });
@@ -47,7 +52,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                     {
                         var accountTenurePrimaryTenantsModel = new Dictionary<string, AttributeValue>();
                         accountTenurePrimaryTenantsModel.PureAdd("id", new AttributeValue(primaryTenant.Id.ToString()));
-                        accountTenurePrimaryTenantsModel.PureAdd("fullname", new AttributeValue(primaryTenant.FullName));
+                        accountTenurePrimaryTenantsModel.PureAdd("fullName", new AttributeValue(primaryTenant.FullName));
                         accountTenurePrimaryTenantsModelList.Add(new AttributeValue
                         {
                             M = accountTenurePrimaryTenantsModel
@@ -63,6 +68,8 @@ namespace FinanceDataMigrationApi.V1.Factories
 
                 accountModel.PureAdd("tenure", new AttributeValue { M = accountTenureModel });
             }
+            accountModel.PureAdd("parent_account_id", new AttributeValue { S = Guid.Empty.ToString() });
+
             /*{"created_by", new AttributeValue {S = account.CreatedBy}},
             {"last_updated_by", new AttributeValue {S = account.LastUpdatedBy}},
             {"last_updated_at", new AttributeValue {S = account.LastUpdatedAt.ToString()}},*/

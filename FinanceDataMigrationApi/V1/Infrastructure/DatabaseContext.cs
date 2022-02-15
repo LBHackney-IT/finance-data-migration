@@ -98,19 +98,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public DbSet<DmTimeLogModel> DmTimeLogModels { get; set; }
 
         #region Charges Entity Specific
-
-
-        /// <summary>
-        /// Get the Data Migration Charge Entities
-        /// </summary>
-        /// <returns>The Transactions to migrate</returns>
-        public async Task<IList<DmChargesDbEntity>> GetDMChargeEntitiesAsync()
-            => await ChargesDbEntities
-                .Where(x => x.MigrationStatus == EMigrationStatus.Transformed)
-                .ToListWithNoLockAsync()
-                .ConfigureAwait(false);
-
-
         /// <summary>
         /// Extract the data migration charges entities
         /// </summary>
@@ -122,21 +109,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .ConfigureAwait(false);
         }
 
-        public async Task<IList<DmChargesDbEntity>> GetExtractedChargeListAsync(int count)
-            => await this.Set<DmChargesDbEntity>()
-                .Where(x => x.MigrationStatus == EMigrationStatus.Extracted)
-                .Take(count)
-                .Include(p => p.DetailedChargesDbEntities)
-                .ToListWithNoLockAsync()
-                .ConfigureAwait(false);
-
-        public async Task<IList<DmChargesDbEntity>> GetToBeDeletedChargeListAsync(int count)
-            => await this.Set<DmChargesDbEntity>()
-                .Where(x => x.MigrationStatus == EMigrationStatus.ToBeDeleted)
-                .Take(count)
-                .Include(p => p.DetailedChargesDbEntities)
-                .ToListWithNoLockAsync()
-                .ConfigureAwait(false);
 
         #endregion
 
@@ -168,6 +140,11 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public async Task<IList<DmTransactionDbEntity>> GetExtractedTransactionListAsync(int count)
             => await TransactionEntities
                 .Where(x => x.MigrationStatus == EMigrationStatus.Extracted)
+                .Join(AccountDbEntities.Where(ac => ac.MigrationStatus == EMigrationStatus.Loaded && ac.TargetId != null).Take(count),
+                    t => t.TargetId,
+                    a => a.TargetId,
+                    (t, a) => t)
+                .OrderBy(ac1 => ac1.TargetId)
                 .Take(count)
                 .ToListWithNoLockAsync()
                 .ConfigureAwait(false);

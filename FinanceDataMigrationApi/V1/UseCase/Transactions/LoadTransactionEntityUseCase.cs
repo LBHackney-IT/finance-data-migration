@@ -51,7 +51,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
                 }
                 else
                 {
-                    LoggingHandler.LogInfo($"No records to {DataMigrationTask} for {DMEntityNames.Charges} Entity.");
+                    LoggingHandler.LogInfo($"No records to {DataMigrationTask} for {DMEntityNames.Transactions} Entity.");
                     return new StepResponse()
                     {
                         Continue = false
@@ -69,7 +69,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
                 LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}" +
                                         $".{nameof(Handler)}" +
                                         $".{nameof(ExecuteAsync)}" +
-                                        $" load charge exception: {ex.Message}");
+                                        $" load transaction exception: {ex.Message}");
                 return new StepResponse()
                 {
                     Continue = true,

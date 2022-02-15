@@ -3,7 +3,6 @@ using FinanceDataMigrationApi.V1.Common;
 using FinanceDataMigrationApi.V1.Gateways;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Infrastructure;
-using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
 using FinanceDataMigrationApi.V1.UseCase;
 using FinanceDataMigrationApi.V1.UseCase.Accounts;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
@@ -169,7 +168,9 @@ namespace FinanceDataMigrationApi
             services.AddDbContext<DatabaseContext>(opt =>
             {
                 if (connectionString != null)
-                    opt.UseSqlServer(connectionString, sqlOptions => { sqlOptions.CommandTimeout(360); });
+                    opt.UseSqlServer(connectionString, sqlOptions => {
+                        sqlOptions.CommandTimeout(360);
+                        sqlOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null); });
                 else
                     throw new Exception("Sql connection string is not valid.");
             });

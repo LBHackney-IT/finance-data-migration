@@ -6,6 +6,7 @@ using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.Infrastructure.Entities;
+using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using FinanceDataMigrationApi.V1.Infrastructure.Extensions;
 
 namespace FinanceDataMigrationApi.V1.Factories
@@ -60,6 +61,8 @@ namespace FinanceDataMigrationApi.V1.Factories
             chargeModel.PureAdd("target_type", new AttributeValue { S = charge.TargetType.ToString().Trim() });
             chargeModel.PureAdd("charge_group", new AttributeValue { S = charge.ChargeGroup.ToString().Trim() });
             chargeModel.PureAdd("charge_year", new AttributeValue { N = charge.DetailedCharges.FirstOrDefault()?.StartDate.Year.ToString().Trim() });
+            chargeModel.PureAdd("created_at", new AttributeValue { S = DateTime.Today.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'") });
+            chargeModel.PureAdd("created_by", new AttributeValue { S = "Migration" });
 
             if (charge.DetailedCharges != null && charge.DetailedCharges.Count > 0)
             {
