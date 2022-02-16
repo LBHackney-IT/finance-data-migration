@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2.DataModel;
 using FinanceDataMigrationApi.V1.Domain.Accounts;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
@@ -36,7 +35,9 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public async Task<IList<DmAccount>> GetExtractedListAsync(int count)
         {
-            var results = await _context.AccountDbEntities
+            try
+            {
+                var results = await _context.AccountDbEntities
                 .Where(x => x.MigrationStatus == EMigrationStatus.Extracted)
                 .Take(count)
                 .Include(p => p.ConsolidatedCharges)
@@ -45,9 +46,15 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
-            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
-            await _context.SaveChangesAsync().ConfigureAwait(false);
-            return results.ToDomain();
+                results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
+                await _context.SaveChangesAsync().ConfigureAwait(false);
+                return results.ToDomain();
+            }
+            catch (Exception ex)
+            {
+                LoggingHandler.LogError($"{nameof(AccountsGateway)}.{nameof(GetExtractedListAsync)} Exception: {ex.GetFullMessage()}");
+                throw;
+            }
         }
 
         public async Task<IList<DmAccount>> GetLoadFailedListAsync(int count)

@@ -36,18 +36,26 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public async Task<IList<DmCharge>> GetExtractedListAsync(int count)
         {
-            var results = await _context.Set<DmChargesDbEntity>()
-                .Where(x => x.MigrationStatus == EMigrationStatus.Extracted &&
-                            x.DetailedChargesDbEntities != null &&
-                            x.DetailedChargesDbEntities.Count > 0)
-                .Take(count)
-                .Include(p => p.DetailedChargesDbEntities)
-                .ToListWithNoLockAsync()
-                .ConfigureAwait(false);
+            try
+            {
+                var results = await _context.Set<DmChargesDbEntity>()
+            .Where(x => x.MigrationStatus == EMigrationStatus.Extracted/* &&
+                        x.DetailedChargesDbEntities != null &&
+                        x.DetailedChargesDbEntities.Count > 0*/)
+            .Take(count)
+            .Include(p => p.DetailedChargesDbEntities)
+            .ToListWithNoLockAsync()
+            .ConfigureAwait(false);
 
-            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
-            await _context.SaveChangesAsync().ConfigureAwait(false);
-            return results.ToDomain();
+                results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
+                await _context.SaveChangesAsync().ConfigureAwait(false);
+                return results.ToDomain();
+            }
+            catch (Exception ex)
+            {
+                LoggingHandler.LogError($"{nameof(ChargeGateway)}.{nameof(GetExtractedListAsync)} Exception: {ex.GetFullMessage()}");
+                throw;
+            }
         }
 
         public async Task BatchInsert(List<DmCharge> charges)

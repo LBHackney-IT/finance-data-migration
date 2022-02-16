@@ -12,6 +12,7 @@ using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
+using FinanceDataMigrationApi.V1.Infrastructure.Extensions;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
@@ -33,10 +34,28 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
         public async Task<IList<DmTransaction>> GetExtractedListAsync(int count)
         {
-            var results = await _context.GetExtractedTransactionListAsync(count).ConfigureAwait(false);
-            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
-            await _context.SaveChangesAsync().ConfigureAwait(false);
-            return results.ToDomains();
+            try
+            {
+                var results = await _context.TransactionEntities
+                    .Where(x => x.MigrationStatus == EMigrationStatus.Extracted)
+                    .Join(_context.AccountDbEntities.Where(ac => ac.MigrationStatus == EMigrationStatus.Loaded && ac.TargetId != null).Take(count),
+                        t => t.TargetId,
+                        a => a.TargetId,
+                        (t, a) => t)
+                    .OrderBy(ac1 => ac1.TargetId)
+                    .Take(count)
+                    .ToListWithNoLockAsync()
+                    .ConfigureAwait(false);
+
+                results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Loading);
+                await _context.SaveChangesAsync().ConfigureAwait(false);
+                return results.ToDomains();
+            }
+            catch (Exception ex)
+            {
+                LoggingHandler.LogError($"{nameof(TransactionGateway)}.{nameof(GetExtractedListAsync)} Exception: {ex.GetFullMessage()}");
+                throw;
+            }
         }
 
         public async Task BatchInsert(List<DmTransaction> transactions)
