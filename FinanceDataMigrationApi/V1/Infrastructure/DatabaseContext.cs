@@ -195,6 +195,37 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             }
         }
 
+        private async Task<int> ExecuteStoredProcedureWithReturnsResultSet(string procedureRawString, int timeout = 0)
+        {
+            if (timeout != 0)
+                Database.SetCommandTimeout(timeout);
+            try
+            {
+                var parameterReturn = new SqlParameter
+                {
+                    ParameterName = "ReturnValue",
+                    SqlDbType = SqlDbType.Int,
+                    Direction = ParameterDirection.Output,
+                };
+
+                var result = await Database.ExecuteSqlRawAsync(procedureRawString, parameterReturn).ConfigureAwait(false);
+
+                int returnValue = (int) parameterReturn.Value;
+
+                return returnValue;
+            }
+            catch (Exception exception)
+            {
+                LoggingHandler.LogError($"Executing stores procedure error in: " +
+                                        $"{nameof(FinanceDataMigrationApi)}." +
+                                        $"{nameof(Handler)}." +
+                                        $"{nameof(ExecuteStoredProcedure)}:{exception.GetFullMessage()}");
+                throw;
+            }
+        }
+
+
+
         public static DatabaseContext Create()
         {
             DbContextOptionsBuilder<DatabaseContext> optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
