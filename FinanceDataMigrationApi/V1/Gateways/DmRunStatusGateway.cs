@@ -10,7 +10,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
 {
     public class DmRunStatusGateway : IDmRunStatusGateway
     {
-        private readonly DatabaseContext _context;
+        private DatabaseContext _context;
 
         public DmRunStatusGateway(DatabaseContext context)
         {
@@ -18,6 +18,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
         }
         public async Task<DmRunStatusModel> GetData()
         {
+            _context = DatabaseContext.Create();
             return await _context.DmRunStatusModels.FirstAsync().ConfigureAwait(false);
         }
 
