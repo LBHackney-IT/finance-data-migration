@@ -168,7 +168,8 @@ namespace FinanceDataMigrationApi
             services.AddDbContext<DatabaseContext>(opt =>
             {
                 if (connectionString != null)
-                    opt.UseSqlServer(connectionString, sqlOptions => {
+                    opt.UseSqlServer(connectionString, sqlOptions =>
+                    {
                         sqlOptions.CommandTimeout(900);
                         sqlOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
                     });

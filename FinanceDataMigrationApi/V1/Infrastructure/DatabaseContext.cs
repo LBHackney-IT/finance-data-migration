@@ -136,7 +136,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_ExtractTransactionEntity]", 6000).ConfigureAwait(false);
             return affectedRows;
         }
- 
+
         public async Task<IList<DmTransactionDbEntity>> GetLoadedTransactionListAsync(int count)
             => await TransactionEntities
                 .Where(x => x.MigrationStatus == EMigrationStatus.Loaded)
