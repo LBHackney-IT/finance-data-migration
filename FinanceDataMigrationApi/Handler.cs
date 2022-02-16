@@ -63,7 +63,6 @@ namespace FinanceDataMigrationApi
             DatabaseContext context = DatabaseContext.Create();
 
             IDMRunLogGateway migrationRunGateway = new DMRunLogGateway(context);
-
             IAmazonDynamoDB amazonDynamoDb = CreateAmazonDynamoDbClient();
             IDynamoDBContext dynamoDbContext = new DynamoDBContext(amazonDynamoDb);
             IChargeGateway chargeGateway = new ChargeGateway(context, amazonDynamoDb);
@@ -86,24 +85,18 @@ namespace FinanceDataMigrationApi
             _dmRunStatusGetUseCase = new DmRunStatusGetUseCase(dmRunStatusGateway);
             _dmAssetRunStatusSaveUseCase = new DmAssetRunStatusSaveUseCase(dmRunStatusGateway);
             _dmTenureRunStatusSaveUseCase = new DmTenureRunStatusSaveUseCase(dmRunStatusGateway);
-
             _dmChargeExtractRunStatusSaveUseCase = new DmChargeExtractRunStatusSaveUseCase(dmRunStatusGateway);
             _dmChargeLoadRunStatusSaveUseCase = new DmChargeLoadRunStatusSaveUseCase(dmRunStatusGateway);
-
             _extractTransactionEntityUseCase = new ExtractTransactionEntityUseCase(dmRunLogGateway, transactionGateway);
             _loadTransactionEntityUseCase = new LoadTransactionEntityUseCase(transactionGateway);
-
             _dmTransactionExtractRunStatusSaveUseCase = new DmTransactionExtractRunStatusSaveUseCase(dmRunStatusGateway);
             _deleteTransactionEntityUseCase = new DeleteTransactionEntityUseCase(dmRunLogGateway, transactionGateway);
             _dmTransactionLoadRunStatusSaveUseCase = new DmTransactionLoadRunStatusSaveUseCase(dmRunStatusGateway);
-
             _extractAccountEntityUseCase = new ExtractAccountEntityUseCase(dmRunLogGateway, accountsGateway);
             _loadAccountsUseCase = new LoadAccountsUseCase(dmRunLogGateway, accountsGateway);
             _dmAccountLoadRunStatusSaveUseCase = new DmAccountLoadRunStatusSaveUseCase(dmRunStatusGateway);
             _deleteAccountEntityUseCase = new DeleteAccountEntityUseCase(dmRunLogGateway, accountsGateway);
-
             _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
-
         }
 
         public async Task<StepResponse> ExtractTransactions()
