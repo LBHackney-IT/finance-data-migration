@@ -120,7 +120,6 @@ namespace FinanceDataMigrationApi
                     };
                     await _extractTransactionEntityUseCase.ExecuteAsync().ConfigureAwait(false);
                     await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
-                    //await _dmTransactionExtractRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
                 }
                 return new StepResponse() { Continue = false };
             }
