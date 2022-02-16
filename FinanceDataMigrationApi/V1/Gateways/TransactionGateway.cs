@@ -38,7 +38,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             {
                 var results = await _context.TransactionEntities
                     .Where(x => x.MigrationStatus == EMigrationStatus.Extracted)
-                    .Join(_context.AccountDbEntities.Where(ac => ac.MigrationStatus == EMigrationStatus.Loaded && ac.TargetId != null).Take(count),
+                    .Join(_context.AccountDbEntities.Where(ac => ac.MigrationStatus == EMigrationStatus.Loaded && ac.TargetId != null),
                         t => t.TargetId,
                         a => a.TargetId,
                         (t, a) => t)
