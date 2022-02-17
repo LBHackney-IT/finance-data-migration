@@ -45,7 +45,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
                 var results = await _context.TransactionEntities
                     .Where(x => x.MigrationStatus == EMigrationStatus.Extracted /*&& accounts.Contains(x.TargetId)*/)
-                    .OrderBy(ac1 => ac1.TargetId)
+                    //.OrderBy(ac1 => ac1.TargetId)
                     .Take(count)
                     .ToListWithNoLockAsync()
                     .ConfigureAwait(false);
