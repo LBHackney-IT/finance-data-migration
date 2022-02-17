@@ -38,19 +38,16 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
                         {
                             tasks.Add(_transactionGateway.BatchInsert(data));
 
-                            /*if (tasks.Count == 4)
+                            if (tasks.Count == 4)
                             {
                                 await Task.WhenAll(tasks).ConfigureAwait(false);
+                                System.Threading.Thread.Sleep(2000);
                                 tasks.Clear();
-                            }*/
+                            }
                         }
                     }
-
                     if (tasks.Count > 0)
-                    {
                         await Task.WhenAll(tasks).ConfigureAwait(false);
-                        System.Threading.Thread.Sleep(2000);
-                    }
                 }
                 else
                 {
