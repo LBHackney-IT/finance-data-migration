@@ -36,16 +36,15 @@ namespace FinanceDataMigrationApi.V1.Gateways
         {
             try
             {
-                var accounts = await _context.AccountDbEntities.Where(ac =>
+                /*var accounts = await _context.AccountDbEntities.Where(ac =>
                     ac.MigrationStatus == EMigrationStatus.Loaded && ac.TargetId != null)
                     .Take(count)
                     .Select(t => t.TargetId)
                     .ToListWithNoLockAsync()
-                    .ConfigureAwait(false);
+                    .ConfigureAwait(false);*/
 
                 var results = await _context.TransactionEntities
-                    .Where(x => x.MigrationStatus == EMigrationStatus.Extracted &&
-                                accounts.Contains(x.TargetId))
+                    .Where(x => x.MigrationStatus == EMigrationStatus.Extracted /*&& accounts.Contains(x.TargetId)*/)
                     .OrderBy(ac1 => ac1.TargetId)
                     .Take(count)
                     .ToListWithNoLockAsync()
