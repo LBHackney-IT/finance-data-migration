@@ -97,6 +97,8 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         public DbSet<DmRunStatusModel> DmRunStatusModels { get; set; }
         public DbSet<DmTimeLogModel> DmTimeLogModels { get; set; }
 
+        public DbSet<LogRequest> DmLogs { get; set; }
+
         #region Charges Entity Specific
         /// <summary>
         /// Extract the data migration charges entities

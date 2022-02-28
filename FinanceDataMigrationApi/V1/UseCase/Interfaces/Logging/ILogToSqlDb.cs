@@ -1,10 +1,10 @@
-using Elasticsearch.Net.Specification.SecurityApi;
-using FinanceDataMigrationApi.V1.Domain.Logging;
+using System.Threading.Tasks;
+using FinanceDataMigrationApi.V1.Infrastructure.Entities;
 
 namespace FinanceDataMigrationApi.V1.UseCase.Interfaces.Logging
 {
     public interface ILogToSqlDb
     {
-        public void ExecuteAsync(LogRequest request);
+        public Task ExecuteAsync(LogRequest request);
     }
 }
