@@ -18,11 +18,14 @@
       <Compile Remove="V1\Gateways\Interfaces\IExampleDynamoGateway.cs" />
       <Compile Remove="V1\Gateways\Interfaces\IExampleGateway.cs" />
       <Compile Remove="V1\Gateways\Interfaces\IMigrationRunDynamoGateway.cs" />
+      <Compile Remove="V1\Infrastructure\DMDetailedChargesEntity.cs" />
       <Compile Remove="V1\Infrastructure\MigrationRunDbEntity.cs" />
       <Compile Remove="V1\UseCase\GetAllUseCase.cs" />
       <Compile Remove="V1\UseCase\GetMigrationRunByEntityNameUseCase.cs" />
       <Compile Remove="V1\UseCase\GetMigrationRunByIdUseCase.cs" />
       <Compile Remove="V1\UseCase\GetMigrationRunListUseCase.cs" />
+      <Compile Remove="V1\UseCase\Interfaces\ITransformChargeEntityUseCase.cs" />
+      <Compile Remove="V1\UseCase\TransformChargeEntityUseCase.cs" />
       <Compile Remove="V1\UseCase\UpdateUseCase.cs" />
     </ItemGroup>
 
@@ -37,25 +40,36 @@
     <PackageReference Include="AWSXRayRecorder.Handlers.AwsSdk" Version="2.8.2" />
     <PackageReference Include="AWSXRayRecorder.Handlers.EntityFramework" Version="1.1.0" />
     <PackageReference Include="EFCore.BulkExtensions" Version="5.3.8" />
+    <PackageReference Include="Hackney.Core.Authorization" Version="1.66.0" />
     <PackageReference Include="Hackney.Core.DynamoDb" Version="1.51.0" />
+    <PackageReference Include="Hackney.Core.ElasticSearch" Version="1.49.0" />
     <PackageReference Include="Hackney.Core.HealthCheck" Version="1.49.0" />
+    <PackageReference Include="Hackney.Core.JWT" Version="1.66.0" />
     <PackageReference Include="Hackney.Core.Logging" Version="1.49.0" />
     <PackageReference Include="Hackney.Core.Middleware" Version="1.49.0" />
     <PackageReference Include="Hackney.Core.Validation" Version="1.56.0" />
-    <PackageReference Include="Hackney.Shared.Person" Version="0.10.0" />
+    <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.24.0" />
+    <PackageReference Include="Hackney.Shared.Person" Version="0.11.0" />
     <PackageReference Include="Hackney.Shared.Tenure" Version="0.9.0" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.HealthChecks" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="4.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="4.1.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.9" />
+    <PackageReference Include="Microsoft.Net.Compilers" Version="4.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="5.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.4.1" />
     <PackageReference Include="NEST" Version="7.15.0" />
-    <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.22.0" />
+    <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.25.0" />
   </ItemGroup>
 
   <ItemGroup>

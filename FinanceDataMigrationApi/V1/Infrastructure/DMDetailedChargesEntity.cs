@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using FinanceDataMigrationApi.V1.Domain;
@@ -6,8 +7,16 @@ using FinanceDataMigrationApi.V1.Domain;
 namespace FinanceDataMigrationApi.V1.Infrastructure
 {
     [Table("DMDetailedChargesEntity")]
-    public class DMDetailedChargesEntity
+    public class DmDetailedChargesEntity
     {
+        [Key]
+        [Column("id")]
+        public static Guid Id  => Guid.NewGuid();
+
+        [ForeignKey("id_dynamodb")]
+        [Column("charge_id")]
+        public Guid ChargeId { get; set; }
+
         [Column("payment_reference")]
         public string PaymentReference { get; set; }
 

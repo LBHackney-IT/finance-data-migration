@@ -6,6 +6,6 @@ namespace FinanceDataMigrationApi.V1.UseCase.Interfaces
 {
     public interface IAssetGetAllUseCase
     {
-        public Task<APIResponse<GetAssetListResponse>> ExecuteAsync(string lastHintStr);
+        public Task<APIResponse<GetAssetListResponse>> ExecuteAsync(int count, string lastHint);
     }
 }

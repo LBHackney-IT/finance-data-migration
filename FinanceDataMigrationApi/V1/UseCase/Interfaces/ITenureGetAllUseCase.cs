@@ -7,6 +7,6 @@ namespace FinanceDataMigrationApi.V1.UseCase.Interfaces
 {
     public interface ITenureGetAllUseCase
     {
-       public Task<TenurePaginationResponse> ExecuteAsync(Dictionary<string, AttributeValue> lastEvaluatedKey);
+        public Task<TenurePaginationResponse> ExecuteAsync(int count, Dictionary<string, AttributeValue> lastEvaluatedKey);
     }
 }

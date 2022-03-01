@@ -1,28 +1,17 @@
 service: finance-data-migration-api
 provider:
   name: aws
+  timeout: 300
   runtime: dotnetcore3.1
-  memorySize: 2048
-  tracing:
-    lambda: true
-    apiGateway: true
   vpc: ${self:custom.vpc.${opt:stage}}
   stage: ${opt:stage}
-  # TODO: Enable this line if DynamoDb is in use
-  account: ${opt:account}
   region: eu-west-2
-  apiKeys:
-    - secureAccess:
-      - api-key-${self:service}-${self:provider.stage}
-  usagePlan:
-    - secureAccess:
-        throttle:
-          burstLimit: 200
-          rateLimit: 100
+
   environment:
-    CONNECTION_STRING: Data Source=${ssm:/finance-data-migration/${self:provider.stage}/db-host},${ssm:/finance-data-migration/${self:provider.stage}/db-port};Initial Catalog=${ssm:/finance-data-migration/${self:provider.stage}/db-database};Integrated Security=False;User Id=${ssm:/finance-data-migration/${self:provider.stage}/db-username};Password=${ssm:/finance-data-migration/${self:provider.stage}/db-password};Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;
+    CONNECTION_STRING: Data Source=${ssm:/housing-finance/${self:provider.stage}/db-host},${ssm:/housing-finance/${self:provider.stage}/db-port};Initial Catalog=${ssm:/housing-finance/${self:provider.stage}/db-database};Integrated Security=False;User Id=${ssm:/housing-finance/${self:provider.stage}/db-username};Password=${ssm:/housing-finance/${self:provider.stage}/db-password};Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;
     WAIT_DURATION: ${ssm:/finance-data-migration/${self:provider.stage}/step-function-wait-duration}
     BATCH_SIZE: ${ssm:/finance-data-migration/${self:provider.stage}/bulk-insert-batch-size}
+    LOAD_COUNT: ${ssm:/finance-data-migration/${self:provider.stage}/scan-limit}
     ACCEPTED_ORIGINS: ${ssm:/finance-data-migration/${self:provider.stage}/cors-accepted-origins}
     FINANCIAL_TRANSACTION_API_URL: ${ssm:/housing-finance/${self:provider.stage}/financial-transaction-api-url}
     FINANCIAL_TRANSACTION_API_TOKEN: ${ssm:/housing-finance/${self:provider.stage}/financial-transaction-api-token}
@@ -30,6 +19,12 @@ provider:
     SEARCH_API_TOKEN: ${ssm:/housing-finance/${self:provider.stage}/search-api-key}
     PERSON_API_URL: ${ssm:/housing-tl/${self:provider.stage}/person-api-url}
     PERSON_API_TOKEN: ${ssm:/housing-tl/${self:provider.stage}/person-token}
+    REQUIRED_GOOGL_GROUPS: ${ssm:/housing-finance/${self:provider.stage}/authorization/required-google-groups}
+    ASSET_DOWNLOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/asset-download-batch-size}
+    TENURE_DOWNLOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/tenure-download-batch-size}
+    CHARGE_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/charge-load-batch-size}
+    TRANSACTION_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/transaction-load-batch-size}
+    ACCOUNT_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/account-load-batch-size}
 package:
   artifact: ./bin/release/netcoreapp3.1/finance-data-migration-api.zip
 
@@ -38,7 +33,6 @@ functions:
     name: ${self:service}-${self:provider.stage}
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.LambdaEntryPoint::FunctionHandlerAsync
     role: lambdaExecutionRole
-    environment:
     events:
       - http:
           path: /{proxy+}
@@ -55,26 +49,439 @@ functions:
               - X-Amz-User-Agent
               - x-correlation-id
             allowCredentials: false
+  downloadTenureToIfs:
+    name: ${self:service}-${self:provider.stage}-download-tenure
+    description: "The scheduler to download tenure data for migration of accoutn and transaction entities. Run at 12:15 AM"
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::DownloadTenureToIfs
+    reservedConcurrency: 1
+    role: lambdaExecutionRole
+  downloadAssetToIfs:
+    name: ${self:service}-${self:provider.stage}-download-assets
+    description: "The scheduler to download asset data for migration of charges entities. by calling Asset elastic search endpoint."
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::DownloadAssetToIfs
+    reservedConcurrency: 1
+    role: lambdaExecutionRole
+  loadCharge:
+    name: ${self:service}-${self:provider.stage}-load-charge
+    description: "The scheduler to load charge data for migration of charge entity. Run at 12:15 AM"
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::LoadCharge
+    reservedConcurrency: 1
+    role: lambdaExecutionRole
+  extractCharge:
+    name: ${self:service}-${self:provider.stage}-extract-charge
+    description: "The scheduler to extract charge data for migration of charge entity. Run at 12:15 AM"
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::ExtractCharge
+    reservedConcurrency: 1
+    role: lambdaExecutionRole
   extractTransactions:
     name: ${self:service}-${self:provider.stage}-extract-transactions
-    description: "The scheduler to extract source data for migration of Transaction entity. Run at 12:15 AM"
+    description: "The scheduler to extract Transaction entity data to be migrated. "
     timeout: 900
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::ExtractTransactions
-    role: lambdaExecutionRole
-    events:
-        - schedule: cron(15 0 * * ? *)   
-  transformTransactions:
-    name: ${self:service}-${self:provider.stage}-transform-transactions
-    description: "The scheduler to transform the extracted Transaction entity data to be migrated. "
-    timeout: 900
-    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::TransformTransactions  
+    reservedConcurrency: 1
     role: lambdaExecutionRole
   loadTransactions:
     name: ${self:service}-${self:provider.stage}-load-transactions
     description: "The scheduler to load the transformed Transaction entity data to the final solution. "
     timeout: 900
-    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::LoadTransactions  
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::LoadTransactions
+    reservedConcurrency: 1
     role: lambdaExecutionRole
+  extractAccount:
+    name: ${self:service}-${self:provider.stage}-extract-accounts
+    description: "The scheduler to extract the transformed Account entity data to the final solution. "
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::ExtractAccount
+    reservedConcurrency: 1
+    role: lambdaExecutionRole
+  loadAccount:
+    name: ${self:service}-${self:provider.stage}-load-accounts
+    description: "The scheduler to load the extracted Account entity data to the final solution. "
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::LoadAccount
+    reservedConcurrency: 1
+    role: lambdaExecutionRole
+  deleteAccount:
+    name: ${self:service}-${self:provider.stage}-delete-accounts
+    description: "The scheduler to delete the loaded Account entity data in FFS"
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::DeleteAccount
+    reservedConcurrency: 1
+    role: lambdaExecutionRole
+  deleteTransaction:
+    name: ${self:service}-${self:provider.stage}-delete-transactions
+    description: "The scheduler to delete the loaded Transaction entity data in FFS"
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::DeleteTransaction
+    reservedConcurrency: 1
+    role: lambdaExecutionRole
+stepFunctions:
+  stateMachines:
+    downloadingAsset:
+      name: DmDownloadingAsset
+      events:
+        - schedule: cron(59 23 * * ? *)
+      definition:
+        Comment: "Download asset information by calling asset information elastic get batch endpoint."
+        StartAt: DownloadAssetToIfs
+        States:
+          DownloadAssetToIfs:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [downloadAssetToIfs, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: Wait_1
+          Wait_1:
+              Type: Wait
+              TimestampPath: $.NextStepTime
+              Next: Choice_1
+          Choice_1:
+            Type: Choice
+            Choices:
+              - Variable: $.Continue
+                BooleanEquals: true
+                Next: DownloadAssetToIfs
+              - Variable: $.Continue
+                BooleanEquals: false
+                Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
+    downloadTenureToIfs:
+      name: DmDownloadingTenure
+      events:
+        - schedule: cron(59 23 * * ? *)
+      definition:
+        Comment: "Download tenure information by scanning tenure information dynamodb table."
+        StartAt: DownloadTenureToIfs
+        States:
+          DownloadTenureToIfs:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [downloadTenureToIfs, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: Wait_1
+          Wait_1:
+              Type: Wait
+              TimestampPath: $.NextStepTime
+              Next: Choice_1
+          Choice_1:
+            Type: Choice
+            Choices:
+              - Variable: $.Continue
+                BooleanEquals: true
+                Next: DownloadTenureToIfs
+              - Variable: $.Continue
+                BooleanEquals: false
+                Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
+    extractCharge:
+      name: DmExtractCharge
+      events:
+        - schedule: cron(59 23 * * ? *)
+      definition:
+        Comment: "Extracting charge entity to save them into the FFS."
+        StartAt: ExtractCharge
+        States:
+          ExtractCharge:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [extractCharge, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
+    loadCharge:
+      name: DmLoadCharge
+      events:
+        - schedule: cron(0/2 * * * ? *)
+      definition:
+        Comment: "Save the loaded charges data into charge dynamodb collection in FFS."
+        StartAt: LoadCharge
+        States:
+          LoadCharge:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [loadCharge, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: Wait_1
+          Wait_1:
+              Type: Wait
+              TimestampPath: $.NextStepTime
+              Next: Choice_1
+          Choice_1:
+            Type: Choice
+            Choices:
+              - Variable: $.Continue
+                BooleanEquals: true
+                Next: LoadCharge
+              - Variable: $.Continue
+                BooleanEquals: false
+                Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
+    extractTransactions:
+      name: DmExtractTransactions
+      events:
+        - schedule: cron(59 23 * * ? *)
+      definition:
+        Comment: "Extracting transaction entity to save them into the FFS."
+        StartAt: ExtractTransactions
+        States:
+          ExtractTransactions:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [extractTransactions, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
+    loadTransactions:
+      name: DmLoadTransactions
+      events:
+        - schedule: cron(0/2 * * * ? *)
+      definition:
+        Comment: "Save the loaded transactions data into transaction dynamodb collection in FFS."
+        StartAt: LoadTransactions
+        States:
+          LoadTransactions:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [loadTransactions, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: Wait_1
+          Wait_1:
+              Type: Wait
+              TimestampPath: $.NextStepTime
+              Next: Choice_1
+          Choice_1:
+            Type: Choice
+            Choices:
+              - Variable: $.Continue
+                BooleanEquals: true
+                Next: LoadTransactions
+              - Variable: $.Continue
+                BooleanEquals: false
+                Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
+    deleteTransaction:
+      name: DmDeleteTransaction
+      events:
+        - schedule: cron(0/2 * * * ? *)
+      definition:
+        Comment: "Delete the transactions data in FFS."
+        StartAt: DeleteTransaction
+        States:
+          DeleteTransaction:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [deleteTransaction, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: Wait_1
+          Wait_1:
+              Type: Wait
+              TimestampPath: $.NextStepTime
+              Next: Choice_1
+          Choice_1:
+            Type: Choice
+            Choices:
+              - Variable: $.Continue
+                BooleanEquals: true
+                Next: DeleteTransaction
+              - Variable: $.Continue
+                BooleanEquals: false
+                Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
+    extractAccount:
+      name: DmExtractAccount
+      events:
+        - schedule: cron(59 23 * * ? *)
+      definition:
+        Comment: "Extracting account entity to save them into the FFS."
+        StartAt: ExtractAccount
+        States:
+          ExtractAccount:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [extractAccount, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
+    loadAccount:
+      name: DmLoadAccount
+      events:
+        - schedule: cron(0/2 * * * ? *)
+      definition:
+        Comment: "Save the loaded accounts data into account dynamodb collection in FFS."
+        StartAt: LoadAccount
+        States:
+          LoadAccount:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [loadAccount, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: Wait_1
+          Wait_1:
+              Type: Wait
+              TimestampPath: $.NextStepTime
+              Next: Choice_1
+          Choice_1:
+            Type: Choice
+            Choices:
+              - Variable: $.Continue
+                BooleanEquals: true
+                Next: LoadAccount
+              - Variable: $.Continue
+                BooleanEquals: false
+                Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
+    deleteAccount:
+      name: DmDeleteAccount
+      events:
+        - schedule: cron(0/2 * * * ? *)
+      definition:
+        Comment: "Delete the accounts data in FFS."
+        StartAt: DeleteAccount
+        States:
+          DeleteAccount:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [deleteAccount, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: Wait_1
+          Wait_1:
+              Type: Wait
+              TimestampPath: $.NextStepTime
+              Next: Choice_1
+          Choice_1:
+            Type: Choice
+            Choices:
+              - Variable: $.Continue
+                BooleanEquals: true
+                Next: DeleteAccount
+              - Variable: $.Continue
+                BooleanEquals: false
+                Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
 resources:
   Resources:
     lambdaExecutionRole:
@@ -127,20 +534,160 @@ resources:
                   Action:
                     - "lambda:InvokeFunction"
                   Resource: "*"
+          - PolicyName: transactionsDynamoDBAccess
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - "dynamodb:BatchGet*"
+                    - "dynamodb:PutItem*"
+                    - "dynamodb:DescribeStream"
+                    - "dynamodb:DescribeTable"
+                    - "dynamodb:DeleteItem"
+                    - "dynamodb:UpdateItem"
+                    - "dynamodb:Get*"
+                    - "dynamodb:Query"
+                    - "dynamodb:Scan"
+                  Resource:
+                    - 'Fn::Join':
+                        - ':'
+                        - - 'arn:aws:dynamodb'
+                          - Ref: 'AWS::Region'
+                          - Ref: 'AWS::AccountId'
+                          - 'table/Transactions'
+                    - 'Fn::Join':
+                        - ':'
+                        - - 'arn:aws:dynamodb'
+                          - Ref: 'AWS::Region'
+                          - Ref: 'AWS::AccountId'
+                          - 'table/Transactions/index/*'
+                - Effect: Allow
+                  Action:
+                    - "dynamodb:Query"
+                    - "dynamodb:Scan"
+                  Resource:
+                    - 'Fn::Join':
+                        - ':'
+                        - - 'arn:aws:dynamodb'
+                          - Ref: 'AWS::Region'
+                          - Ref: 'AWS::AccountId'
+                          - 'table/Transactions/index/*'
+          - PolicyName: accountDynamoDBAccess
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - "dynamodb:BatchGet*"
+                    - "dynamodb:PutItem*"
+                    - "dynamodb:DescribeStream"
+                    - "dynamodb:DescribeTable"
+                    - "dynamodb:DeleteItem"
+                    - "dynamodb:UpdateItem"
+                    - "dynamodb:Get*"
+                    - "dynamodb:Query"
+                    - "dynamodb:Scan"
+                  Resource:
+                    - 'Fn::Join':
+                        - ':'
+                        - - 'arn:aws:dynamodb'
+                          - Ref: 'AWS::Region'
+                          - Ref: 'AWS::AccountId'
+                          - 'table/Accounts'
+                - Effect: Allow
+                  Action:
+                    - "dynamodb:Query"
+                    - "dynamodb:Scan"
+                  Resource:
+                    - 'Fn::Join':
+                        - ':'
+                        - - 'arn:aws:dynamodb'
+                          - Ref: 'AWS::Region'
+                          - Ref: 'AWS::AccountId'
+                          - 'table/Accounts/index/*'
+          - PolicyName: chargesDynamoDBAccess
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - "dynamodb:BatchGet*"
+                    - "dynamodb:PutItem*"
+                    - "dynamodb:DescribeStream"
+                    - "dynamodb:DescribeTable"
+                    - "dynamodb:DeleteItem"
+                    - "dynamodb:UpdateItem"
+                    - "dynamodb:Get*"
+                    - "dynamodb:Query"
+                    - "dynamodb:Scan"
+                  Resource:
+                    - 'Fn::Join':
+                        - ':'
+                        - - 'arn:aws:dynamodb'
+                          - Ref: 'AWS::Region'
+                          - Ref: 'AWS::AccountId'
+                          - 'table/Charges'
+                - Effect: Allow
+                  Action:
+                    - dynamodb:Query
+                    - dynamodb:Scan
+                  Resource:
+                    - 'Fn::Join':
+                        - ':'
+                        - - 'arn:aws:dynamodb'
+                          - Ref: 'AWS::Region'
+                          - Ref: 'AWS::AccountId'
+                          - 'table/Charges/index/*'
+          - PolicyName: tenureinformationDBAccess
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - "dynamodb:BatchGet*"
+                    - "dynamodb:DescribeStream"
+                    - "dynamodb:DescribeTable"
+                    - "dynamodb:Get*"
+                    - "dynamodb:Query"
+                    - "dynamodb:Scan"
+                  Resource:
+                    - 'Fn::Join':
+                        - ':'
+                        - - 'arn:aws:dynamodb'
+                          - Ref: 'AWS::Region'
+                          - Ref: 'AWS::AccountId'
+                          - 'table/TenureInformation'
+                - Effect: Allow
+                  Action:
+                    - dynamodb:Query
+                    - dynamodb:Scan
+                  Resource:
+                    - 'Fn::Join':
+                        - ':'
+                        - - 'arn:aws:dynamodb'
+                          - Ref: 'AWS::Region'
+                          - Ref: 'AWS::AccountId'
+                          - 'table/TenureInformation/index/*'
 custom:
   vpc:
     development:
+      securityGroupIds:
+        - sg-0b1844c4c2d5096a2
       subnetIds:
-        - subnet-0deabb5d8fb9c3446
-        - subnet-000b89c249f12a8ad
+        - subnet-0140d06fb84fdb547
+        - subnet-05ce390ba88c42bfd
     staging:
+      securityGroupIds:
+        - sg-00c197e980177983d
       subnetIds:
-        - subnet-06d3de1bd9181b0d7
-        - subnet-0ed7d7713d1127656
+        - subnet-0743d86e9b362fa38
+        - subnet-0ea0020a44b98a2ca
     production:
+      securityGroupIds:
+        - sg-02a377899622e884c
       subnetIds:
-        - subnet-01d3657f97a243261
-        - subnet-0b7b8fea07efabf34
-
+        - subnet-0beb266003a56ca82
+        - subnet-06a697d86a9b6ed01
 plugins:
   - serverless-step-functions

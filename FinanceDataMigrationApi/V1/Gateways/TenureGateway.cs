@@ -4,28 +4,30 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
+using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using Hackney.Shared.Tenure.Domain;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+using Hackney.Shared.Tenure.Factories;
+using Hackney.Shared.Tenure.Infrastructure;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
     public class TenureGateway : ITenureGateway
     {
-        private readonly DatabaseContext _dbContext;
-        private readonly IAmazonDynamoDB _dynamoDb;
-        private readonly ILogger<ITenureGateway> _logger;
+        readonly DatabaseContext _dbContext;
+        readonly IAmazonDynamoDB _dynamoDb;
+        readonly IDynamoDBContext _dynamoDbContext;
 
-        public TenureGateway(DatabaseContext dbContext, IAmazonDynamoDB dynamoDb, ILogger<ITenureGateway> logger)
+        public TenureGateway(DatabaseContext dbContext, IAmazonDynamoDB dynamoDb, IDynamoDBContext dynamoDbContext)
         {
             _dbContext = dbContext;
             _dynamoDb = dynamoDb;
-            _logger = logger;
+            _dynamoDbContext = dynamoDbContext;
         }
 
         public async Task<List<TenureInformation>> GetByPrnAsync(string prn)
@@ -40,9 +42,14 @@ namespace FinanceDataMigrationApi.V1.Gateways
             throw new NotImplementedException();
         }
 
+        public async Task<TenureInformation> GetByIdAsync(Guid id)
+        {
+            var result = await _dynamoDbContext.LoadAsync<TenureInformationDb>(id).ConfigureAwait(false);
+            return result.ToDomain();
+        }
+
         public async Task<bool> BatchInsert(List<TenureInformation> tenures)
         {
-            bool result = false;
             List<TransactWriteItem> actions = new List<TransactWriteItem>();
             foreach (TenureInformation tenure in tenures)
             {
@@ -66,54 +73,43 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 ReturnConsumedCapacity = ReturnConsumedCapacity.TOTAL
             };
 
-            try
-            {
-                await _dynamoDb.TransactWriteItemsAsync(placeOrderTransaction).ConfigureAwait(false);
-                result = true;
-            }
-            catch (ResourceNotFoundException rnf)
-            {
-                _logger.LogDebug($"One of the table involved in the transaction is not found: {rnf.Message}");
-            }
-            catch (InternalServerErrorException ise)
-            {
-                _logger.LogDebug($"Internal Server Error: {ise.Message}");
-            }
-            catch (TransactionCanceledException tce)
-            {
-                _logger.LogDebug($"Transaction Canceled: {tce.Message}");
-            }
-
-            return result;
+            await _dynamoDb.TransactWriteItemsAsync(placeOrderTransaction).ConfigureAwait(false);
+            return true;
         }
 
-        public async Task<TenurePaginationResponse> GetAll(Dictionary<string, AttributeValue> lastEvaluatedKey=null)
+        public async Task<TenurePaginationResponse> GetAll(int count, Dictionary<string, AttributeValue> lastEvaluatedKey = null)
         {
-            ScanRequest request = new ScanRequest("TenureInformation")
+            try
             {
-                Limit = 1000,
-                ExclusiveStartKey = lastEvaluatedKey
-            };
-            ScanResponse response =await _dynamoDb.ScanAsync(request).ConfigureAwait(false);
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenureGateway");
+                ScanRequest request = new ScanRequest("TenureInformation")
+                {
+                    Limit = count,
+                    ExclusiveStartKey = lastEvaluatedKey
+                };
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenureGateway starts scan");
+                ScanResponse response = await _dynamoDb.ScanAsync(request).ConfigureAwait(false);
+                if (response == null || response.Items == null || response.Items.Count == 0)
+                    throw new Exception($"_dynamoDb.ScanAsync results NULL: {response?.ToString()}");
 
-            return new TenurePaginationResponse()
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenureGateway fills response");
+                return new TenurePaginationResponse()
+                {
+                    LastKey = response?.LastEvaluatedKey,
+                    TenureInformation = response?.ToTenureInformation()?.ToList()
+                };
+            }
+            catch (Exception ex)
             {
-                LastKey = response.LastEvaluatedKey,
-                TenureInformation = response.ToTenureInformation().ToList()
-            };
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: Exception: {ex.Message}");
+                LoggingHandler.LogError(ex.StackTrace);
+                throw;
+            }
         }
 
         public Task<int> SaveTenuresIntoSql(string lastHint, XElement xml)
         {
             return _dbContext.InsertDynamoTenure(lastHint, xml);
-        }
-
-        public async Task<Guid> GetLastHint()
-        {
-            var result = await _dbContext.DmDynamoLastHInt
-                .Where(p => p.TableName.ToLower() == "tenure")
-                .OrderBy(p => p.Timex).LastOrDefaultAsync().ConfigureAwait(false);
-            return result?.Id ?? Guid.Empty;
         }
     }
 }

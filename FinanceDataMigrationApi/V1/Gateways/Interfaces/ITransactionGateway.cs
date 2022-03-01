@@ -1,14 +1,16 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Hackney.Shared.HousingSearch.Domain.Transactions;
+using FinanceDataMigrationApi.V1.Domain;
 
 namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
 {
     public interface ITransactionGateway
     {
-        public Task<int> UpdateTransactionItems(IList<Transaction> items);
-        public Task UpdateTransaction(Transaction transaction);
-        Task<bool> BatchInsert(List<Transaction> transactions);
-
+        public Task<int> ExtractAsync();
+        public Task<IList<DmTransaction>> GetExtractedListAsync(int count);
+        public Task BatchInsert(List<DmTransaction> transactions);
+        public Task BatchDelete(List<DmTransaction> transactions);
+        public Task<List<DmTransaction>> GetLoadedListForDeleteAsync(int count);
+        public Task<List<DmTransaction>> GetToBeDeletedListForDeleteAsync(int count);
     }
 }

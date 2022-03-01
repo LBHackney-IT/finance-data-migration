@@ -3,7 +3,10 @@ using System.Linq;
 using System.Xml.Linq;
 using Hackney.Shared.Tenure.Domain;
 using Amazon.DynamoDBv2.Model;
-using Hackney.Shared.HousingSearch.Domain.Asset;
+using FinanceDataMigrationApi.V1.Handlers;
+using System;
+using FinanceDataMigrationApi.V1.Domain.Accounts;
+using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
 
 namespace FinanceDataMigrationApi.V1.Factories
 {
@@ -12,22 +15,32 @@ namespace FinanceDataMigrationApi.V1.Factories
 
         public static XElement ToXElement(this List<TenureInformation> tenures)
         {
-            var xEle = new XElement("Tenures",
-                tenures.Select(a => new XElement("Tenure",
-                    new XElement("id", a.Id),
-                    new XElement("payment_reference", a.PaymentReference),
-                    new XElement("tenure_type_code", a.TenureType.Code),
-                    new XElement("tenure_type_desc", a.TenureType.Description),
-                    new XElement("tenured_asset_full_address", a.TenuredAsset.FullAddress),
-                    a.HouseholdMembers?.Select(h =>
-                        new XElement("HouseHoldMembers",
-                            new XElement("id", h.Id),
-                            new XElement("fullname", h.FullName),
-                            new XElement("is_responsible", h.IsResponsible))
-                    )
-                )));
+            try
+            {
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ToXElement)}: Converting list to XML.");
+                var xEle = new XElement("Tenures",
+                    tenures.Select(a => new XElement("Tenure",
+                        new XElement("id", a.Id),
+                        new XElement("payment_reference", a.PaymentReference?.Replace("'", "''")),
+                        new XElement("tenure_type_code", a.TenureType?.Code?.Replace("'", "''")),
+                        new XElement("tenure_type_desc", a.TenureType?.Description?.Replace("'", "''")),
+                        new XElement("tenured_asset_full_address", a.TenuredAsset?.FullAddress?.Replace("'", "''")),
+                        new XElement("terminated_reason_code", a.Terminated?.ReasonForTermination?.Replace("'", "''")),
+                        a.HouseholdMembers?.Select(h =>
+                            new XElement("HouseHoldMembers",
+                                new XElement("id", h.Id),
+                                new XElement("fullname", h.FullName?.Replace("'", "''")),
+                                new XElement("is_responsible", h.IsResponsible))
+                        ).Take(100) // ignore loading fake number of data due inserting to IFS Exception
+                    )));
 
-            return xEle;
+                return xEle;
+            }
+            catch (Exception ex)
+            {
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(ToXElement)}: xml Converting error: {ex.Message}.");
+                throw;
+            }
         }
 
         public static Dictionary<string, AttributeValue> ToQueryRequest(this TenureInformation tenure)
@@ -79,6 +92,21 @@ namespace FinanceDataMigrationApi.V1.Factories
                 },
 
                 {"paymentReference", new AttributeValue {S = tenure.PaymentReference.ToString()}}
+            };
+        }
+
+        public static DmTenure ToDomain(this DmTenureDbEntity dbEntity)
+        {
+            return dbEntity == null ? null : new DmTenure
+            {
+                PaymentReference = dbEntity.PaymentReference,
+                PrimaryTenants = dbEntity.PrimaryTenants?.Select(p => p.ToDomain()).ToList(),
+                TenureTypeCode = dbEntity.TenureTypeCode,
+                TenureTypeDesc = dbEntity.TenureTypeDesc,
+                FullAddress = dbEntity.FullAddress,
+                Id = dbEntity.Id,
+                TerminatedReasonCode = dbEntity.TerminatedReasonCode,
+                Timex = dbEntity.Timex
             };
         }
     }

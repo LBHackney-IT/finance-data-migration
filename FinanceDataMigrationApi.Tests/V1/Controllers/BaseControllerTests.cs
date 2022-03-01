@@ -1,20 +1,10 @@
-using System.Collections.Generic;
-using FinanceDataMigrationApi.V1.Controllers;
-using FinanceDataMigrationApi.V1.Infrastructure;
-using FluentAssertions;
-using Hackney.Core.Middleware;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Routing;
 //using NUnit.Framework;
-using Xunit;
 
 namespace FinanceDataMigrationApi.Tests.V1.Controllers
 {
     public class BaseControllerTests
     {
-        private BaseController _sut;
+        /*private BaseController _sut;
         private ControllerContext _controllerContext;
         private HttpContext _stubHttpContext;
 
@@ -47,6 +37,6 @@ namespace FinanceDataMigrationApi.Tests.V1.Controllers
 
             // Assert
             result.Should().BeEquivalentTo("123");
-        }
+        }*/
     }
 }

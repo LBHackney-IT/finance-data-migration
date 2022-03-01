@@ -6,33 +6,50 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using FinanceDataMigrationApi.V1.Handlers;
+using FinanceDataMigrationApi.V1.Infrastructure.Entities;
+using FinanceDataMigrationApi.V1.Infrastructure.Enums;
+using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
+using FinanceDataMigrationApi.V1.Infrastructure.Extensions;
 
 namespace FinanceDataMigrationApi.V1.Infrastructure
 {
     /// <summary>
-    /// The database context class.
+    /// The database context class to work with transactions, accounts, charges, assets, tenures entities.
     /// </summary>
     /// <seealso cref="DbContext" />
-    public class DatabaseContext : DbContext
+    public sealed class DatabaseContext : DbContext
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.BalanceAmount).HasColumnType("decimal");
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.ChargedAmount).HasColumnType("decimal");
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.HousingBenefitAmount).HasColumnType("decimal");
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PaidAmount).HasColumnType("decimal");
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PeriodNo).HasColumnType("decimal");
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.TransactionAmount).HasColumnType("decimal");
-            modelBuilder.Entity<DMTransactionEntity>().Property(x => x.TargetId).HasDefaultValueSql("NEWID()");
-            modelBuilder.Entity<DMDetailedChargesEntity>().HasNoKey();
-        }
+            modelBuilder.HasDefaultSchema("dbo");
+            modelBuilder.Entity<DmTransactionDbEntity>().Property(x => x.TargetId).HasDefaultValueSql("NEWID()");
+            modelBuilder.Entity<DmDetailedChargesDbEntity>()
+                .HasOne(c => c.ChargesDbEntity)
+                .WithMany(c => c.DetailedChargesDbEntities)
+                .HasForeignKey(c => c.ChargeId);
 
+            modelBuilder.Entity<DmConsolidatedChargeDbEntity>()
+                .HasOne(c => c.AccountDbEntity)
+                .WithMany(c => c.ConsolidatedCharges)
+                .HasForeignKey(c => c.AccountId);
+
+            modelBuilder.Entity<DmTenureDbEntity>()
+                .HasOne(c => c.AccountDbEntity)
+                .WithOne(c => c.Tenure)
+                .HasForeignKey<DmAccountDbEntity>(a => a.TargetId);
+
+            modelBuilder.Entity<DMPrimaryTenantsDbEntity>()
+                .HasOne(c => c.TenureDbEntity)
+                .WithMany(p => p.PrimaryTenants)
+                .HasForeignKey(c => c.TenureId);
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DatabaseContext"/> class.
         /// </summary>
         /// <param name="options">The options for this context.</param>
-        public DatabaseContext(DbContextOptions options)
+        public DatabaseContext(DbContextOptions<DatabaseContext> options)
             : base(options)
         {
         }
@@ -47,104 +64,44 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         /// <summary>
         /// Get or sets the Data Migration Transaction Entities
         /// </summary>
-        public DbSet<DMTransactionEntity> DMTransactionEntities { get; set; }
+        public DbSet<DmTransactionDbEntity> TransactionEntities { get; set; }
 
         /// <summary>
         /// Get or sets the Data Migration Charge Entity
         /// </summary>
-        public DbSet<DMChargesEntity> DMChargeEntities { get; set; }
+        public DbSet<DmChargesDbEntity> ChargesDbEntities { get; set; }
 
         /// <summary>
         /// Get Data Migration Detailed Charges Entities
         /// </summary>
-        public DbSet<DMDetailedChargesEntity> DMDetailedChargesEntities { get; set; }
-
-
-        #region Charges Entity Specific
-
+        public DbSet<DmDetailedChargesDbEntity> DetailedChargesEntities { get; set; }
 
         /// <summary>
-        /// Get the Data Migration Charge Entities
+        /// Get or sets the Data Migration Account Entities
         /// </summary>
-        /// <returns>The Transactions to migrate</returns>
-        public async Task<IList<DMChargesEntity>> GetDMChargeEntitiesAsync()
-            => await DMChargeEntities
-                .Where(x => x.IsTransformed == false)
-                .ToListAsync()
-                .ConfigureAwait(false);
+        public DbSet<DmAccountDbEntity> AccountDbEntities { get; set; }
+        public DbSet<DmConsolidatedChargeDbEntity> ConsolidatedChargeDbEntities { get; set; }
 
+        public DbSet<DmRunStatusModel> DmRunStatusModels { get; set; }
+        public DbSet<DmTimeLogModel> DmTimeLogModels { get; set; }
 
+        #region Charges Entity Specific
         /// <summary>
         /// Extract the data migration charges entities
         /// </summary>
         /// <returns>the charges to migrate</returns>
-        public async Task<int> ExtractDMChargesAsync()
+        public async Task<int> ExtractDmChargesAsync()
         {
-            //TODO: StoredProc does not have processingDate parameters, need to clarify with Felipe, keep it consistent
-
             return await ExecuteStoredProcedure(
-                $"EXEC @returnValue = [dbo].[usp_ExtractChargesEntity]", 600)
+                $"EXEC @returnValue = [dbo].[usp_ExtractChargesEntity]", 6000)
                 .ConfigureAwait(false);
         }
-
-        public async Task<IList<DMChargesEntity>> GetTransformedChargeListAsync()
-            => await DMChargeEntities
-                .Where(x => x.IsTransformed && !x.IsLoaded)
-                .ToListAsync()
-                .ConfigureAwait(false);
-
-        public async Task<IList<DMChargesEntity>> GetLoadedChargeListAsync()
-            => await DMChargeEntities
-                .Where(x => x.IsTransformed && x.IsLoaded)
-                .ToListAsync()
-                .ConfigureAwait(false);
-
-        /// <summary>
-        /// Get Detailed Charge from Database Query
-        /// </summary>
-        /// <param name="paymentReference"></param>
-        /// <returns>List of Details Charges</returns>
-        /// <exception cref="Exception"></exception>
-        public async Task<List<DMDetailedChargesEntity>> GetDetailChargesListAsync(string paymentReference)
-        {
-
-            var param = new SqlParameter("@payment_reference", paymentReference.TrimEnd());
-
-            try
-            {
-                var result =  await DMDetailedChargesEntities
-                    .FromSqlRaw("[dbo].[usp_ExtractDetailedChargesEntity] @payment_reference",param)
-                    .ToListAsync()
-                    .ConfigureAwait(false);
-
-                return result;
-
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-
-        }
-
 
 
         #endregion
 
-        #region Transaction Entity Specific
-
-
-        /// <summary>
-        /// Get the Data Migration Transaction Entities.
-        /// </summary>
-        /// <returns>The Transactions to migrate.</returns>
-        public async Task<IList<DMTransactionEntity>> GetDMTransactionEntitiesAsync()
-            => await DMTransactionEntities
-                .Where(x => x.IsTransformed == false)
-                .ToListAsync()
-                .ConfigureAwait(false);
-
-        public async Task<int> InsertDynamoAsset(string lastHint,XElement xml)
+        #region Asset & Tenure
+        public async Task<int> InsertDynamoAsset(string lastHint, XElement xml)
         {
             var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_InsertDynamoAsset] '{lastHint}','{xml}'", 600).ConfigureAwait(false);
             return affectedRows;
@@ -155,42 +112,54 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
             var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_InsertDynamoTenure] '{lastHint}','{xml}'", 600).ConfigureAwait(false);
             return affectedRows;
         }
+        #endregion
 
+        #region Transaction Entity Specific
         /// <summary>
         /// Extract the data migration transaction entities.
         /// </summary>
-        /// <param name="processingDate">the processiing date.</param>
         /// <returns>the transactions to migrate.</returns>
-        //public async Task<int> ExtractDMTransactionsAsync(DateTime? processingDate)
-        public async Task<int> ExtractDMTransactionsAsync(DateTimeOffset? processingDate)
+        public async Task<int> ExtractDmTransactionsAsync()
         {
-            var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_ExtractTransactionEntity] '{processingDate:yyyy-MM-dd}'", 600).ConfigureAwait(false);
+            var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_ExtractTransactionEntity]", 600).ConfigureAwait(false);
             return affectedRows;
         }
 
-
-
-        public async Task<IList<DMTransactionEntity>> GetTransformedListAsync()
-            => await DMTransactionEntities
-                .Where(x => x.IsTransformed && !x.IsLoaded)
-                .ToListAsync()
+        public async Task<IList<DmTransactionDbEntity>> GetLoadedTransactionListAsync(int count)
+            => await TransactionEntities
+                .Where(x => x.MigrationStatus == EMigrationStatus.Loaded)
+                .Take(count)
+                .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
-        public async Task<IList<DMTransactionEntity>> GetLoadedListAsync()
-            => await DMTransactionEntities
-                .Where(x => x.IsTransformed && x.IsLoaded)
-                .ToListAsync()
+        public async Task<IList<DmTransactionDbEntity>> GetToBeDeletedTransactionListAsync(int count)
+            => await TransactionEntities
+                .Where(x => x.MigrationStatus == EMigrationStatus.ToBeDeleted)
+                .Take(count)
+                .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
         #endregion
+
+        #region Account
+        /// <summary>
+        /// Extract the data migration account entities.
+        /// </summary>
+        /// <returns>the accounts to migrate.</returns>
+        public async Task<int> ExtractDmAccountsAsync()
+        {
+            var affectedRows = await ExecuteStoredProcedure($"EXEC @returnValue = [dbo].[usp_ExtractAccountsEntity]", 600).ConfigureAwait(false);
+            return affectedRows;
+        }
+
+        #endregion
+
         private async Task<int> ExecuteStoredProcedure(string procedureRawString, int timeout = 0)
         {
             if (timeout != 0)
                 Database.SetCommandTimeout(timeout);
             try
             {
-                await Database.BeginTransactionAsync(IsolationLevel.ReadCommitted).ConfigureAwait(false);
-
                 var parameterReturn = new SqlParameter
                 {
                     ParameterName = "ReturnValue",
@@ -201,16 +170,58 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 var result = await Database.ExecuteSqlRawAsync(procedureRawString, parameterReturn).ConfigureAwait(false);
 
                 int returnValue = (int) parameterReturn.Value;
-                await Database.CommitTransactionAsync().ConfigureAwait(false);
+
                 return returnValue;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                await Database.RollbackTransactionAsync().ConfigureAwait(false);
-                throw new Exception(ex.Message);
+                LoggingHandler.LogError($"Executing stores procedure error in: " +
+                                        $"{nameof(FinanceDataMigrationApi)}." +
+                                        $"{nameof(Handler)}." +
+                                        $"{nameof(ExecuteStoredProcedure)}:{exception.GetFullMessage()}");
+                throw;
             }
         }
 
+        private async Task<int> ExecuteStoredProcedureWithReturnsResultSet(string procedureRawString, int timeout = 0)
+        {
+            if (timeout != 0)
+                Database.SetCommandTimeout(timeout);
+            try
+            {
+                var parameterReturn = new SqlParameter
+                {
+                    ParameterName = "ReturnValue",
+                    SqlDbType = SqlDbType.Int,
+                    Direction = ParameterDirection.Output,
+                };
 
+                var result = await Database.ExecuteSqlRawAsync(procedureRawString, parameterReturn).ConfigureAwait(false);
+
+                int returnValue = (int) parameterReturn.Value;
+
+                return returnValue;
+            }
+            catch (Exception exception)
+            {
+                LoggingHandler.LogError($"Executing stores procedure error in: " +
+                                        $"{nameof(FinanceDataMigrationApi)}." +
+                                        $"{nameof(Handler)}." +
+                                        $"{nameof(ExecuteStoredProcedure)}:{exception.GetFullMessage()}");
+                throw;
+            }
+        }
+
+        public static DatabaseContext Create()
+        {
+            DbContextOptionsBuilder<DatabaseContext> optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
+            var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+            if (connectionString != null)
+                optionsBuilder.UseSqlServer(connectionString);
+            else
+                throw new Exception($"Connection string is null.");
+
+            return new DatabaseContext(optionsBuilder.Options);
+        }
     }
 }

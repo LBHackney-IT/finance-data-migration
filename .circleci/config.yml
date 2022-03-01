@@ -4,6 +4,7 @@ orbs:
   aws-ecr: circleci/aws-ecr@3.0.0
   aws-cli: circleci/aws-cli@0.1.9
   aws_assume_role: lbh-hackit/aws_assume_role@0.1.0
+  aws-parameter-store: circleci/aws-parameter-store@1.0.0
 
 executors:
   docker-python:
@@ -62,8 +63,6 @@ commands:
     parameters:
       stage:
         type: string
-      aws-account:
-        type: string
     steps:
       - *attach_workspace
       - checkout
@@ -79,14 +78,17 @@ commands:
       - run:
           name: Build lambda
           command: |
-            cd ./Finance_Data_Migration_Api/
+            cd ./FinanceDataMigrationApi/
             chmod +x ./build.sh
             ./build.sh
       - run:
+          name: Install step function plugin
+          command: npm i serverless-step-functions
+      - run:
           name: Deploy lambda
           command: |
-            cd ./Finance_Data_Migration_Api/
-            sls deploy --stage <<parameters.stage>> --account <<parameters.aws-account>> --conceal
+            cd ./FinanceDataMigrationApi/
+            sls deploy --stage <<parameters.stage>> --conceal
 
 jobs:
   check-code-formatting:
@@ -145,19 +147,16 @@ jobs:
     steps:
       - deploy-lambda:
           stage: "development"
-          aws-account: $AWS_ACCOUNT_DEVELOPMENT
   deploy-to-staging:
     executor: docker-dotnet
     steps:
       - deploy-lambda:
           stage: "staging"
-          aws-account: $AWS_ACCOUNT_STAGING
   deploy-to-production:
     executor: docker-dotnet
     steps:
       - deploy-lambda:
           stage: "production"
-          aws-account: $AWS_ACCOUNT_PRODUCTION
 
 workflows:
   check-and-deploy-development:
@@ -193,11 +192,11 @@ workflows:
           context: api-nuget-token-context
       - build-and-test:
           context: api-nuget-token-context
-#           filters:
-#             branches:
-#               only: master
+          filters:
+            branches:
+              only: master
       - assume-role-staging:
-         context: api-assume-role-staging-context
+          context: api-assume-role-housing-staging-context
           requires:
               - build-and-test
           filters:
@@ -209,21 +208,21 @@ workflows:
           filters:
             branches:
               only: master
-       - deploy-to-staging:
+      - deploy-to-staging:
           context: api-nuget-token-context
           requires:
             - terraform-init-and-apply-to-staging
           filters:
             branches:
               only: master
-      - permit-production-terraform-release:
+      - permit-production-release:
           type: approval
           requires:
             - deploy-to-staging
       - assume-role-production:
-          context: api-assume-role-production-context
+          context: api-assume-role-housing-production-context
           requires:
-              - permit-production-terraform-release
+              - permit-production-release
           filters:
              branches:
                only: master
@@ -233,16 +232,8 @@ workflows:
           filters:
             branches:
               only: master
-      - permit-production-release:
-          type: approval
-          requires:
-            - deploy-to-staging
-          filters:
-            branches:
-              only: master
       - deploy-to-production:
           requires:
-            - permit-production-release
             - terraform-init-and-apply-to-production
           filters:
             branches:

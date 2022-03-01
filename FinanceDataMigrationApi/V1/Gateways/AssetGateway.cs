@@ -1,48 +1,74 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Boundary.Response.MetaData;
 using FinanceDataMigrationApi.V1.Gateways.Extensions;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
+using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
-using Microsoft.EntityFrameworkCore;
 
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
-    public class AssetGateway: IAssetGateway
+    public class AssetGateway : IAssetGateway
     {
         private readonly HttpClient _client;
         private readonly DatabaseContext _dbContext;
+        private readonly IAmazonDynamoDB _dynamoDb;
 
-        public AssetGateway(HttpClient client, DatabaseContext dbContext)
+
+        public AssetGateway(DatabaseContext dbContext, IAmazonDynamoDB dynamoDb)
         {
-            _client = client;
+            var searchApiUrl = Environment.GetEnvironmentVariable("SEARCH_API_URL") ??
+                               throw new Exception("Housing search api url is null.");
+            var searchApiToken = Environment.GetEnvironmentVariable("SEARCH_API_TOKEN") ??
+                                  throw new Exception("Housing search api token is null.");
+
+            _client = new HttpClient();
             _dbContext = dbContext;
+            _dynamoDb = dynamoDb;
+            _client.BaseAddress = new Uri(searchApiUrl);
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", searchApiToken);
         }
-        public async Task<APIResponse<GetAssetListResponse>> DownloadAsync(string lastHintStr = "")
+
+        public async Task<APIResponse<GetAssetListResponse>> DownloadAsync(int count, string lastHintStr = "")
         {
-            var uri = new Uri($"api/v1/search/assets/all?searchText=**&pageSize=5000&page=1&sortBy=id&isDesc=true&lastHitId={lastHintStr}", UriKind.Relative);
+            var uri = new Uri($"{_client.BaseAddress}/search/assets/all?searchText=**&pageSize={count}&page=1&sortBy=id&isDesc=true&lastHitId={lastHintStr}", UriKind.Absolute);
 
             var response = await _client.GetAsync(uri).ConfigureAwait(true);
             var assetsResponse = await response.ReadContentAs<APIResponse<GetAssetListResponse>>().ConfigureAwait(true);
             return assetsResponse;
         }
 
-        public Task<int> SaveAssetsIntoSql(string lastHint,XElement xml)
+        public async Task<AssetPaginationResponse> GetAll(int count, Dictionary<string, AttributeValue> lastEvaluatedKey = null)
         {
-            return _dbContext.InsertDynamoAsset(lastHint,xml);
+            ScanRequest request = new ScanRequest("Assets")
+            {
+                Limit = count,
+                ExclusiveStartKey = lastEvaluatedKey
+            };
+
+            ScanResponse response = await _dynamoDb.ScanAsync(request).ConfigureAwait(false);
+            if (response?.Items == null || response.Items.Count == 0)
+                throw new Exception($"_dynamoDb.ScanAsync results NULL: {response?.ToString()}");
+
+            return new AssetPaginationResponse()
+            {
+                LastKey = response?.LastEvaluatedKey,
+                Assets = response?.ToAssets()?.ToList()
+            };
         }
 
-        public async Task<Guid> GetLastHint()
+        public Task<int> SaveAssetsIntoSql(string lastHint, XElement xml)
         {
-            var result = await _dbContext.DmDynamoLastHInt
-                .Where(p=>p.TableName.ToLower()== "asset")
-                .OrderBy(p=>p.Timex).LastOrDefaultAsync().ConfigureAwait(false);
-            return result?.Id??Guid.Empty;
+            return _dbContext.InsertDynamoAsset(lastHint, xml);
         }
     }
 }

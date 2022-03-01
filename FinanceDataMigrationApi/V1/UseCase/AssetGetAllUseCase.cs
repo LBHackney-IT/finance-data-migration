@@ -6,7 +6,7 @@ using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 
 namespace FinanceDataMigrationApi.V1.UseCase
 {
-    public class AssetGetAllUseCase: IAssetGetAllUseCase
+    public class AssetGetAllUseCase : IAssetGetAllUseCase
     {
         private readonly IAssetGateway _gateway;
 
@@ -14,9 +14,11 @@ namespace FinanceDataMigrationApi.V1.UseCase
         {
             _gateway = gateway;
         }
-        public Task<APIResponse<GetAssetListResponse>> ExecuteAsync(string lastHintStr)
+
+        public async Task<APIResponse<GetAssetListResponse>> ExecuteAsync(int count, string lastHint)
         {
-            return _gateway.DownloadAsync(lastHintStr);
+            /*return await _gateway.GetAll(count, lastEvaluatedKey).ConfigureAwait(false);*/
+            return await _gateway.DownloadAsync(count, lastHint).ConfigureAwait(false);
         }
     }
 }
