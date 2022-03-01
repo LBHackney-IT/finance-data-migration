@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Domain;
-using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.Infrastructure.Entities;
-using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using FinanceDataMigrationApi.V1.Infrastructure.Extensions;
 
 namespace FinanceDataMigrationApi.V1.Factories
@@ -88,31 +85,6 @@ namespace FinanceDataMigrationApi.V1.Factories
             }
 
             return chargeModel;
-            /*return new Dictionary<string, AttributeValue>()
-            {
-                {
-                    "detailed_charges",charge.DetailedCharges==null?new AttributeValue(""):
-                    new AttributeValue
-                    {
-                        L=
-                            charge.DetailedCharges.Select(p=>
-                            new AttributeValue
-                            {
-                                M = new Dictionary<string, AttributeValue>
-                                {
-                                    {"chargeCode", new AttributeValue {S = p.ChargeCode??""}},
-                                    {"frequency", new AttributeValue {S = p.Frequency??""}},
-                                    {"amount", new AttributeValue {N = p.Amount.ToString("F")}},
-                                    {"endDate", new AttributeValue {S =p.EndDate==null?"": p.EndDate.ToString("F")}},
-                                    {"chargeType", new AttributeValue {S = p.ChargeType?.ToString()??""}},
-                                    {"subType", new AttributeValue {S = p.SubType?.ToString()??""}},
-                                    {"type", new AttributeValue {S = p.Type?.ToString()??""}},
-                                    {"startDate", new AttributeValue {S =p.StartDate==null?"":p.StartDate.ToString("F")}},
-                                }
-                            }).ToList()
-                    }
-                }
-            };*/
         }
 
     }

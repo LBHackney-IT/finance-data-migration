@@ -176,15 +176,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
                     actions.Add(new TransactWriteItem
                     {
-                        /*Delete = new Delete()
-                        {
-                            TableName = "Accounts",
-                            Key = new Dictionary<string, AttributeValue>
-                            {
-                                {"id",new AttributeValue(account.Id.ToString())}
-                            },
-                            ReturnValuesOnConditionCheckFailure = ReturnValuesOnConditionCheckFailure.ALL_OLD
-                        },*/
                         Update = new Update()
                         {
                             TableName = "Accounts",
@@ -193,8 +184,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
                             ReturnValuesOnConditionCheckFailure = ReturnValuesOnConditionCheckFailure.ALL_OLD,
                             ExpressionAttributeNames = new Dictionary<string, string>()
                             {
-                                { "#P", "primaryTenants" }/*,
-                                {"#ID","id"}*/
+                                { "#P", "primaryTenants" }
                             },
                             ExpressionAttributeValues = new Dictionary<string, AttributeValue>()
                             {
@@ -212,10 +202,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
                                             }
                                         ).ToList()
                                     }
-                                }/*,
-                                {
-                                    ":newID", new AttributeValue(account.DynamoDbId.ToString())
-                                }*/
+                                }
                             },
                             UpdateExpression = "SET #P = :newPT"
                         }

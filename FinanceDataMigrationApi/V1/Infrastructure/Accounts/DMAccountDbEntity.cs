@@ -7,7 +7,7 @@ using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 namespace FinanceDataMigrationApi.V1.Infrastructure.Accounts
 {
     /// <summary>
-    /// The Data Migration Transaction Entity.
+    /// The Data Migration Account Entity.
     /// </summary>
     [Table("DMAccountsEntity")]
     public class DmAccountDbEntity
