@@ -37,17 +37,11 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
                     for (int i = 0; i < extractedList.Count; i++)
                     {
                         var data = extractedList.OrderBy(p => p.Id).Skip(i * _batchSize).Take(_batchSize).ToList();
-                        /*if (data.Count > 0)
-                            await _accountsGateway.BatchInsert(data).ConfigureAwait(false);*/
                         if (data.Any())
                         {
                             tasks.Add(_accountsGateway.BatchInsert(data));
-                            if (tasks.Count == 4)
-                            {
-                                await Task.WhenAll(tasks).ConfigureAwait(false);
-                                System.Threading.Thread.Sleep(2000);
-                                tasks.Clear();
-                            }
+                            await Task.WhenAll(tasks).ConfigureAwait(false);
+                            tasks.Clear();
                         }
                     }
                     if (tasks.Count > 0)
