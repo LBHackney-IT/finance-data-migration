@@ -1,6 +1,5 @@
 using AutoFixture;
 using FinanceDataMigrationApi.V1.Boundary.Response;
-using FinanceDataMigrationApi.V1.Controllers;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces;
 using FluentAssertions;
 using Moq;

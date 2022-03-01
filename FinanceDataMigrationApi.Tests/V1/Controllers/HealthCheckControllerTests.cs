@@ -1,4 +1,3 @@
-using FinanceDataMigrationApi.V1.Controllers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -8,7 +7,7 @@ namespace FinanceDataMigrationApi.Tests.V1.Controllers
 {
     public class HealthCheckControllerTests
     {
-        private HealthCheckController _classUnderTest;
+        /*private HealthCheckController _classUnderTest;
 
         public HealthCheckControllerTests()
         {
@@ -24,6 +23,6 @@ namespace FinanceDataMigrationApi.Tests.V1.Controllers
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(200);
             response.Value.Should().BeEquivalentTo(expected);
-        }
+        }*/
     }
 }
