@@ -9,8 +9,6 @@ using System.Xml.Linq;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure.Entities;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
-using System.Threading;
-using System.Transactions;
 using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
 using FinanceDataMigrationApi.V1.Infrastructure.Extensions;
 
@@ -25,17 +23,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("dbo");
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.BalanceAmount).HasColumnType("decimal");
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.ChargedAmount).HasColumnType("decimal");
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.HousingBenefitAmount).HasColumnType("decimal");
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PaidAmount).HasColumnType("decimal");
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.PeriodNo).HasColumnType("decimal");
-            //modelBuilder.Entity<DMTransactionEntity>().Property(x => x.TransactionAmount).HasColumnType("decimal");
             modelBuilder.Entity<DmTransactionDbEntity>().Property(x => x.TargetId).HasDefaultValueSql("NEWID()");
-            //modelBuilder.Entity<ChargesDbEntity>()
-            //    .HasMany(c => c.DetailedChargesDbEntities)
-            //    .WithOne(d => d.ChargesDbEntity)
-            //    .HasForeignKey(c => c.ChargeId);
             modelBuilder.Entity<DmDetailedChargesDbEntity>()
                 .HasOne(c => c.ChargesDbEntity)
                 .WithMany(c => c.DetailedChargesDbEntities)
@@ -223,8 +211,6 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 throw;
             }
         }
-
-
 
         public static DatabaseContext Create()
         {

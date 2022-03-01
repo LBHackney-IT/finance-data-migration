@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
 
 namespace FinanceDataMigrationApi.V1.Domain.Accounts
 {

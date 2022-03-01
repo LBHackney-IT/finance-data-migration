@@ -1,4 +1,3 @@
-using FinanceDataMigrationApi.V1.Infrastructure;
 using System;
 using System.ComponentModel.DataAnnotations;
 

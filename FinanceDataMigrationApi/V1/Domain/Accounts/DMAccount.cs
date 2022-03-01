@@ -30,15 +30,6 @@ namespace FinanceDataMigrationApi.V1.Domain.Accounts
 
         public DateTime CreatedAt { get; set; }
 
-        //[Column("payment_by")]
-        //public string CreatedBy { get; set; }
-
-        //[Column("last_updated_at")]
-        //public DateTime LastUpdatedAt { get; set; }
-
-        //[Column("last_updated_by")]
-        //public string LastUpdatedBy { get; set; }
-
         public DateTime StartDate { get; set; }
 
         public DateTime? EndDate { get; set; }
