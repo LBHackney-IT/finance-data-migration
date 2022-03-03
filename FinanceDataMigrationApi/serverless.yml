@@ -13,12 +13,8 @@ provider:
     BATCH_SIZE: ${ssm:/finance-data-migration/${self:provider.stage}/bulk-insert-batch-size}
     LOAD_COUNT: ${ssm:/finance-data-migration/${self:provider.stage}/scan-limit}
     ACCEPTED_ORIGINS: ${ssm:/finance-data-migration/${self:provider.stage}/cors-accepted-origins}
-    FINANCIAL_TRANSACTION_API_URL: ${ssm:/housing-finance/${self:provider.stage}/financial-transaction-api-url}
-    FINANCIAL_TRANSACTION_API_TOKEN: ${ssm:/housing-finance/${self:provider.stage}/financial-transaction-api-token}
     SEARCH_API_URL: ${ssm:/housing-tl/${self:provider.stage}/search-api-url}
     SEARCH_API_TOKEN: ${ssm:/housing-finance/${self:provider.stage}/search-api-key}
-    PERSON_API_URL: ${ssm:/housing-tl/${self:provider.stage}/person-api-url}
-    PERSON_API_TOKEN: ${ssm:/housing-tl/${self:provider.stage}/person-token}
     REQUIRED_GOOGL_GROUPS: ${ssm:/housing-finance/${self:provider.stage}/authorization/required-google-groups}
     ASSET_DOWNLOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/asset-download-batch-size}
     TENURE_DOWNLOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/tenure-download-batch-size}
