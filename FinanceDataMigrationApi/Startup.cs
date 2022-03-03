@@ -199,33 +199,6 @@ namespace FinanceDataMigrationApi
                 c.BaseAddress = new Uri(searchApiUrl);
             })
             .AddHttpMessageHandler<LoggingDelegatingHandler>();
-
-            var transactionApiUrl = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_URL") ?? "";
-            var transactionApiToken = Environment.GetEnvironmentVariable("FINANCIAL_TRANSACTION_API_TOKEN") ?? "";
-
-            services.AddHttpClient<ITransactionGateway, TransactionGateway>(c =>
-                {
-                    c.BaseAddress = new Uri(transactionApiUrl);
-                    c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(transactionApiToken);
-                })
-                .AddHttpMessageHandler<LoggingDelegatingHandler>();
-
-            services.AddHttpClient<ITenureGateway, TenureGateway>(c =>
-                {
-                    c.BaseAddress = new Uri(searchApiUrl);
-                    c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(searchApiToken);
-                })
-                .AddHttpMessageHandler<LoggingDelegatingHandler>();
-
-            var personApiUrl = Environment.GetEnvironmentVariable("PERSON_API_URL") ?? "";
-            var personApiToken = Environment.GetEnvironmentVariable("PERSON_API_TOKEN") ?? "";
-
-            services.AddHttpClient<IPersonGateway, PersonGateway>(c =>
-                {
-                    c.BaseAddress = new Uri(personApiUrl);
-                    c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", personApiToken);
-                })
-                .AddHttpMessageHandler<LoggingDelegatingHandler>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
