@@ -60,6 +60,7 @@ namespace FinanceDataMigrationApi.V1.Factories
             chargeModel.PureAdd("charge_year", new AttributeValue { N = charge.DetailedCharges.FirstOrDefault()?.StartDate.Year.ToString().Trim() });
             chargeModel.PureAdd("created_at", new AttributeValue { S = DateTime.Today.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'") });
             chargeModel.PureAdd("created_by", new AttributeValue { S = "Migration" });
+            chargeModel.PureAdd("charge_sub_group", new AttributeValue { S = "Actual" });
 
             if (charge.DetailedCharges != null && charge.DetailedCharges.Count > 0)
             {
