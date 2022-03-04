@@ -120,7 +120,7 @@ stepFunctions:
     downloadingAsset:
       name: DmDownloadingAsset
       events:
-        - schedule: cron(59 23 * * ? *)
+        - schedule: cron(0/2 * * * ? *)
       definition:
         Comment: "Download asset information by calling asset information elastic get batch endpoint."
         StartAt: DownloadAssetToIfs
@@ -160,7 +160,7 @@ stepFunctions:
     downloadTenureToIfs:
       name: DmDownloadingTenure
       events:
-        - schedule: cron(59 23 * * ? *)
+        - schedule: cron(0/2 * * * ? *)
       definition:
         Comment: "Download tenure information by scanning tenure information dynamodb table."
         StartAt: DownloadTenureToIfs
@@ -200,7 +200,7 @@ stepFunctions:
     extractCharge:
       name: DmExtractCharge
       events:
-        - schedule: cron(59 23 * * ? *)
+        - schedule: cron(0/2 * * * ? *)
       definition:
         Comment: "Extracting charge entity to save them into the FFS."
         StartAt: ExtractCharge
@@ -267,7 +267,7 @@ stepFunctions:
     extractTransactions:
       name: DmExtractTransactions
       events:
-        - schedule: cron(59 23 * * ? *)
+        - schedule: cron(0/2 * * * ? *)
       definition:
         Comment: "Extracting transaction entity to save them into the FFS."
         StartAt: ExtractTransactions
@@ -374,7 +374,7 @@ stepFunctions:
     extractAccount:
       name: DmExtractAccount
       events:
-        - schedule: cron(59 23 * * ? *)
+        - schedule: cron(0/2 * * * ? *)
       definition:
         Comment: "Extracting account entity to save them into the FFS."
         StartAt: ExtractAccount
