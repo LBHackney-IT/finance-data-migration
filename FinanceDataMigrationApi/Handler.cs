@@ -5,6 +5,7 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.Core;
+using Elasticsearch.Net;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Gateways;
 using FinanceDataMigrationApi.V1.Infrastructure;
@@ -22,6 +23,7 @@ using FinanceDataMigrationApi.V1.UseCase.Interfaces.Charges;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.DmRunStatus;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions;
 using FinanceDataMigrationApi.V1.UseCase.Transactions;
+using Nest;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
@@ -49,8 +51,9 @@ namespace FinanceDataMigrationApi
         readonly IExtractAccountEntityUseCase _extractAccountEntityUseCase;
         readonly ILoadAccountsUseCase _loadAccountsUseCase;
         readonly IDmAccountLoadRunStatusSaveUseCase _dmAccountLoadRunStatusSaveUseCase;
-        readonly IDeleteAccountEntityUseCase _deleteAccountEntityUseCase;
-        readonly IDeleteTransactionEntityUseCase _deleteTransactionEntityUseCase;
+        /*readonly IDeleteAccountEntityUseCase _deleteAccountEntityUseCase;
+        readonly IDeleteTransactionEntityUseCase _deleteTransactionEntityUseCase;*/
+        readonly IIndexTransactionEntityUseCase _indexTransactionEntityUseCase;
         readonly int _waitDuration;
 
         private readonly int _batchSize;
@@ -74,6 +77,8 @@ namespace FinanceDataMigrationApi
             ITimeLogGateway timeLogGateway = new TimeLogGateway(context);
             IDMRunLogGateway dmRunLogGateway = new DMRunLogGateway(context);
             IAccountsGateway accountsGateway = new AccountsGateway(context, amazonDynamoDb);
+            IElasticClient elasticClient = CreateElasticClient();
+            IEsGateway esGateway = new EsGateway(elasticClient);
 
             _getLastHintUseCase = new GetLastHintUseCase(hitsGateway);
             _loadChargeEntityUseCase = new LoadChargeEntityUseCase(migrationRunGateway, chargeGateway);
@@ -90,13 +95,14 @@ namespace FinanceDataMigrationApi
             _extractTransactionEntityUseCase = new ExtractTransactionEntityUseCase(dmRunLogGateway, transactionGateway);
             _loadTransactionEntityUseCase = new LoadTransactionEntityUseCase(transactionGateway);
             _dmTransactionExtractRunStatusSaveUseCase = new DmTransactionExtractRunStatusSaveUseCase(dmRunStatusGateway);
-            _deleteTransactionEntityUseCase = new DeleteTransactionEntityUseCase(dmRunLogGateway, transactionGateway);
             _dmTransactionLoadRunStatusSaveUseCase = new DmTransactionLoadRunStatusSaveUseCase(dmRunStatusGateway);
             _extractAccountEntityUseCase = new ExtractAccountEntityUseCase(dmRunLogGateway, accountsGateway);
             _loadAccountsUseCase = new LoadAccountsUseCase(dmRunLogGateway, accountsGateway);
             _dmAccountLoadRunStatusSaveUseCase = new DmAccountLoadRunStatusSaveUseCase(dmRunStatusGateway);
-            _deleteAccountEntityUseCase = new DeleteAccountEntityUseCase(dmRunLogGateway, accountsGateway);
+            /*_deleteAccountEntityUseCase = new DeleteAccountEntityUseCase(dmRunLogGateway, accountsGateway);
+            _deleteTransactionEntityUseCase = new DeleteTransactionEntityUseCase(dmRunLogGateway, transactionGateway);*/
             _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
+            _indexTransactionEntityUseCase = new IndexTransactionEntityUseCase(transactionGateway, esGateway);
         }
 
         public async Task<StepResponse> ExtractTransactions()
@@ -162,6 +168,42 @@ namespace FinanceDataMigrationApi
                 {
                     Continue = false
                 };
+            }
+        }
+
+        public async Task<StepResponse> IndexTransactions()
+        {
+            try
+            {
+                var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
+                if (runStatus.TransactionExtractDate >= DateTime.Today &&
+                    runStatus.TransactionLoadDate >= DateTime.Today &&
+                    runStatus.TransactionIndexDate < DateTime.Today)
+                {
+                    DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
+                    {
+                        ProcName = $"{nameof(IndexTransactions)}",
+                        StartTime = DateTime.Now
+                    };
+                    var result = await _indexTransactionEntityUseCase.ExecuteAsync(500).ConfigureAwait(false);
+                    await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+                    if (!result.Continue)
+                        await _dmTransactionLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
+
+                    return result;
+                }
+                else
+                {
+                    return new StepResponse()
+                    {
+                        Continue = false
+                    };
+                }
+            }
+            catch (Exception e)
+            {
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(IndexTransactions)} Exception:{e.GetFullMessage()}");
+                throw;
             }
         }
 
@@ -302,7 +344,7 @@ namespace FinanceDataMigrationApi
             }
         }
 
-        public async Task<StepResponse> DeleteAccount()
+        /*        public async Task<StepResponse> DeleteAccount()
         {
             try
             {
@@ -356,7 +398,7 @@ namespace FinanceDataMigrationApi
                     Continue = false
                 };
             }
-        }
+        }*/
 
         public async Task<StepResponse> DownloadTenureToIfs()
         {
@@ -502,5 +544,20 @@ namespace FinanceDataMigrationApi
             }
             return new AmazonDynamoDBClient();
         }
+
+        public static ElasticClient CreateElasticClient()
+        {
+            var url = Environment.GetEnvironmentVariable("ELASTICSEARCH_DOMAIN_URL");
+            if (string.IsNullOrEmpty(url))
+                url = "http://localhost:9200/";
+
+            var pool = new SingleNodeConnectionPool(new Uri(url));
+            var connectionSettings = new ConnectionSettings(pool)
+                .PrettyJson()
+                .ThrowExceptions()
+                .DisableDirectStreaming();
+            return new ElasticClient(connectionSettings);
+        }
+
     }
 }

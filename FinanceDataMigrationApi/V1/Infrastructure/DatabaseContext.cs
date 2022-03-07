@@ -132,12 +132,12 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                 .ToListWithNoLockAsync()
                 .ConfigureAwait(false);
 
-        public async Task<IList<DmTransactionDbEntity>> GetToBeDeletedTransactionListAsync(int count)
+        /*public async Task<IList<DmTransactionDbEntity>> GetToBeDeletedTransactionListAsync(int count)
             => await TransactionEntities
                 .Where(x => x.MigrationStatus == EMigrationStatus.ToBeDeleted)
                 .Take(count)
                 .ToListWithNoLockAsync()
-                .ConfigureAwait(false);
+                .ConfigureAwait(false);*/
 
         #endregion
 
