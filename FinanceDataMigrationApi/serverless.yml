@@ -21,6 +21,7 @@ provider:
     CHARGE_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/charge-load-batch-size}
     TRANSACTION_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/transaction-load-batch-size}
     ACCOUNT_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/account-load-batch-size}
+    ELASTICSEARCH_DOMAIN_URL: ${ssm:/housing-search-api/${self:provider.stage}/elasticsearch-domain}
 package:
   artifact: ./bin/release/netcoreapp3.1/finance-data-migration-api.zip
 
@@ -113,6 +114,13 @@ functions:
     description: "The scheduler to delete the loaded Transaction entity data in FFS"
     timeout: 900
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::DeleteTransaction
+    reservedConcurrency: 1
+    role: lambdaExecutionRole
+  indexTransactions:
+    name: ${self:service}-${self:provider.stage}-index-transactions
+    description: "The scheduler to index Transaction entity data in FFS"
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::IndexTransactions
     reservedConcurrency: 1
     role: lambdaExecutionRole
 stepFunctions:
@@ -467,6 +475,46 @@ stepFunctions:
               - Variable: $.Continue
                 BooleanEquals: true
                 Next: DeleteAccount
+              - Variable: $.Continue
+                BooleanEquals: false
+                Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
+    indexTransactions:
+      name: DmIndexTransactions
+      events:
+        - schedule: cron(0/2 * * * ? *)
+      definition:
+        Comment: "Inedx transactions data in FFS."
+        StartAt: IndexTransactions
+        States:
+          IndexTransactions:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [indexTransactions, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: Wait_1
+          Wait_1:
+              Type: Wait
+              TimestampPath: $.NextStepTime
+              Next: Choice_1
+          Choice_1:
+            Type: Choice
+            Choices:
+              - Variable: $.Continue
+                BooleanEquals: true
+                Next: IndexTransactions
               - Variable: $.Continue
                 BooleanEquals: false
                 Next: EndStep

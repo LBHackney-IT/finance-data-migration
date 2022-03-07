@@ -155,6 +155,11 @@ namespace FinanceDataMigrationApi.V1.Gateways
             }
         }
 
+        /*public Task BatchDelete(List<DmAccount> accounts)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task BatchDelete(List<DmAccount> accounts)
         {
             DatabaseContext context = DatabaseContext.Create();
@@ -261,7 +266,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
                     ForAll(p => p.MigrationStatus = EMigrationStatus.DeleteFailed);
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
-        }
+        }*/
 
         public async Task<List<DmAccount>> GetLoadedListAsync(int count)
         {
@@ -277,7 +282,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             return results?.ToDomain();
         }
 
-        public async Task<List<DmAccount>> GetLoadedListForDeleteAsync(int count)
+        /*public async Task<List<DmAccount>> GetLoadedListForDeleteAsync(int count)
         {
             var results = await _context.AccountDbEntities
                 .Where(x => x.MigrationStatus == EMigrationStatus.Loaded)
@@ -312,6 +317,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
         public Task UpdateDMAccountEntityItems(object loadedAccounts)
         {
             throw new NotImplementedException();
-        }
+        }*/
     }
 }

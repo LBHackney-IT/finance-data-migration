@@ -13,7 +13,7 @@
       "commandName": "Project",
       "launchUrl": "api/v1/healthcheck/ping",
       "environmentVariables": {
-        "CONNECTION_STRING": "Data Source=\"127.0.0.1\\, 55111\";Initial Catalog=SOW2b;Persist Security Info=True;User ID=housingadmin;Password=Vcf:8efGbuEv2qmD",
+        "CONNECTION_STRING": "Data Source=\"127.0.0.1\\, 55444\";Initial Catalog=SOW2b;Persist Security Info=True;User ID=housingadmin;Password=Vcf:8efGbuEv2qmD",
         "FINANCIAL_TRANSACTION_API_URL": ";SEARCH_API_TOKEN=KLO",
         "DynamoDb_LocalServiceUrl": "http://localhost:8000",
         "ACCEPTED_ORIGINS": "True",
