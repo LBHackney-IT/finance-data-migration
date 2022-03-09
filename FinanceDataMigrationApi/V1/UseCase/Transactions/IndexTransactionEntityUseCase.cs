@@ -9,6 +9,7 @@ using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions;
+using Hackney.Shared.HousingSearch.Domain.Transactions;
 using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 using Nest;
 
@@ -17,7 +18,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
     public class IndexTransactionEntityUseCase : IIndexTransactionEntityUseCase
     {
         private readonly ITransactionGateway _transactionGateway;
-        private readonly IBulkIndexGateway<QueryableTransaction> _esBulkTransactionGateway;
+        private readonly IBulkIndexGateway</*QueryableTransaction*/Transaction> _esBulkTransactionGateway;
 
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION") ?? "15";
         private const string DataMigrationTask = "INDEXING";
@@ -39,7 +40,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
             if (transactionRequestList.Any())
             {
                 var esRequests = EsFactory.ToTransactionRequestList(transactionRequestList);
-                await _esBulkTransactionGateway.IndexAllAsync(esRequests).ConfigureAwait(false);
+                await _esBulkTransactionGateway.IndexAllAsync(/*esRequests*/transactionRequestList).ConfigureAwait(false);
             }
             else
             {
