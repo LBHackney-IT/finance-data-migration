@@ -33,7 +33,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
                     transaction.MigrationStatus = EMigrationStatus.Indexed;
                     await context.SaveChangesAsync().ConfigureAwait(false);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(IndexTransactionsFromIfStoFfsGateway)}.{nameof(IndexAsync)} Exception: {e.GetFullMessage()}");
                     transaction.MigrationStatus = EMigrationStatus.IndexingFailed;
