@@ -571,6 +571,15 @@ resources:
                       - ""
                       - - "arn:aws:s3:::"
                         - "Ref": "ServerlessDeploymentBucket"
+          - PolicyName: postToSns
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - "sns:Publish"
+                  Resource:
+                    - ${ssm:/sns-topic/${self:provider.stage}/financial-transactions_created/arn}
           - PolicyName: lambdaInvocation
             PolicyDocument:
               Version: '2012-10-17'
