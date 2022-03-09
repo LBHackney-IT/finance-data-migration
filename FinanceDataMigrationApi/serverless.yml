@@ -2,9 +2,6 @@ service: finance-data-migration-api
 provider:
   name: aws
   timeout: 300
-  tracing:
-    lambda: true
-    apiGateway: false
   runtime: dotnetcore3.1
   vpc: ${self:custom.vpc.${opt:stage}}
   stage: ${opt:stage}
