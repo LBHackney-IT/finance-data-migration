@@ -1,5 +1,4 @@
 using FinanceDataMigrationApi.V1.Boundary.Response;
-using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using System;
 using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Accounts;
@@ -8,19 +7,19 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
 {
     public class IndexAccountEntityUseCase : IIndexAccountEntityUseCase
     {
-        private readonly IEsGateway _esGateway;
+        /*private readonly IEsGateway _esGateway;
         private readonly IDMRunLogGateway _dMRunLogGateway;
         private readonly IAccountsGateway _accountsGateway;
 
-        /*private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
-        private const string DataMigrationTask = "INDEXING";*/
+        *//*private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION");
+        private const string DataMigrationTask = "INDEXING";*//*
 
         public IndexAccountEntityUseCase(IEsGateway esGateway, IDMRunLogGateway dMRunLogGateway, IAccountsGateway accountsGateway)
         {
             _esGateway = esGateway;
             _dMRunLogGateway = dMRunLogGateway;
             _accountsGateway = accountsGateway;
-        }
+        }*/
 
         public Task<StepResponse> ExecuteAsync()
         {

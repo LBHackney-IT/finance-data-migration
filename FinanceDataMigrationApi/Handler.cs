@@ -78,7 +78,6 @@ namespace FinanceDataMigrationApi
             IDMRunLogGateway dmRunLogGateway = new DMRunLogGateway(context);
             IAccountsGateway accountsGateway = new AccountsGateway(context, amazonDynamoDb);
             IElasticClient elasticClient = CreateElasticClient();
-            IEsGateway esGateway = new EsGateway(elasticClient);
 
             _getLastHintUseCase = new GetLastHintUseCase(hitsGateway);
             _loadChargeEntityUseCase = new LoadChargeEntityUseCase(migrationRunGateway, chargeGateway);
@@ -102,7 +101,7 @@ namespace FinanceDataMigrationApi
             /*_deleteAccountEntityUseCase = new DeleteAccountEntityUseCase(dmRunLogGateway, accountsGateway);
             _deleteTransactionEntityUseCase = new DeleteTransactionEntityUseCase(dmRunLogGateway, transactionGateway);*/
             _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
-            _indexTransactionEntityUseCase = new IndexTransactionEntityUseCase(transactionGateway, esGateway);
+            _indexTransactionEntityUseCase = new IndexTransactionEntityUseCase(transactionGateway, elasticClient);
         }
 
         public async Task<StepResponse> ExtractTransactions()
@@ -185,7 +184,7 @@ namespace FinanceDataMigrationApi
                         ProcName = $"{nameof(IndexTransactions)}",
                         StartTime = DateTime.Now
                     };
-                    var result = await _indexTransactionEntityUseCase.ExecuteAsync(500).ConfigureAwait(false);
+                    var result = await _indexTransactionEntityUseCase.ExecuteAsync(1000).ConfigureAwait(false);
                     await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
                     if (!result.Continue)
                         await _dmTransactionLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
