@@ -174,6 +174,7 @@ namespace FinanceDataMigrationApi
         {
             try
             {
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(IndexTransactions)} lambda indexing started");
                 var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
                 if (runStatus.TransactionExtractDate >= DateTime.Today &&
                     runStatus.TransactionLoadDate >= DateTime.Today &&
