@@ -9,7 +9,6 @@ using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
-using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 using Nest;
 
 namespace FinanceDataMigrationApi.V1.Gateways
@@ -40,7 +39,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             {
                 DatabaseContext context = DatabaseContext.Create();
 
-                var transactionSnsMessage = _snsFactory.Create(transaction);
+                var transactionSnsMessage = _snsFactory.Create(queryableTransaction);
                 var transactionTopicArn = Environment.GetEnvironmentVariable("TRANSACTION_SNS_ARN");
                 await _snsGateway.Publish(transactionSnsMessage, transactionTopicArn, EventConstants.MESSAGEGROUPID).ConfigureAwait(false);
                 var transaction = context.TransactionEntities
