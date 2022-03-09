@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
@@ -16,7 +17,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
         public IndexTransactionsFromIfStoFfsGateway(IElasticClient elasticClient)
         {
             _esGateway = new EsGateway<QueryableTransaction>(elasticClient, "transactions");
-
         }
 
         public async Task IndexAsync(QueryableTransaction queryableObject)
@@ -27,9 +27,19 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
             if (transaction != null)
             {
-                await _esGateway.IndexAsync(queryableObject).ConfigureAwait(false);
-                transaction.MigrationStatus = EMigrationStatus.Indexed;
-                await context.SaveChangesAsync().ConfigureAwait(false);
+                try
+                {
+                    await _esGateway.IndexAsync(queryableObject).ConfigureAwait(false);
+                    transaction.MigrationStatus = EMigrationStatus.Indexed;
+                    await context.SaveChangesAsync().ConfigureAwait(false);
+                }
+                catch(Exception e)
+                {
+                    LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(IndexTransactionsFromIfStoFfsGateway)}.{nameof(IndexAsync)} Exception: {e.GetFullMessage()}");
+                    transaction.MigrationStatus = EMigrationStatus.IndexingFailed;
+                    await context.SaveChangesAsync().ConfigureAwait(false);
+                    throw;
+                }
             }
             else
             {
