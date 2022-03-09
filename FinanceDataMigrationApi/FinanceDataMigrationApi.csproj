@@ -78,6 +78,7 @@
 
   <ItemGroup>
     <Folder Include="terraform\" />
+    <Folder Include="V1\Infrastructure\Transactions\" />
   </ItemGroup>
 
   <ItemGroup>

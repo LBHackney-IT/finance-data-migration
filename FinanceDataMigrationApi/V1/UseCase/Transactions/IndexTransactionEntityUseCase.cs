@@ -1,30 +1,31 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper.Internal;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Domain;
 using FinanceDataMigrationApi.V1.Factories;
+using FinanceDataMigrationApi.V1.Gateways;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
-using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions;
+using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
+using Nest;
 
 namespace FinanceDataMigrationApi.V1.UseCase.Transactions
 {
     public class IndexTransactionEntityUseCase : IIndexTransactionEntityUseCase
     {
         private readonly ITransactionGateway _transactionGateway;
-        private readonly IEsGateway _esGateway;
+        private readonly IBulkIndexGateway<QueryableTransaction> _esBulkTransactionGateway;
 
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION") ?? "15";
         private const string DataMigrationTask = "INDEXING";
 
-        public IndexTransactionEntityUseCase(ITransactionGateway dMTransactionEntityGateway, IEsGateway esGateway)
+        public IndexTransactionEntityUseCase(ITransactionGateway dMTransactionEntityGateway, IElasticClient elasticClient)
         {
             _transactionGateway = dMTransactionEntityGateway;
-            _esGateway = esGateway;
+            _esBulkTransactionGateway = new TransactionBulkIndexGateway(elasticClient);
         }
         public async Task<StepResponse> ExecuteAsync(int count)
         {
@@ -37,22 +38,12 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
 
             if (transactionRequestList.Any())
             {
-
-                if (transactionRequestList.Count > 0)
-                {
-                    var esRequests = EsFactory.ToTransactionRequestList(transactionRequestList);
-                    await _esGateway.BulkIndexTransaction(esRequests).ConfigureAwait(false);
-                    loadedList.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Indexed);
-                    await context.SaveChangesAsync().ConfigureAwait(false);
-                }
-                else
-                {
-                    LoggingHandler.LogInfo($"No records to {DataMigrationTask} for {DMEntityNames.Transactions} Entity");
-                }
+                var esRequests = EsFactory.ToTransactionRequestList(transactionRequestList);
+                await _esBulkTransactionGateway.IndexAllAsync(esRequests).ConfigureAwait(false);
             }
             else
             {
-                LoggingHandler.LogInfo($"No records to {DataMigrationTask} for {DMEntityNames.Transactions} Entity");
+                LoggingHandler.LogInfo($"There are no records to {DataMigrationTask} for {DMEntityNames.Transactions} Entity");
                 return new StepResponse()
                 {
                     Continue = false
