@@ -2,6 +2,9 @@ service: finance-data-migration-api
 provider:
   name: aws
   timeout: 300
+  tracing:
+    lambda: true
+    apiGateway: false
   runtime: dotnetcore3.1
   vpc: ${self:custom.vpc.${opt:stage}}
   stage: ${opt:stage}
@@ -22,6 +25,7 @@ provider:
     TRANSACTION_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/transaction-load-batch-size}
     ACCOUNT_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/account-load-batch-size}
     ELASTICSEARCH_DOMAIN_URL: ${ssm:/housing-search-api/${self:provider.stage}/elasticsearch-domain}
+    TRANSACTION_SNS_ARN: ${ssm:/sns-topic/${self:provider.stage}/financial-transactions_created/arn}
 package:
   artifact: ./bin/release/netcoreapp3.1/finance-data-migration-api.zip
 
@@ -528,15 +532,6 @@ stepFunctions:
               #  Next: ImportCashFileTransactions
 resources:
   Resources:
-    LambdaSecurityGroup:
-      Type: AWS::EC2::SecurityGroup
-      Properties:
-        GroupName: ${self:service}-${self:provider.stage}-sg
-        GroupDescription: Allow all outbound traffic
-        SecurityGroupEgress:
-          - IpProtocol: -1
-            CidrIp: 0.0.0.0/0
-        VpcId: ${self:custom.vpcId.${opt:stage}}
     lambdaExecutionRole:
       Type: AWS::IAM::Role
       Properties:
@@ -723,28 +718,24 @@ resources:
                           - Ref: 'AWS::AccountId'
                           - 'table/TenureInformation/index/*'
 custom:
-  vpcId:
-    development: vpc-0d15f152935c8716f
-    staging: vpc-064521a7a4109ba31
-    production: vpc-0ce853ddb64e8fb3c
   vpc:
     development:
       securityGroupIds:
-        - Ref: LambdaSecurityGroup
+        - sg-0b1844c4c2d5096a2
       subnetIds:
         - subnet-0140d06fb84fdb547
         - subnet-05ce390ba88c42bfd
     staging:
       securityGroupIds:
-        - Ref: LambdaSecurityGroup
+        - sg-00c197e980177983d
       subnetIds:
         - subnet-0743d86e9b362fa38
         - subnet-0ea0020a44b98a2ca
     production:
       securityGroupIds:
-        - Ref: LambdaSecurityGroup
+        - sg-02a377899622e884c
       subnetIds:
-        - subnet-06a697d86a9b6ed01
         - subnet-0beb266003a56ca82
+        - subnet-06a697d86a9b6ed01
 plugins:
   - serverless-step-functions
