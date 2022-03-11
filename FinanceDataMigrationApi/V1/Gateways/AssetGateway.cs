@@ -52,10 +52,11 @@ namespace FinanceDataMigrationApi.V1.Gateways
             LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(AssetGateway)}" +
                                    $"{nameof(GetAll)} Scan started.");
 
-            ScanRequest request = new ScanRequest("Assets")
+            ScanRequest request = new ScanRequest("Assets");
+            if (lastEvaluatedKey != null && lastEvaluatedKey["id"].S != Guid.Empty.ToString())
             {
                 /*Limit = count,*/
-                ExclusiveStartKey = lastEvaluatedKey
+                request.ExclusiveStartKey = lastEvaluatedKey;
             };
 
             ScanResponse response = await _dynamoDb.ScanAsync(request).ConfigureAwait(false);
@@ -63,7 +64,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 throw new Exception($"_dynamoDb.ScanAsync results NULL: {response?.ToString()}");
 
             LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(AssetGateway)}" +
-                                   $"{nameof(GetAll)} Scan finished with {response?.Items?.Count} records and Evaluated key is: {response?.LastEvaluatedKey}.");
+                                   $"{nameof(GetAll)} Scan finished with {response?.Items?.Count} records and Evaluated key is: {response?.LastEvaluatedKey["id"].S}.");
 
             return new AssetPaginationResponse()
             {
