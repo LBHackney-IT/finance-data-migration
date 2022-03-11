@@ -12,6 +12,8 @@
         <UserSecretsId>c1dc564e-5883-4ecf-963b-a8a865566aa2</UserSecretsId>
     </PropertyGroup>
     <ItemGroup>
+      <Compile Remove="V1\Controllers\BaseController.cs" />
+      <Compile Remove="V1\Controllers\TestController.cs" />
       <Compile Remove="V1\Factories\ResponseFactory.cs" />
       <Compile Remove="V1\Gateways\DynamoDbGateway_OLD.cs" />
       <Compile Remove="V1\Gateways\ExampleGateway.cs" />
@@ -51,7 +53,6 @@
     <PackageReference Include="Hackney.Core.JWT" Version="1.66.0" />
     <PackageReference Include="Hackney.Core.Logging" Version="1.49.0" />
     <PackageReference Include="Hackney.Core.Middleware" Version="1.49.0" />
-    <PackageReference Include="Hackney.Core.Sns" Version="1.52.0" />
     <PackageReference Include="Hackney.Core.Validation" Version="1.56.0" />
     <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.24.0" />
     <PackageReference Include="Hackney.Shared.Person" Version="0.11.0" />
@@ -79,7 +80,7 @@
 
   <ItemGroup>
     <Folder Include="terraform\" />
-    <Folder Include="V1\Infrastructure\Transactions\" />
+    <Folder Include="V1\Controllers\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -190,9 +190,6 @@ workflows:
       jobs:
       - check-code-formatting:
           context: api-nuget-token-context
-          filters:
-            branches:
-              only: master
       - build-and-test:
           context: api-nuget-token-context
           filters:

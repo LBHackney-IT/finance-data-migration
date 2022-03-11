@@ -1,17 +1,17 @@
+using Hackney.Shared.HousingSearch.Gateways.Models.Accounts;
+using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 using Nest;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
 {
-    public interface IEsGateway<in T> where T : class
+    public interface IEsGateway
     {
-        /*Task<IndexResponse> IndexTransaction(QueryableTransaction transaction);
+        Task<IndexResponse> IndexTransaction(QueryableTransaction transaction);
 
         Task BulkIndexTransaction(List<QueryableTransaction> transactions);
 
-        Task BulkIndexAccounts(List<QueryableAccount> accounts);*/
-
-        Task<IndexResponse> IndexAsync(T queryAbleEntity);
-
+        Task BulkIndexAccounts(List<QueryableAccount> accounts);
     }
 }
