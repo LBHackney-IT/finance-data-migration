@@ -28,11 +28,12 @@ using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Reflection;
+using FinanceDataMigrationApi.V1.UseCase.Asset;
 using FinanceDataMigrationApi.V1.UseCase.Charges;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Asset;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Charges;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions;
 using FinanceDataMigrationApi.V1.UseCase.Transactions;
-using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 
 namespace FinanceDataMigrationApi
 {
@@ -188,7 +189,7 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IDMRunLogGateway, DMRunLogGateway>();
             services.AddScoped<ITenureGateway, TenureGateway>();
             services.AddScoped<IPersonGateway, PersonGateway>();
-            services.AddScoped<IEsGateway<QueryableTransaction>, EsGateway<QueryableTransaction>>();
+            services.AddScoped<IEsGateway, EsGateway>();
             services.AddScoped<IAssetGateway, AssetGateway>();
             services.AddScoped<IAccountsGateway, AccountsGateway>();
 
@@ -214,7 +215,7 @@ namespace FinanceDataMigrationApi
             services.AddScoped<ITransactionBatchInsertUseCase, TransactionBatchInsertUseCase>();
             services.AddScoped<ITenureBatchInsertUseCase, TenureBatchInsertUseCase>();
             services.AddScoped<ITenureGetAllUseCase, TenureGetAllUseCase>();
-            services.AddScoped<IAssetGetAllUseCase, AssetGetAllUseCase>();
+            services.AddScoped<IAssetGetAllByElasticSearchUseCase, AssetGetAllByElasticSearchUseCase>();
             services.AddScoped<IAssetSaveToSqlUseCase, AssetSaveToSqlUseCase>();
             services.AddScoped<ITenureSaveToSqlUseCase, TenureSaveToSqlUseCase>();
             services.AddScoped<IGetLastHintUseCase, GetLastHintUseCase>();

@@ -22,7 +22,6 @@ provider:
     TRANSACTION_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/transaction-load-batch-size}
     ACCOUNT_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/account-load-batch-size}
     ELASTICSEARCH_DOMAIN_URL: ${ssm:/housing-search-api/${self:provider.stage}/elasticsearch-domain}
-    TRANSACTION_SNS_ARN: ${ssm:/sns-topic/${self:provider.stage}/financial-transactions_created/arn}
 package:
   artifact: ./bin/release/netcoreapp3.1/finance-data-migration-api.zip
 
@@ -571,15 +570,6 @@ resources:
                       - ""
                       - - "arn:aws:s3:::"
                         - "Ref": "ServerlessDeploymentBucket"
-          - PolicyName: postToSns
-            PolicyDocument:
-              Version: '2012-10-17'
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - "sns:Publish"
-                  Resource:
-                    - ${ssm:/sns-topic/${self:provider.stage}/financial-transactions_created/arn}
           - PolicyName: lambdaInvocation
             PolicyDocument:
               Version: '2012-10-17'

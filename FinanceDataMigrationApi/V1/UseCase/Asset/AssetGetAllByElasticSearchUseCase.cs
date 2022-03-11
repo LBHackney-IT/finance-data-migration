@@ -2,15 +2,15 @@ using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Boundary.Response.MetaData;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
-using FinanceDataMigrationApi.V1.UseCase.Interfaces;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Asset;
 
-namespace FinanceDataMigrationApi.V1.UseCase
+namespace FinanceDataMigrationApi.V1.UseCase.Asset
 {
-    public class AssetGetAllUseCase : IAssetGetAllUseCase
+    public class AssetGetAllByElasticSearchUseCase : IAssetGetAllByElasticSearchUseCase
     {
         private readonly IAssetGateway _gateway;
 
-        public AssetGetAllUseCase(IAssetGateway gateway)
+        public AssetGetAllByElasticSearchUseCase(IAssetGateway gateway)
         {
             _gateway = gateway;
         }
