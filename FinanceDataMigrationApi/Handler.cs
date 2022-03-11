@@ -487,6 +487,8 @@ namespace FinanceDataMigrationApi
                 {
                     {"id",new AttributeValue{S = lastKey.ToString()}}
                 };
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}" +
+                                       $"{nameof(DownloadAssetToIfs)} Started with {count} Batch Size.");
 
                 DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
                 {
@@ -503,6 +505,8 @@ namespace FinanceDataMigrationApi
                 if (response.Assets == null || response.Assets.Count == 0)
                 {
                     await _dmAssetRunStatusSaveUseCase.ExecuteAsync(true).ConfigureAwait(false);
+                    LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}" +
+                                           $"{nameof(DownloadAssetToIfs)} All data downloaded.");
                     return new StepResponse() { Continue = false };
                 }
 
@@ -521,6 +525,9 @@ namespace FinanceDataMigrationApi
                 };
                 await _assetSaveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(), xmlData).ConfigureAwait(false);
                 await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}" +
+                                       $"{nameof(DownloadAssetToIfs)} Step finished.");
 
                 return new StepResponse()
                 {
