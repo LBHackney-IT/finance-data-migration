@@ -37,18 +37,10 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
 
             if (transactionRequestList.Any())
             {
-
-                if (transactionRequestList.Count > 0)
-                {
-                    var esRequests = EsFactory.ToTransactionRequestList(transactionRequestList);
-                    await _esGateway.BulkIndexTransaction(esRequests).ConfigureAwait(false);
-                    loadedList.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Indexed);
-                    await context.SaveChangesAsync().ConfigureAwait(false);
-                }
-                else
-                {
-                    LoggingHandler.LogInfo($"No records to {DataMigrationTask} for {DMEntityNames.Transactions} Entity");
-                }
+                var esRequests = EsFactory.ToTransactionRequestList(transactionRequestList);
+                await _esGateway.BulkIndexTransaction(esRequests).ConfigureAwait(false);
+                loadedList.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Indexed);
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
             else
             {

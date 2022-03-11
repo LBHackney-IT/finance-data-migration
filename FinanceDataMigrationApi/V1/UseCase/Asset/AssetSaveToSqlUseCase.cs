@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
-using FinanceDataMigrationApi.V1.UseCase.Interfaces;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Asset;
 
-namespace FinanceDataMigrationApi.V1.UseCase
+namespace FinanceDataMigrationApi.V1.UseCase.Asset
 {
     public class AssetSaveToSqlUseCase : IAssetSaveToSqlUseCase
     {
