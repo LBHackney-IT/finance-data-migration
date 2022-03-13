@@ -12,7 +12,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [HttpGet]
         public async Task<IActionResult> IndexTransaction()
         {
-            await new Handler().IndexTransactions().ConfigureAwait(false);
+            await new Handler().DownloadAssetToIfs().ConfigureAwait(false);
             return Ok("Done");
         }
     }

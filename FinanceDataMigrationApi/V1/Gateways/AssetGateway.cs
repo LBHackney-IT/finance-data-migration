@@ -41,11 +41,11 @@ namespace FinanceDataMigrationApi.V1.Gateways
         public async Task<AssetPaginationResponse> DownloadAsync(int count, Dictionary<string, AttributeValue> lastEvaluatedKey)
         {
             var lastHintStr =
-                lastEvaluatedKey == null || !lastEvaluatedKey.ContainsKey("id") || lastEvaluatedKey["id"].NULL
+                lastEvaluatedKey == null || !lastEvaluatedKey.ContainsKey("id") || lastEvaluatedKey["id"].NULL || Guid.Parse(lastEvaluatedKey["id"].S) == Guid.Empty
                     ? ""
                     : lastEvaluatedKey["id"].S;
 
-            var uri = new Uri($"{_client.BaseAddress}/search/assets/all?searchText=**&pageSize={count}&page=1&sortBy=id&isDesc=true&lastHitId={lastHintStr}", UriKind.Absolute);
+            var uri = new Uri($"{_client.BaseAddress}/api/v1/search/assets/all?searchText=**&pageSize={count}&page=1&sortBy=id&isDesc=true&lastHitId={lastHintStr}", UriKind.Absolute);
 
             var response = await _client.GetAsync(uri).ConfigureAwait(true);
             var assetsResponse = await response.ReadContentAs<APIResponse<GetAssetListResponse>>().ConfigureAwait(true);
@@ -59,7 +59,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             };
         }
 
-        public async Task<AssetPaginationResponse> GetAll(int count, Dictionary<string, AttributeValue> lastEvaluatedKey = null)
+        public async Task<AssetPaginationResponse> GetAll(Dictionary<string, AttributeValue> lastEvaluatedKey = null)
         {
             LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(AssetGateway)}" +
                                    $".{nameof(GetAll)} Scan started.");
@@ -76,7 +76,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
             ScanResponse response = await _dynamoDb.ScanAsync(request).ConfigureAwait(false);
             if (response?.Items == null || response.Items.Count == 0)
-                throw new Exception($"_dynamoDb.ScanAsync results NULL: {response?.ToString()}");
+                throw new Exception($"_dynamoDb.ScanAsync result is null");
 
             LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(AssetGateway)}" +
                                    $"{nameof(GetAll)} Scan finished with {response?.Items?.Count} records and Evaluated key is: {response?.LastEvaluatedKey["id"].S}.");

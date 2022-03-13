@@ -408,9 +408,6 @@ namespace FinanceDataMigrationApi
         {
             try
             {
-                int count = int.Parse(Environment.GetEnvironmentVariable("TENURE_DOWNLOAD_BATCH_SIZE") ??
-                                      throw new Exception("Tenure download batch size is null."));
-
                 var dmRunStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
 
                 if (dmRunStatus.AllTenureDmCompleted)
@@ -428,7 +425,7 @@ namespace FinanceDataMigrationApi
                     ProcName = $"{nameof(_tenureGetAllUseCase)}",
                     StartTime = DateTime.Now
                 };
-                var response = await _tenureGetAllUseCase.ExecuteAsync(count, lastEvaluatedKey).ConfigureAwait(false);
+                var response = await _tenureGetAllUseCase.ExecuteAsync(lastEvaluatedKey).ConfigureAwait(false);
                 await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
 
                 lastEvaluatedKey = response.LastKey;

@@ -77,20 +77,24 @@ namespace FinanceDataMigrationApi.V1.Gateways
             return true;
         }
 
-        public async Task<TenurePaginationResponse> GetAll(int count, Dictionary<string, AttributeValue> lastEvaluatedKey = null)
+        public async Task<TenurePaginationResponse> GetAll(Dictionary<string, AttributeValue> lastEvaluatedKey = null)
         {
             try
             {
                 LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenureGateway");
-                ScanRequest request = new ScanRequest("TenureInformation")
+                ScanRequest request = new ScanRequest("TenureInformation");
+                if (lastEvaluatedKey != null)
                 {
-                    Limit = count,
-                    ExclusiveStartKey = lastEvaluatedKey
+                    if (lastEvaluatedKey.ContainsKey("id"))
+                    {
+                        /*lastEvaluatedKey["id"].S != Guid.Empty.ToString();*/
+                        request.ExclusiveStartKey = lastEvaluatedKey;
+                    }
                 };
                 LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenureGateway starts scan");
                 ScanResponse response = await _dynamoDb.ScanAsync(request).ConfigureAwait(false);
                 if (response == null || response.Items == null || response.Items.Count == 0)
-                    throw new Exception($"_dynamoDb.ScanAsync results NULL: {response?.ToString()}");
+                    throw new Exception($"_dynamoDb.ScanAsync result is null");
 
                 LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(GetAll)}: tenureGateway fills response");
                 return new TenurePaginationResponse()

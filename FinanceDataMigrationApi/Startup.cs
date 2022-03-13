@@ -26,13 +26,14 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Reflection;
 using FinanceDataMigrationApi.V1.UseCase.Asset;
 using FinanceDataMigrationApi.V1.UseCase.Charges;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Asset;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Charges;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Tenure;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions;
+using FinanceDataMigrationApi.V1.UseCase.Tenure;
 using FinanceDataMigrationApi.V1.UseCase.Transactions;
 
 namespace FinanceDataMigrationApi

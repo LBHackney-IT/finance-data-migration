@@ -15,10 +15,10 @@ namespace FinanceDataMigrationApi.V1.UseCase.Asset
         {
             _gateway = gateway;
         }
-        public async Task<AssetPaginationResponse> ExecuteAsync(int count, Dictionary<string, AttributeValue> lastEvaluatedKey)
+        public async Task<AssetPaginationResponse> ExecuteAsync(Dictionary<string, AttributeValue> lastEvaluatedKey)
         {
-            return await _gateway.DownloadAsync(count, lastEvaluatedKey).ConfigureAwait(false);
-            /*return await _gateway.GetAll(count, lastEvaluatedKey).ConfigureAwait(false);*/
+            /*return await _gateway.DownloadAsync(count, lastEvaluatedKey).ConfigureAwait(false);*/
+            return await _gateway.GetAll(lastEvaluatedKey).ConfigureAwait(false);
         }
     }
 }
