@@ -85,9 +85,8 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 ScanRequest request = new ScanRequest("TenureInformation");
                 if (lastEvaluatedKey != null)
                 {
-                    if (lastEvaluatedKey.ContainsKey("id"))
+                    if (lastEvaluatedKey.ContainsKey("id") && lastEvaluatedKey["id"].S != Guid.Empty.ToString())
                     {
-                        /*lastEvaluatedKey["id"].S != Guid.Empty.ToString();*/
                         request.ExclusiveStartKey = lastEvaluatedKey;
                     }
                 };
