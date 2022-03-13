@@ -7,6 +7,6 @@ namespace FinanceDataMigrationApi.V1.UseCase.Interfaces.Asset
 {
     public interface IAssetGetAllByScanUseCase
     {
-        public Task<AssetPaginationResponse> ExecuteAsync(int count, Dictionary<string, AttributeValue> lastEvaluatedKey);
+        public Task<AssetPaginationResponse> ExecuteAsync(Dictionary<string, AttributeValue> lastEvaluatedKey);
     }
 }

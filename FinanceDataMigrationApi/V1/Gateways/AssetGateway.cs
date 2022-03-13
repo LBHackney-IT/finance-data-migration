@@ -38,30 +38,45 @@ namespace FinanceDataMigrationApi.V1.Gateways
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", searchApiToken);
         }
 
-        public async Task<APIResponse<GetAssetListResponse>> DownloadAsync(int count, string lastHintStr = "")
+        public async Task<AssetPaginationResponse> DownloadAsync(int count, Dictionary<string, AttributeValue> lastEvaluatedKey)
         {
-            var uri = new Uri($"{_client.BaseAddress}/search/assets/all?searchText=**&pageSize={count}&page=1&sortBy=id&isDesc=true&lastHitId={lastHintStr}", UriKind.Absolute);
+            var lastHintStr =
+                lastEvaluatedKey == null || !lastEvaluatedKey.ContainsKey("id") || lastEvaluatedKey["id"].NULL || Guid.Parse(lastEvaluatedKey["id"].S) == Guid.Empty
+                    ? ""
+                    : lastEvaluatedKey["id"].S;
+
+            var uri = new Uri($"{_client.BaseAddress}/api/v1/search/assets/all?searchText=**&pageSize={count}&page=1&sortBy=id&isDesc=true&lastHitId={lastHintStr}", UriKind.Absolute);
 
             var response = await _client.GetAsync(uri).ConfigureAwait(true);
             var assetsResponse = await response.ReadContentAs<APIResponse<GetAssetListResponse>>().ConfigureAwait(true);
-            return assetsResponse;
+            return new AssetPaginationResponse()
+            {
+                LastKey = new Dictionary<string, AttributeValue>
+                {
+                    {"id",new AttributeValue{S = assetsResponse?.lastHitId}}
+                },
+                Assets = assetsResponse?.Results?.Assets
+            };
         }
 
-        public async Task<AssetPaginationResponse> GetAll(int count, Dictionary<string, AttributeValue> lastEvaluatedKey = null)
+        public async Task<AssetPaginationResponse> GetAll(Dictionary<string, AttributeValue> lastEvaluatedKey = null)
         {
             LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(AssetGateway)}" +
-                                   $"{nameof(GetAll)} Scan started.");
+                                   $".{nameof(GetAll)} Scan started.");
 
             ScanRequest request = new ScanRequest("Assets");
-            if (lastEvaluatedKey != null && lastEvaluatedKey["id"].S != Guid.Empty.ToString())
+            if (lastEvaluatedKey != null)
             {
-                /*Limit = count,*/
-                request.ExclusiveStartKey = lastEvaluatedKey;
+                if (lastEvaluatedKey.ContainsKey("id"))
+                {
+                    /*lastEvaluatedKey["id"].S != Guid.Empty.ToString();*/
+                    request.ExclusiveStartKey = lastEvaluatedKey;
+                }
             };
 
             ScanResponse response = await _dynamoDb.ScanAsync(request).ConfigureAwait(false);
             if (response?.Items == null || response.Items.Count == 0)
-                throw new Exception($"_dynamoDb.ScanAsync results NULL: {response?.ToString()}");
+                throw new Exception($"_dynamoDb.ScanAsync result is null");
 
             LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(AssetGateway)}" +
                                    $"{nameof(GetAll)} Scan finished with {response?.Items?.Count} records and Evaluated key is: {response?.LastEvaluatedKey["id"].S}.");

@@ -23,7 +23,9 @@ using FinanceDataMigrationApi.V1.UseCase.Interfaces.Accounts;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Asset;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Charges;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.DmRunStatus;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Tenure;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions;
+using FinanceDataMigrationApi.V1.UseCase.Tenure;
 using FinanceDataMigrationApi.V1.UseCase.Transactions;
 using Nest;
 
@@ -38,7 +40,7 @@ namespace FinanceDataMigrationApi
         readonly IGetLastHintUseCase _getLastHintUseCase;
         readonly ITenureGetAllUseCase _tenureGetAllUseCase;
         readonly ITenureSaveToSqlUseCase _tenureSaveToSqlUseCase;
-        readonly IAssetGetAllByScanUseCase _assetGetAllUseCase;
+        readonly IAssetGetAllByElasticSearchUseCase _assetGetAllUseCase;
         readonly IAssetSaveToSqlUseCase _assetSaveToSqlUseCase;
         readonly IDmRunStatusGetUseCase _dmRunStatusGetUseCase;
         readonly IDmAssetRunStatusSaveUseCase _dmAssetRunStatusSaveUseCase;
@@ -87,7 +89,7 @@ namespace FinanceDataMigrationApi
             _extractChargeEntityUseCase = new ExtractChargeEntityUseCase(migrationRunGateway, chargeGateway);
             _tenureGetAllUseCase = new TenureGetAllUseCase(tenureGateway);
             _tenureSaveToSqlUseCase = new TenureSaveToSqlUseCase(tenureGateway);
-            _assetGetAllUseCase = new AssetGetAllByScanUseCase(assetGateway);
+            _assetGetAllUseCase = new AssetGetAllByElasticSearchUseCase(assetGateway);
             _assetSaveToSqlUseCase = new AssetSaveToSqlUseCase(assetGateway);
             _dmRunStatusGetUseCase = new DmRunStatusGetUseCase(dmRunStatusGateway);
             _dmAssetRunStatusSaveUseCase = new DmAssetRunStatusSaveUseCase(dmRunStatusGateway);
@@ -406,9 +408,6 @@ namespace FinanceDataMigrationApi
         {
             try
             {
-                int count = int.Parse(Environment.GetEnvironmentVariable("TENURE_DOWNLOAD_BATCH_SIZE") ??
-                                      throw new Exception("Tenure download batch size is null."));
-
                 var dmRunStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
 
                 if (dmRunStatus.AllTenureDmCompleted)
@@ -426,7 +425,7 @@ namespace FinanceDataMigrationApi
                     ProcName = $"{nameof(_tenureGetAllUseCase)}",
                     StartTime = DateTime.Now
                 };
-                var response = await _tenureGetAllUseCase.ExecuteAsync(count, lastEvaluatedKey).ConfigureAwait(false);
+                var response = await _tenureGetAllUseCase.ExecuteAsync(lastEvaluatedKey).ConfigureAwait(false);
                 await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
 
                 lastEvaluatedKey = response.LastKey;
