@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace FinanceDataMigrationApi.V1.UseCase.Interfaces
+namespace FinanceDataMigrationApi.V1.UseCase.Interfaces.Tenure
 {
     public interface ITenureSaveToSqlUseCase
     {

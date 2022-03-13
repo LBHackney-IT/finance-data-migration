@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
-using FinanceDataMigrationApi.V1.UseCase.Interfaces;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Tenure;
 
-namespace FinanceDataMigrationApi.V1.UseCase
+namespace FinanceDataMigrationApi.V1.UseCase.Tenure
 {
     public class TenureGetAllUseCase : ITenureGetAllUseCase
     {

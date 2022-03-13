@@ -38,7 +38,7 @@ namespace FinanceDataMigrationApi
         readonly IGetLastHintUseCase _getLastHintUseCase;
         readonly ITenureGetAllUseCase _tenureGetAllUseCase;
         readonly ITenureSaveToSqlUseCase _tenureSaveToSqlUseCase;
-        readonly IAssetGetAllByScanUseCase _assetGetAllUseCase;
+        readonly IAssetGetAllByElasticSearchUseCase _assetGetAllUseCase;
         readonly IAssetSaveToSqlUseCase _assetSaveToSqlUseCase;
         readonly IDmRunStatusGetUseCase _dmRunStatusGetUseCase;
         readonly IDmAssetRunStatusSaveUseCase _dmAssetRunStatusSaveUseCase;
@@ -87,7 +87,7 @@ namespace FinanceDataMigrationApi
             _extractChargeEntityUseCase = new ExtractChargeEntityUseCase(migrationRunGateway, chargeGateway);
             _tenureGetAllUseCase = new TenureGetAllUseCase(tenureGateway);
             _tenureSaveToSqlUseCase = new TenureSaveToSqlUseCase(tenureGateway);
-            _assetGetAllUseCase = new AssetGetAllByScanUseCase(assetGateway);
+            _assetGetAllUseCase = new AssetGetAllByElasticSearchUseCase(assetGateway);
             _assetSaveToSqlUseCase = new AssetSaveToSqlUseCase(assetGateway);
             _dmRunStatusGetUseCase = new DmRunStatusGetUseCase(dmRunStatusGateway);
             _dmAssetRunStatusSaveUseCase = new DmAssetRunStatusSaveUseCase(dmRunStatusGateway);

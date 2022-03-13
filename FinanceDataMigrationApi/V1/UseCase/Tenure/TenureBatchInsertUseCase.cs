@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
-using FinanceDataMigrationApi.V1.UseCase.Interfaces;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Tenure;
 using Hackney.Shared.Tenure.Domain;
 
-namespace FinanceDataMigrationApi.V1.UseCase
+namespace FinanceDataMigrationApi.V1.UseCase.Tenure
 {
     public class TenureBatchInsertUseCase : ITenureBatchInsertUseCase
     {
