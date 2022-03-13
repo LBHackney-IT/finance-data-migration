@@ -50,13 +50,16 @@ namespace FinanceDataMigrationApi.V1.Gateways
         public async Task<AssetPaginationResponse> GetAll(int count, Dictionary<string, AttributeValue> lastEvaluatedKey = null)
         {
             LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(AssetGateway)}" +
-                                   $"{nameof(GetAll)} Scan started.");
+                                   $".{nameof(GetAll)} Scan started.");
 
             ScanRequest request = new ScanRequest("Assets");
-            if (lastEvaluatedKey != null && lastEvaluatedKey["id"].S != Guid.Empty.ToString())
+            if (lastEvaluatedKey != null)
             {
-                /*Limit = count,*/
-                request.ExclusiveStartKey = lastEvaluatedKey;
+                if(lastEvaluatedKey.ContainsKey("id"))
+                {
+                    lastEvaluatedKey["id"].S != Guid.Empty.ToString();
+                    request.ExclusiveStartKey = lastEvaluatedKey;
+                }
             };
 
             ScanResponse response = await _dynamoDb.ScanAsync(request).ConfigureAwait(false);
