@@ -10,7 +10,8 @@ namespace FinanceDataMigrationApi.V1.Gateways.Interfaces
     public interface IAssetGateway
     {
         public Task<int> SaveAssetsIntoSql(string lastHint, XElement xml);
-        public Task<APIResponse<GetAssetListResponse>> DownloadAsync(int count, string lastHintStr);
-        public Task<AssetPaginationResponse> GetAll(int count, Dictionary<string, AttributeValue> lastEvaluatedKey = null);
+        /*public Task<APIResponse<GetAssetListResponse>> DownloadAsync(int count, Dictionary<string, AttributeValue> lastEvaluatedKey);*/
+        public Task<AssetPaginationResponse> DownloadAsync(int count, Dictionary<string, AttributeValue> lastEvaluatedKey = null);
+        public Task<AssetPaginationResponse> GetAll(Dictionary<string, AttributeValue> lastEvaluatedKey = null);
     }
 }

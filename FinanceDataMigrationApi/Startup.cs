@@ -26,11 +26,14 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Reflection;
+using FinanceDataMigrationApi.V1.UseCase.Asset;
 using FinanceDataMigrationApi.V1.UseCase.Charges;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Asset;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Charges;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Tenure;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions;
+using FinanceDataMigrationApi.V1.UseCase.Tenure;
 using FinanceDataMigrationApi.V1.UseCase.Transactions;
 
 namespace FinanceDataMigrationApi
@@ -213,7 +216,7 @@ namespace FinanceDataMigrationApi
             services.AddScoped<ITransactionBatchInsertUseCase, TransactionBatchInsertUseCase>();
             services.AddScoped<ITenureBatchInsertUseCase, TenureBatchInsertUseCase>();
             services.AddScoped<ITenureGetAllUseCase, TenureGetAllUseCase>();
-            services.AddScoped<IAssetGetAllUseCase, AssetGetAllUseCase>();
+            services.AddScoped<IAssetGetAllByElasticSearchUseCase, AssetGetAllByElasticSearchUseCase>();
             services.AddScoped<IAssetSaveToSqlUseCase, AssetSaveToSqlUseCase>();
             services.AddScoped<ITenureSaveToSqlUseCase, TenureSaveToSqlUseCase>();
             services.AddScoped<IGetLastHintUseCase, GetLastHintUseCase>();

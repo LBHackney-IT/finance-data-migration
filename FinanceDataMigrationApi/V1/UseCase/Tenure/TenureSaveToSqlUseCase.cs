@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
-using FinanceDataMigrationApi.V1.UseCase.Interfaces;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Tenure;
 
-namespace FinanceDataMigrationApi.V1.UseCase
+namespace FinanceDataMigrationApi.V1.UseCase.Tenure
 {
     public class TenureSaveToSqlUseCase : ITenureSaveToSqlUseCase
     {

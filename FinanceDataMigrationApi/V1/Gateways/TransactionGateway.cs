@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Factories;
@@ -9,10 +10,12 @@ using FinanceDataMigrationApi.V1.Gateways.Interfaces;
 using System.Threading.Tasks;
 using AutoMapper.Internal;
 using FinanceDataMigrationApi.V1.Domain;
+using FinanceDataMigrationApi.V1.Gateways.Extensions;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using FinanceDataMigrationApi.V1.Infrastructure.Extensions;
+using Hackney.Shared.HousingSearch.Domain.Transactions;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
@@ -20,11 +23,17 @@ namespace FinanceDataMigrationApi.V1.Gateways
     {
         private readonly IAmazonDynamoDB _amazonDynamoDb;
         readonly DatabaseContext _context;
+        private readonly HttpClient _client;
 
         public TransactionGateway(DatabaseContext context, IAmazonDynamoDB amazonDynamoDb)
         {
             _amazonDynamoDb = amazonDynamoDb;
             _context = context;
+        }
+
+        public TransactionGateway(HttpClient client)
+        {
+            _client = client;
         }
 
         public async Task<int> ExtractAsync()
@@ -137,7 +146,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 await context.DisposeAsync().ConfigureAwait(false);
             }
         }
-        public async Task BatchDelete(List<DmTransaction> transactions)
+        /*public async Task BatchDelete(List<DmTransaction> transactions)
         {
             DatabaseContext context = DatabaseContext.Create();
             List<TransactWriteItem> actions = new List<TransactWriteItem>();
@@ -214,22 +223,29 @@ namespace FinanceDataMigrationApi.V1.Gateways
             {
                 await context.DisposeAsync().ConfigureAwait(false);
             }
-        }
+        }*/
 
-        public async Task<List<DmTransaction>> GetLoadedListForDeleteAsync(int count)
+        public async Task<List<DmTransaction>> GetLoadedListAsync(int count)
         {
             var results = await _context.GetLoadedTransactionListAsync(count).ConfigureAwait(false);
-            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Deleting);
+            results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Indexing);
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomains();
         }
 
-        public async Task<List<DmTransaction>> GetToBeDeletedListForDeleteAsync(int count)
+        /*public async Task<List<DmTransaction>> GetToBeDeletedListForDeleteAsync(int count)
         {
             var results = await _context.GetToBeDeletedTransactionListAsync(count).ConfigureAwait(false);
             results.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Deleting);
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return results.ToDomains();
+        }*/
+
+        public async Task<int> UpdateTransactionItems(IList<Transaction> transactions)
+        {
+            var response = await _client.PostAsJsonAsyncType(new Uri("api/v1/transactions/process-batch", UriKind.Relative), transactions)
+                .ConfigureAwait(true);
+            return response ? transactions.Count : 0;
         }
     }
 }

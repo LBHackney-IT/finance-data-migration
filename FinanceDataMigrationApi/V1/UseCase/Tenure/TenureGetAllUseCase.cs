@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using Amazon.DynamoDBv2.Model;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
-using FinanceDataMigrationApi.V1.UseCase.Interfaces;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Tenure;
 
-namespace FinanceDataMigrationApi.V1.UseCase
+namespace FinanceDataMigrationApi.V1.UseCase.Tenure
 {
     public class TenureGetAllUseCase : ITenureGetAllUseCase
     {
@@ -15,9 +15,9 @@ namespace FinanceDataMigrationApi.V1.UseCase
         {
             _tenureGateway = tenureGateway;
         }
-        public async Task<TenurePaginationResponse> ExecuteAsync(int count, Dictionary<string, AttributeValue> lastEvaluatedKey = null)
+        public async Task<TenurePaginationResponse> ExecuteAsync(Dictionary<string, AttributeValue> lastEvaluatedKey = null)
         {
-            return await _tenureGateway.GetAll(count, lastEvaluatedKey).ConfigureAwait(false);
+            return await _tenureGateway.GetAll(lastEvaluatedKey).ConfigureAwait(false);
         }
     }
 }

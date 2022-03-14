@@ -5,6 +5,7 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.Core;
+using Elasticsearch.Net;
 using FinanceDataMigrationApi.V1.Boundary.Response;
 using FinanceDataMigrationApi.V1.Gateways;
 using FinanceDataMigrationApi.V1.Infrastructure;
@@ -15,13 +16,18 @@ using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure.Entities;
 using FinanceDataMigrationApi.V1.UseCase.Accounts;
+using FinanceDataMigrationApi.V1.UseCase.Asset;
 using FinanceDataMigrationApi.V1.UseCase.Charges;
 using FinanceDataMigrationApi.V1.UseCase.DmRunStatus;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Accounts;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Asset;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Charges;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.DmRunStatus;
+using FinanceDataMigrationApi.V1.UseCase.Interfaces.Tenure;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions;
+using FinanceDataMigrationApi.V1.UseCase.Tenure;
 using FinanceDataMigrationApi.V1.UseCase.Transactions;
+using Nest;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
@@ -34,7 +40,7 @@ namespace FinanceDataMigrationApi
         readonly IGetLastHintUseCase _getLastHintUseCase;
         readonly ITenureGetAllUseCase _tenureGetAllUseCase;
         readonly ITenureSaveToSqlUseCase _tenureSaveToSqlUseCase;
-        readonly IAssetGetAllUseCase _assetGetAllUseCase;
+        readonly IAssetGetAllByElasticSearchUseCase _assetGetAllUseCase;
         readonly IAssetSaveToSqlUseCase _assetSaveToSqlUseCase;
         readonly IDmRunStatusGetUseCase _dmRunStatusGetUseCase;
         readonly IDmAssetRunStatusSaveUseCase _dmAssetRunStatusSaveUseCase;
@@ -49,8 +55,9 @@ namespace FinanceDataMigrationApi
         readonly IExtractAccountEntityUseCase _extractAccountEntityUseCase;
         readonly ILoadAccountsUseCase _loadAccountsUseCase;
         readonly IDmAccountLoadRunStatusSaveUseCase _dmAccountLoadRunStatusSaveUseCase;
-        readonly IDeleteAccountEntityUseCase _deleteAccountEntityUseCase;
-        readonly IDeleteTransactionEntityUseCase _deleteTransactionEntityUseCase;
+        /*readonly IDeleteAccountEntityUseCase _deleteAccountEntityUseCase;
+        readonly IDeleteTransactionEntityUseCase _deleteTransactionEntityUseCase;*/
+        readonly IIndexTransactionEntityUseCase _indexTransactionEntityUseCase;
         readonly int _waitDuration;
 
         private readonly int _batchSize;
@@ -74,13 +81,15 @@ namespace FinanceDataMigrationApi
             ITimeLogGateway timeLogGateway = new TimeLogGateway(context);
             IDMRunLogGateway dmRunLogGateway = new DMRunLogGateway(context);
             IAccountsGateway accountsGateway = new AccountsGateway(context, amazonDynamoDb);
+            IElasticClient elasticClient = CreateElasticClient();
+            IEsGateway esGateway = new EsGateway(elasticClient);
 
             _getLastHintUseCase = new GetLastHintUseCase(hitsGateway);
             _loadChargeEntityUseCase = new LoadChargeEntityUseCase(migrationRunGateway, chargeGateway);
             _extractChargeEntityUseCase = new ExtractChargeEntityUseCase(migrationRunGateway, chargeGateway);
             _tenureGetAllUseCase = new TenureGetAllUseCase(tenureGateway);
             _tenureSaveToSqlUseCase = new TenureSaveToSqlUseCase(tenureGateway);
-            _assetGetAllUseCase = new AssetGetAllUseCase(assetGateway);
+            _assetGetAllUseCase = new AssetGetAllByElasticSearchUseCase(assetGateway);
             _assetSaveToSqlUseCase = new AssetSaveToSqlUseCase(assetGateway);
             _dmRunStatusGetUseCase = new DmRunStatusGetUseCase(dmRunStatusGateway);
             _dmAssetRunStatusSaveUseCase = new DmAssetRunStatusSaveUseCase(dmRunStatusGateway);
@@ -90,13 +99,14 @@ namespace FinanceDataMigrationApi
             _extractTransactionEntityUseCase = new ExtractTransactionEntityUseCase(dmRunLogGateway, transactionGateway);
             _loadTransactionEntityUseCase = new LoadTransactionEntityUseCase(transactionGateway);
             _dmTransactionExtractRunStatusSaveUseCase = new DmTransactionExtractRunStatusSaveUseCase(dmRunStatusGateway);
-            _deleteTransactionEntityUseCase = new DeleteTransactionEntityUseCase(dmRunLogGateway, transactionGateway);
             _dmTransactionLoadRunStatusSaveUseCase = new DmTransactionLoadRunStatusSaveUseCase(dmRunStatusGateway);
             _extractAccountEntityUseCase = new ExtractAccountEntityUseCase(dmRunLogGateway, accountsGateway);
             _loadAccountsUseCase = new LoadAccountsUseCase(dmRunLogGateway, accountsGateway);
             _dmAccountLoadRunStatusSaveUseCase = new DmAccountLoadRunStatusSaveUseCase(dmRunStatusGateway);
-            _deleteAccountEntityUseCase = new DeleteAccountEntityUseCase(dmRunLogGateway, accountsGateway);
+            /*_deleteAccountEntityUseCase = new DeleteAccountEntityUseCase(dmRunLogGateway, accountsGateway);
+            _deleteTransactionEntityUseCase = new DeleteTransactionEntityUseCase(dmRunLogGateway, transactionGateway);*/
             _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
+            _indexTransactionEntityUseCase = new IndexTransactionEntityUseCase(transactionGateway, esGateway);
         }
 
         public async Task<StepResponse> ExtractTransactions()
@@ -143,7 +153,7 @@ namespace FinanceDataMigrationApi
                     var result = await _loadTransactionEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
                     await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
                     if (!result.Continue)
-                        await _dmTransactionLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
+                        await _dmTransactionLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today.AddYears(200)).ConfigureAwait(false);
 
                     return result;
                 }
@@ -162,6 +172,42 @@ namespace FinanceDataMigrationApi
                 {
                     Continue = false
                 };
+            }
+        }
+
+        public async Task<StepResponse> IndexTransactions()
+        {
+            try
+            {
+                var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
+                if (runStatus.TransactionExtractDate >= DateTime.Today &&
+                    runStatus.TransactionLoadDate >= DateTime.Today &&
+                    runStatus.TransactionIndexDate < DateTime.Today)
+                {
+                    DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
+                    {
+                        ProcName = $"{nameof(IndexTransactions)}",
+                        StartTime = DateTime.Now
+                    };
+                    var result = await _indexTransactionEntityUseCase.ExecuteAsync(500).ConfigureAwait(false);
+                    await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+                    if (!result.Continue)
+                        await _dmTransactionLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
+
+                    return result;
+                }
+                else
+                {
+                    return new StepResponse()
+                    {
+                        Continue = false
+                    };
+                }
+            }
+            catch (Exception e)
+            {
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}.{nameof(IndexTransactions)} Exception:{e.GetFullMessage()}");
+                throw;
             }
         }
 
@@ -184,7 +230,7 @@ namespace FinanceDataMigrationApi
                     var result = await _loadChargeEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
                     await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
                     if (!result.Continue)
-                        await _dmChargeLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
+                        await _dmChargeLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today.AddYears(200)).ConfigureAwait(false);
 
                     return result;
                 }
@@ -280,7 +326,7 @@ namespace FinanceDataMigrationApi
                     var result = await _loadAccountsUseCase.ExecuteAsync(count).ConfigureAwait(false);
                     await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
                     if (!result.Continue)
-                        await _dmAccountLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
+                        await _dmAccountLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today.AddYears(200)).ConfigureAwait(false);
 
                     return result;
                 }
@@ -302,7 +348,7 @@ namespace FinanceDataMigrationApi
             }
         }
 
-        public async Task<StepResponse> DeleteAccount()
+        /*        public async Task<StepResponse> DeleteAccount()
         {
             try
             {
@@ -356,15 +402,12 @@ namespace FinanceDataMigrationApi
                     Continue = false
                 };
             }
-        }
+        }*/
 
         public async Task<StepResponse> DownloadTenureToIfs()
         {
             try
             {
-                int count = int.Parse(Environment.GetEnvironmentVariable("TENURE_DOWNLOAD_BATCH_SIZE") ??
-                                      throw new Exception("Tenure download batch size is null."));
-
                 var dmRunStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
 
                 if (dmRunStatus.AllTenureDmCompleted)
@@ -382,7 +425,7 @@ namespace FinanceDataMigrationApi
                     ProcName = $"{nameof(_tenureGetAllUseCase)}",
                     StartTime = DateTime.Now
                 };
-                var response = await _tenureGetAllUseCase.ExecuteAsync(count, lastEvaluatedKey).ConfigureAwait(false);
+                var response = await _tenureGetAllUseCase.ExecuteAsync(lastEvaluatedKey).ConfigureAwait(false);
                 await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
 
                 lastEvaluatedKey = response.LastKey;
@@ -437,7 +480,14 @@ namespace FinanceDataMigrationApi
                 if (dmRunStatus.AllAssetDmCompleted == true)
                     return new StepResponse() { Continue = false };
 
-                var lastHint = await _getLastHintUseCase.ExecuteAsync("asset").ConfigureAwait(false);
+                var lastKey = await _getLastHintUseCase.ExecuteAsync("asset").ConfigureAwait(false);
+
+                Dictionary<string, AttributeValue> lastEvaluatedKey = new Dictionary<string, AttributeValue>
+                {
+                    {"id",new AttributeValue{S = lastKey.ToString()}}
+                };
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}" +
+                                       $"{nameof(DownloadAssetToIfs)} Started with {count} Batch Size.");
 
                 DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
                 {
@@ -445,13 +495,17 @@ namespace FinanceDataMigrationApi
                     StartTime = DateTime.Now
                 };
 
-                var response = await _assetGetAllUseCase.ExecuteAsync(count, lastHint == Guid.Empty ? "" : lastHint.ToString()).ConfigureAwait(false);
+                var response = await _assetGetAllUseCase.ExecuteAsync(count, lastEvaluatedKey).ConfigureAwait(false);
 
                 await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
 
-                if (response.lastHitId == null || response.Results.Assets.Count == 0)
+                lastEvaluatedKey = response.LastKey;
+
+                if (response.Assets == null || response.Assets.Count == 0)
                 {
                     await _dmAssetRunStatusSaveUseCase.ExecuteAsync(true).ConfigureAwait(false);
+                    LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}" +
+                                           $"{nameof(DownloadAssetToIfs)} All data downloaded.");
                     return new StepResponse() { Continue = false };
                 }
 
@@ -460,18 +514,19 @@ namespace FinanceDataMigrationApi
                     ProcName = $"Assets.ToXElement",
                     StartTime = DateTime.Now
                 };
-                var xmlData = response.Results.Assets.ToXElement();
+                var xmlData = response.Assets.ToXElement();
                 await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
-
-                lastHint = Guid.Parse(response.lastHitId);
 
                 dmTimeLogModel = new DmTimeLogModel()
                 {
                     ProcName = $"{nameof(_assetSaveToSqlUseCase)}",
                     StartTime = DateTime.Now
                 };
-                await _assetSaveToSqlUseCase.ExecuteAsync(lastHint.ToString(), xmlData).ConfigureAwait(false);
+                await _assetSaveToSqlUseCase.ExecuteAsync(response.LastKey.Count > 0 ? lastEvaluatedKey["id"].S : lastKey.ToString(), xmlData).ConfigureAwait(false);
                 await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
+
+                LoggingHandler.LogInfo($"{nameof(FinanceDataMigrationApi)}.{nameof(Handler)}" +
+                                       $"{nameof(DownloadAssetToIfs)} Step finished.");
 
                 return new StepResponse()
                 {
@@ -502,5 +557,20 @@ namespace FinanceDataMigrationApi
             }
             return new AmazonDynamoDBClient();
         }
+
+        public static ElasticClient CreateElasticClient()
+        {
+            var url = Environment.GetEnvironmentVariable("ELASTICSEARCH_DOMAIN_URL");
+            if (string.IsNullOrEmpty(url))
+                url = "http://localhost:9200/";
+
+            var pool = new SingleNodeConnectionPool(new Uri(url));
+            var connectionSettings = new ConnectionSettings(pool)
+                .PrettyJson()
+                .ThrowExceptions()
+                .DisableDirectStreaming();
+            return new ElasticClient(connectionSettings);
+        }
+
     }
 }

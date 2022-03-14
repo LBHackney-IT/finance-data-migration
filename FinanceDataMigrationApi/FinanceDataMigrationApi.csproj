@@ -20,11 +20,15 @@
       <Compile Remove="V1\Gateways\Interfaces\IMigrationRunDynamoGateway.cs" />
       <Compile Remove="V1\Infrastructure\DMDetailedChargesEntity.cs" />
       <Compile Remove="V1\Infrastructure\MigrationRunDbEntity.cs" />
+      <Compile Remove="V1\UseCase\Accounts\DeleteAccountEntityUseCase.cs" />
       <Compile Remove="V1\UseCase\GetAllUseCase.cs" />
       <Compile Remove="V1\UseCase\GetMigrationRunByEntityNameUseCase.cs" />
       <Compile Remove="V1\UseCase\GetMigrationRunByIdUseCase.cs" />
       <Compile Remove="V1\UseCase\GetMigrationRunListUseCase.cs" />
+      <Compile Remove="V1\UseCase\Interfaces\Accounts\IDeleteAccountEntityUseCase.cs" />
       <Compile Remove="V1\UseCase\Interfaces\ITransformChargeEntityUseCase.cs" />
+      <Compile Remove="V1\UseCase\Interfaces\Transactions\IDeleteTransactionEntityUseCase.cs" />
+      <Compile Remove="V1\UseCase\Transactions\DeleteTransactionEntityUseCase.cs" />
       <Compile Remove="V1\UseCase\TransformChargeEntityUseCase.cs" />
       <Compile Remove="V1\UseCase\UpdateUseCase.cs" />
     </ItemGroup>
