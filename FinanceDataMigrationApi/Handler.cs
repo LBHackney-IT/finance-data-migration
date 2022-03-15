@@ -578,6 +578,8 @@ namespace FinanceDataMigrationApi
         {
             string env = Environment.GetEnvironmentVariable("ENVIRONMENT") ??
                          throw new Exception("ENVIRONMENT variable not found");
+            LoggingHandler.LogInfo($"Environment is: {env}");
+
             if (env.ToLower().Trim() == "development")
             {
                 await _removeChargeTableUseCase.ExecuteAsync();
