@@ -32,6 +32,9 @@ namespace FinanceDataMigrationApi.V1.Infrastructure.Entities
         [Column("charge_group")]
         public string ChargeGroup { get; set; }
 
+        [Column("charge_year")]
+        public int ChargeYear { get; set; }
+
         [Column("migration_status")]
         public EMigrationStatus MigrationStatus { get; set; }
 
