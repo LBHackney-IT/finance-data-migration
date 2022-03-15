@@ -108,7 +108,7 @@ namespace FinanceDataMigrationApi
             _deleteTransactionEntityUseCase = new DeleteTransactionEntityUseCase(dmRunLogGateway, transactionGateway);*/
             _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
             _indexTransactionEntityUseCase = new IndexTransactionEntityUseCase(transactionGateway, esGateway);
-            _removeChargeTableUseCase = new RemoveChargeTableUseCase((ChargeGateway) chargeGateway);
+            /*_removeChargeTableUseCase = new RemoveChargeTableUseCase((ChargeGateway) chargeGateway);*/
         }
 
         public async Task<StepResponse> ExtractTransactions()

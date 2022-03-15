@@ -13,6 +13,7 @@ namespace FinanceDataMigrationApi.V1.Domain
         public string PropertyReference { get; set; }
         public string TargetType { get; set; }
         public string ChargeGroup { get; set; }
+        public string ChargeSubGroup { get; set; }
         public EMigrationStatus MigrationStatus { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public int ChargeYear { get; set; }
