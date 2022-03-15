@@ -124,13 +124,13 @@ functions:
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::IndexTransactions
     reservedConcurrency: 1
     role: lambdaExecutionRole
-  removeChargeTable:
-    name: ${self:service}-${self:provider.stage}-remove-charge-table
-    description: "Deleting the charges table in development only"
-    timeout: 900
-    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::RemoveChargeTable
-    reservedConcurrency: 1
-    role: lambdaExecutionRole
+    #removeChargeTable:
+    #  name: ${self:service}-${self:provider.stage}-remove-charge-table
+    #  description: "Deleting the charges table in development only"
+    #  timeout: 900
+    #  handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::RemoveChargeTable
+    #  reservedConcurrency: 1
+    #  role: lambdaExecutionRole
 stepFunctions:
   stateMachines:
     downloadingAsset:

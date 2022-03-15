@@ -574,7 +574,7 @@ namespace FinanceDataMigrationApi
             return new ElasticClient(connectionSettings);
         }
 
-        public async Task<DeleteTableResponse> RemoveChargeTable()
+        /*public async Task<DeleteTableResponse> RemoveChargeTable()
         {
             string env = Environment.GetEnvironmentVariable("ENVIRONMENT") ??
                          throw new Exception("ENVIRONMENT variable not found");
@@ -585,6 +585,6 @@ namespace FinanceDataMigrationApi
                 return await _removeChargeTableUseCase.ExecuteAsync();
             }
             throw new Exception($"This operation not allowed in {env} environment");
-        }
+        }*/
     }
 }
