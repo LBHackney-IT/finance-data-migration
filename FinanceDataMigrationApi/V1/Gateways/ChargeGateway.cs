@@ -131,6 +131,11 @@ namespace FinanceDataMigrationApi.V1.Gateways
             }
         }
 
+        public Task<DeleteTableResponse> RemoveTable()
+        {
+            throw new NotImplementedException();
+        }
+
         /*public async Task<DeleteTableResponse> RemoveTable()
         {
             try
