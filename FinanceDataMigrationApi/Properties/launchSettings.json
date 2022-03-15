@@ -16,6 +16,7 @@
         "FINANCIAL_TRANSACTION_API_URL": ";SEARCH_API_TOKEN=KLO",
         "ASSET_DOWNLOAD_BATCH_SIZE": 5000,
         "CHARGE_LOAD_BATCH_SIZE": 1000,
+        "INDEX_BATCH_SIZE": 1000,
         "ENVIRONMENT": "Development",
         "DynamoDb_LocalServiceUrl": "http://localhost:8000",
         "ACCEPTED_ORIGINS": "True",

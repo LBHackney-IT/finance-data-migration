@@ -181,6 +181,9 @@ namespace FinanceDataMigrationApi
         {
             try
             {
+                var count = int.Parse(Environment.GetEnvironmentVariable("INDEX_BATCH_SIZE") ??
+                            throw new Exception($"INDEX_BATCH_SIZE variable not found"));
+
                 var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
                 if (runStatus.TransactionExtractDate >= DateTime.Today &&
                     runStatus.TransactionLoadDate >= DateTime.Today &&
@@ -191,7 +194,7 @@ namespace FinanceDataMigrationApi
                         ProcName = $"{nameof(IndexTransactions)}",
                         StartTime = DateTime.Now
                     };
-                    var result = await _indexTransactionEntityUseCase.ExecuteAsync(500).ConfigureAwait(false);
+                    var result = await _indexTransactionEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
                     await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
                     if (!result.Continue)
                         await _dmTransactionLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
