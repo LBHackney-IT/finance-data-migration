@@ -58,7 +58,7 @@ namespace FinanceDataMigrationApi
         /*readonly IDeleteAccountEntityUseCase _deleteAccountEntityUseCase;
         readonly IDeleteTransactionEntityUseCase _deleteTransactionEntityUseCase;*/
         readonly IIndexTransactionEntityUseCase _indexTransactionEntityUseCase;
-        readonly IRemoveChargeTableUseCase _removeChargeTableUseCase;
+        /*readonly IRemoveChargeTableUseCase _removeChargeTableUseCase;*/
         readonly int _waitDuration;
 
         private readonly int _batchSize;
