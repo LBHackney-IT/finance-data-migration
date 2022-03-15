@@ -58,6 +58,7 @@ namespace FinanceDataMigrationApi
         /*readonly IDeleteAccountEntityUseCase _deleteAccountEntityUseCase;
         readonly IDeleteTransactionEntityUseCase _deleteTransactionEntityUseCase;*/
         readonly IIndexTransactionEntityUseCase _indexTransactionEntityUseCase;
+        readonly IRemoveChargeTableUseCase _removeChargeTableUseCase;
         readonly int _waitDuration;
 
         private readonly int _batchSize;
@@ -107,6 +108,7 @@ namespace FinanceDataMigrationApi
             _deleteTransactionEntityUseCase = new DeleteTransactionEntityUseCase(dmRunLogGateway, transactionGateway);*/
             _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
             _indexTransactionEntityUseCase = new IndexTransactionEntityUseCase(transactionGateway, esGateway);
+            _removeChargeTableUseCase = new RemoveChargeTableUseCase(chargeGateway);
         }
 
         public async Task<StepResponse> ExtractTransactions()
@@ -572,5 +574,10 @@ namespace FinanceDataMigrationApi
             return new ElasticClient(connectionSettings);
         }
 
+        public async Task<StepResponse> RemoveChargeTable()
+        {
+            await _removeChargeTableUseCase.ExecuteAsync();
+            return new StepResponse { Continue = false };
+        }
     }
 }
