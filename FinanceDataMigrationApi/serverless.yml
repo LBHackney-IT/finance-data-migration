@@ -20,6 +20,7 @@ provider:
     TENURE_DOWNLOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/tenure-download-batch-size}
     CHARGE_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/charge-load-batch-size}
     TRANSACTION_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/transaction-load-batch-size}
+    INDEX_BATCH_SIZE: ${ssm:/finance-data-migration/${self:provider.stage}/index-batch-size}
     ACCOUNT_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/account-load-batch-size}
     ELASTICSEARCH_DOMAIN_URL: ${ssm:/housing-search-api/${self:provider.stage}/elasticsearch-domain}
     ENVIRONMENT: ${self:provider.stage}
