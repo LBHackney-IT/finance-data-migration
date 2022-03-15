@@ -26,6 +26,11 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
             _transactionGateway = dMTransactionEntityGateway;
             _esGateway = esGateway;
         }
+        /// <summary>
+        /// Bulk index all loaded transactions into elastic search.
+        /// </summary>
+        /// <param name="count">batch size</param>
+        /// <returns>Next execution statements</returns>
         public async Task<StepResponse> ExecuteAsync(int count)
         {
             DatabaseContext context = DatabaseContext.Create();
