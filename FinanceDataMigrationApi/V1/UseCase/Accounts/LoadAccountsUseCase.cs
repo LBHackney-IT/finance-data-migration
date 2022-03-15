@@ -40,8 +40,6 @@ namespace FinanceDataMigrationApi.V1.UseCase.Accounts
                         if (data.Any())
                         {
                             tasks.Add(_accountsGateway.BatchInsert(data));
-                            await Task.WhenAll(tasks).ConfigureAwait(false);
-                            tasks.Clear();
                         }
                     }
                     if (tasks.Count > 0)

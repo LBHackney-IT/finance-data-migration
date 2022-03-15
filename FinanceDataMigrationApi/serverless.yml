@@ -22,6 +22,7 @@ provider:
     TRANSACTION_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/transaction-load-batch-size}
     ACCOUNT_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/account-load-batch-size}
     ELASTICSEARCH_DOMAIN_URL: ${ssm:/housing-search-api/${self:provider.stage}/elasticsearch-domain}
+    ENVIRONMENT: ${self:provider.stage}
 package:
   artifact: ./bin/release/netcoreapp3.1/finance-data-migration-api.zip
 
@@ -121,6 +122,13 @@ functions:
     description: "The scheduler to index Transaction entity data in FFS"
     timeout: 900
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::IndexTransactions
+    reservedConcurrency: 1
+    role: lambdaExecutionRole
+  removeChargeTable:
+    name: ${self:service}-${self:provider.stage}-remove-charge-table
+    description: "Deleting the charges table in development only"
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::RemoveChargeTable
     reservedConcurrency: 1
     role: lambdaExecutionRole
 stepFunctions:
