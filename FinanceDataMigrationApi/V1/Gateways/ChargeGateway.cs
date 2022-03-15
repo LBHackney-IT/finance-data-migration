@@ -131,13 +131,13 @@ namespace FinanceDataMigrationApi.V1.Gateways
             }
         }
 
-        public Task RemoveTable()
+        public async Task<DeleteTableResponse> RemoveTable()
         {
             try
             {
                 DeleteTableRequest request = new DeleteTableRequest { TableName = "Charges" };
-                _amazonDynamoDb.DeleteTableAsync(request);
-                return Task.CompletedTask;
+                var response = await _amazonDynamoDb.DeleteTableAsync(request).ConfigureAwait(false);
+                return response;
             }
             catch (Exception ex)
             {

@@ -12,7 +12,7 @@ namespace FinanceDataMigrationApi.V1.Controllers
         [HttpGet]
         public async Task<IActionResult> CallHandler()
         {
-            await new Handler().LoadCharge().ConfigureAwait(false);
+            await new Handler().RemoveChargeTable().ConfigureAwait(false);
             return Ok("Done");
         }
     }
