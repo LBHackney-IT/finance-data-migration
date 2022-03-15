@@ -576,8 +576,14 @@ namespace FinanceDataMigrationApi
 
         public async Task<StepResponse> RemoveChargeTable()
         {
-            await _removeChargeTableUseCase.ExecuteAsync();
-            return new StepResponse { Continue = false };
+            string env = Environment.GetEnvironmentVariable("ENVIRONMENT") ??
+                         throw new Exception("ENVIRONMENT variable not found");
+            if (env.ToLower().Trim() == "development")
+            {
+                await _removeChargeTableUseCase.ExecuteAsync();
+                return new StepResponse { Continue = false };
+            }
+            throw new Exception($"This operation not allowed in {env} environment");
         }
     }
 }
