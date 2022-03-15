@@ -131,7 +131,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
             }
         }
 
-        public async Task<DeleteTableResponse> RemoveTable()
+        /*public async Task<DeleteTableResponse> RemoveTable()
         {
             try
             {
@@ -145,6 +145,6 @@ namespace FinanceDataMigrationApi.V1.Gateways
                                         $"{nameof(RemoveTable)} exception: {ex.GetFullMessage()}");
                 throw;
             }
-        }
+        }*/
     }
 }
