@@ -130,5 +130,26 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
         }
+
+        public Task<DeleteTableResponse> RemoveTable()
+        {
+            throw new NotImplementedException();
+        }
+
+        /*public async Task<DeleteTableResponse> RemoveTable()
+        {
+            try
+            {
+                DeleteTableRequest request = new DeleteTableRequest { TableName = "Charges" };
+                var response = await _amazonDynamoDb.DeleteTableAsync(request).ConfigureAwait(false);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                LoggingHandler.LogError($"{nameof(FinanceDataMigrationApi)}.{nameof(ChargeGateway)}." +
+                                        $"{nameof(RemoveTable)} exception: {ex.GetFullMessage()}");
+                throw;
+            }
+        }*/
     }
 }

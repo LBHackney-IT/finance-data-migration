@@ -23,7 +23,9 @@ namespace FinanceDataMigrationApi.V1.Factories
                     PaymentReference = dMChargesEntity.PaymentReference,
                     PropertyReference = dMChargesEntity.PropertyReference,
                     TargetType = dMChargesEntity.TargetType,
+                    ChargeYear = dMChargesEntity.ChargeYear,
                     ChargeGroup = dMChargesEntity.ChargeGroup,
+                    ChargeSubGroup = dMChargesEntity.ChargeSubGroup,
                     DetailedCharges = dMChargesEntity.DetailedChargesDbEntities?
                         .Select(p => new DmDetailedCharges
                         {
@@ -57,11 +59,10 @@ namespace FinanceDataMigrationApi.V1.Factories
             chargeModel.PureAdd("target_id", new AttributeValue { S = charge.TargetId.ToString() });
             chargeModel.PureAdd("target_type", new AttributeValue { S = charge.TargetType.ToString().Trim() });
             chargeModel.PureAdd("charge_group", new AttributeValue { S = charge.ChargeGroup.ToString().Trim() });
-            chargeModel.PureAdd("charge_year", new AttributeValue { N = charge.DetailedCharges.FirstOrDefault()?.StartDate.Year.ToString().Trim() });
+            chargeModel.PureAdd("charge_year", new AttributeValue { N = charge.ChargeYear.ToString() });
             chargeModel.PureAdd("created_at", new AttributeValue { S = DateTime.Today.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'") });
             chargeModel.PureAdd("created_by", new AttributeValue { S = "Migration" });
-            if (charge.ChargeGroup.ToLower() == "leaseholders")
-                chargeModel.PureAdd("charge_sub_group", new AttributeValue { S = "Actual" });
+            chargeModel.PureAdd("charge_sub_group", new AttributeValue { S = charge.ChargeSubGroup });
 
             if (charge.DetailedCharges != null && charge.DetailedCharges.Count > 0)
             {

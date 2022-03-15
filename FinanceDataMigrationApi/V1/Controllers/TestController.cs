@@ -10,9 +10,9 @@ namespace FinanceDataMigrationApi.V1.Controllers
     public class TestController : BaseController
     {
         [HttpGet]
-        public async Task<IActionResult> IndexTransaction()
+        public async Task<IActionResult> CallHandler()
         {
-            await new Handler().DownloadAssetToIfs().ConfigureAwait(false);
+            await new Handler().IndexTransactions().ConfigureAwait(false);
             return Ok("Done");
         }
     }

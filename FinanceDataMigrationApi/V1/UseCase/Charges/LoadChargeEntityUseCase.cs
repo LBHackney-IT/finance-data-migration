@@ -38,7 +38,6 @@ namespace FinanceDataMigrationApi.V1.UseCase.Charges
                         if (data.Any())
                         {
                             tasks.Add(_chargeGateway.BatchInsert(data));
-                            await Task.WhenAll(tasks).ConfigureAwait(false);
                         }
                     }
                     if (tasks.Count > 0)

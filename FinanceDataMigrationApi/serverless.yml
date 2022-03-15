@@ -20,8 +20,10 @@ provider:
     TENURE_DOWNLOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/tenure-download-batch-size}
     CHARGE_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/charge-load-batch-size}
     TRANSACTION_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/transaction-load-batch-size}
+    INDEX_BATCH_SIZE: ${ssm:/finance-data-migration/${self:provider.stage}/index-batch-size}
     ACCOUNT_LOAD_BATCH_SIZE: ${ssm:/housing-finance/${self:provider.stage}/account-load-batch-size}
     ELASTICSEARCH_DOMAIN_URL: ${ssm:/housing-search-api/${self:provider.stage}/elasticsearch-domain}
+    ENVIRONMENT: ${self:provider.stage}
 package:
   artifact: ./bin/release/netcoreapp3.1/finance-data-migration-api.zip
 
@@ -123,6 +125,13 @@ functions:
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::IndexTransactions
     reservedConcurrency: 1
     role: lambdaExecutionRole
+    #removeChargeTable:
+    #  name: ${self:service}-${self:provider.stage}-remove-charge-table
+    #  description: "Deleting the charges table in development only"
+    #  timeout: 900
+    #  handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::RemoveChargeTable
+    #  reservedConcurrency: 1
+    #  role: lambdaExecutionRole
 stepFunctions:
   stateMachines:
     downloadingAsset:
