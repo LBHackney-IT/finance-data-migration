@@ -44,7 +44,9 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
             {
                 var esRequests = EsFactory.ToTransactionRequestList(transactionRequestList);
                 await _esGateway.BulkIndexTransaction(esRequests).ConfigureAwait(false);
-                loadedList.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Indexed);
+                context.TransactionEntities.Where(p =>
+                        loadedList.Select(i => i.Id).Contains(p.Id))
+                    .ForAll(p => p.MigrationStatus = EMigrationStatus.Indexed);
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
             else
