@@ -12,6 +12,12 @@
         <UserSecretsId>c1dc564e-5883-4ecf-963b-a8a865566aa2</UserSecretsId>
     </PropertyGroup>
     <ItemGroup>
+      <Compile Remove="V1\Controllers\**" />
+      <Content Remove="V1\Controllers\**" />
+      <EmbeddedResource Remove="V1\Controllers\**" />
+      <None Remove="V1\Controllers\**" />
+    </ItemGroup>
+    <ItemGroup>
       <Compile Remove="V1\Factories\ResponseFactory.cs" />
       <Compile Remove="V1\Gateways\DynamoDbGateway_OLD.cs" />
       <Compile Remove="V1\Gateways\ExampleGateway.cs" />
@@ -21,11 +27,13 @@
       <Compile Remove="V1\Infrastructure\DMDetailedChargesEntity.cs" />
       <Compile Remove="V1\Infrastructure\MigrationRunDbEntity.cs" />
       <Compile Remove="V1\UseCase\Accounts\DeleteAccountEntityUseCase.cs" />
+      <Compile Remove="V1\UseCase\Charges\RemoveChargeTableUseCase.cs" />
       <Compile Remove="V1\UseCase\GetAllUseCase.cs" />
       <Compile Remove="V1\UseCase\GetMigrationRunByEntityNameUseCase.cs" />
       <Compile Remove="V1\UseCase\GetMigrationRunByIdUseCase.cs" />
       <Compile Remove="V1\UseCase\GetMigrationRunListUseCase.cs" />
       <Compile Remove="V1\UseCase\Interfaces\Accounts\IDeleteAccountEntityUseCase.cs" />
+      <Compile Remove="V1\UseCase\Interfaces\Charges\IRemoveChargeTableUseCase.cs" />
       <Compile Remove="V1\UseCase\Interfaces\ITransformChargeEntityUseCase.cs" />
       <Compile Remove="V1\UseCase\Interfaces\Transactions\IDeleteTransactionEntityUseCase.cs" />
       <Compile Remove="V1\UseCase\Transactions\DeleteTransactionEntityUseCase.cs" />
@@ -72,7 +80,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="5.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.4.1" />
-    <PackageReference Include="NEST" Version="7.15.0" />
+    <PackageReference Include="NEST" Version="7.11.1" />
     <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.25.0" />
   </ItemGroup>
 
