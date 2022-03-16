@@ -26,6 +26,11 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
             _transactionGateway = dMTransactionEntityGateway;
             _esGateway = esGateway;
         }
+        /// <summary>
+        /// Bulk index all loaded transactions into elastic search.
+        /// </summary>
+        /// <param name="count">batch size</param>
+        /// <returns>Next execution statements</returns>
         public async Task<StepResponse> ExecuteAsync(int count)
         {
             DatabaseContext context = DatabaseContext.Create();
@@ -39,7 +44,9 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
             {
                 var esRequests = EsFactory.ToTransactionRequestList(transactionRequestList);
                 await _esGateway.BulkIndexTransaction(esRequests).ConfigureAwait(false);
-                loadedList.ToList().ForAll(p => p.MigrationStatus = EMigrationStatus.Indexed);
+                context.TransactionEntities.Where(p =>
+                        loadedList.Select(i => i.Id).Contains(p.Id))
+                    .ForAll(p => p.MigrationStatus = EMigrationStatus.Indexed);
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
             else
