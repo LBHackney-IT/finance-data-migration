@@ -3,7 +3,7 @@ using FinanceDataMigrationApi.V1.Boundary.Response;
 
 namespace FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions
 {
-    public interface IIndexTransactionEntityUseCase
+    public interface IBatchIndexTransactionEntityUseCase
     {
         public Task<StepResponse> ExecuteAsync(int count);
     }

@@ -212,7 +212,7 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IGetTenureByIdUseCase, GetTenureByIdUseCase>();
 
             services.AddScoped<IGetPersonByIdUseCase, GetPersonByIdUseCase>();
-            services.AddScoped<IIndexTransactionEntityUseCase, IndexTransactionEntityUseCase>();
+            services.AddScoped<BatchIndexTransactionEntityUseCase, BatchIndexTransactionEntityUseCase>();
             services.AddScoped<IExtractChargeEntityUseCase, ExtractChargeEntityUseCase>();
             services.AddScoped<ITransactionBatchInsertUseCase, TransactionBatchInsertUseCase>();
             services.AddScoped<ITenureBatchInsertUseCase, TenureBatchInsertUseCase>();

@@ -56,10 +56,7 @@ namespace FinanceDataMigrationApi
         readonly IExtractAccountEntityUseCase _extractAccountEntityUseCase;
         readonly ILoadAccountsUseCase _loadAccountsUseCase;
         readonly IDmAccountLoadRunStatusSaveUseCase _dmAccountLoadRunStatusSaveUseCase;
-        /*readonly IDeleteAccountEntityUseCase _deleteAccountEntityUseCase;
-        readonly IDeleteTransactionEntityUseCase _deleteTransactionEntityUseCase;*/
-        readonly IIndexTransactionEntityUseCase _indexTransactionEntityUseCase;
-        /*readonly IRemoveChargeTableUseCase _removeChargeTableUseCase;*/
+        readonly IBatchIndexTransactionEntityUseCase _batchIndexTransactionEntityUseCase;
         readonly int _waitDuration;
 
         private readonly int _batchSize;
@@ -106,7 +103,7 @@ namespace FinanceDataMigrationApi
             _loadAccountsUseCase = new LoadAccountsUseCase(dmRunLogGateway, accountsGateway);
             _dmAccountLoadRunStatusSaveUseCase = new DmAccountLoadRunStatusSaveUseCase(dmRunStatusGateway);
             _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
-            _indexTransactionEntityUseCase = new IndexTransactionEntityUseCase(transactionGateway, esTransactionGateway);
+            _batchIndexTransactionEntityUseCase = new BatchIndexTransactionEntityUseCase(transactionGateway, esTransactionGateway);
         }
 
         public async Task<StepResponse> ExtractTransactions()
@@ -192,7 +189,7 @@ namespace FinanceDataMigrationApi
                         ProcName = $"{nameof(IndexTransactions)}",
                         StartTime = DateTime.Now
                     };
-                    var result = await _indexTransactionEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
+                    var result = await _batchIndexTransactionEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
                     await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
                     if (!result.Continue)
                         await _dmTransactionLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);

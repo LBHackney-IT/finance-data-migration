@@ -16,11 +16,15 @@ using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using FinanceDataMigrationApi.V1.Infrastructure.Extensions;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
+using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 
 namespace FinanceDataMigrationApi.V1.Gateways
 {
     public class TransactionGateway : ITransactionGateway
     {
+        private const string DataMigrationTask = "INDEXING";
+
+        private readonly EsGateway<QueryableTransaction> _esGateway;
         private readonly IAmazonDynamoDB _amazonDynamoDb;
         readonly DatabaseContext _context;
         private readonly HttpClient _client;
@@ -33,6 +37,11 @@ namespace FinanceDataMigrationApi.V1.Gateways
         public TransactionGateway(HttpClient client)
         {
             _client = client;
+        }
+
+        public TransactionGateway(EsGateway<QueryableTransaction> esGateway)
+        {
+            _esGateway = esGateway;
         }
         public async Task<int> ExtractAsync()
         {
@@ -155,6 +164,28 @@ namespace FinanceDataMigrationApi.V1.Gateways
                 .ConfigureAwait(true);
             return response ? transactions.Count : 0;
         }
+        public async Task<Task> BulkIndex(List<QueryableTransaction> transactions)
+        {
+            if (transactions == null) throw new ArgumentNullException(nameof(transactions));
 
+            DatabaseContext context = DatabaseContext.Create();
+            LoggingHandler.LogInfo($"Starting {DataMigrationTask} task for {DMEntityNames.Transactions} entity.");
+
+            if (transactions.Any())
+            {
+                await _esGateway.BulkIndex(transactions).ConfigureAwait(false);
+                context.TransactionEntities.Where(p =>
+                        transactions.Select(i => i.Id).Contains(p.IdDynamodb))
+                    .ForAll(p => p.MigrationStatus = EMigrationStatus.Indexed);
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }
+            else
+            {
+                LoggingHandler.LogInfo($"No records to {DataMigrationTask} for {DMEntityNames.Transactions} Entity");
+            }
+            LoggingHandler.LogInfo($"End of {DataMigrationTask} task for {DMEntityNames.Transactions} Entity");
+
+            return Task.CompletedTask;
+        }
     }
 }
