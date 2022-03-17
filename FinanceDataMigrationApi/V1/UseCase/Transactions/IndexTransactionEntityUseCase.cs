@@ -10,18 +10,19 @@ using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.Infrastructure.Enums;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions;
+using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 
 namespace FinanceDataMigrationApi.V1.UseCase.Transactions
 {
     public class IndexTransactionEntityUseCase : IIndexTransactionEntityUseCase
     {
         private readonly ITransactionGateway _transactionGateway;
-        private readonly IEsGateway _esGateway;
+        private readonly IEsGateway<QueryableTransaction> _esGateway;
 
         private readonly string _waitDuration = Environment.GetEnvironmentVariable("WAIT_DURATION") ?? "15";
         private const string DataMigrationTask = "INDEXING";
 
-        public IndexTransactionEntityUseCase(ITransactionGateway dMTransactionEntityGateway, IEsGateway esGateway)
+        public IndexTransactionEntityUseCase(ITransactionGateway dMTransactionEntityGateway, IEsGateway<QueryableTransaction> esGateway)
         {
             _transactionGateway = dMTransactionEntityGateway;
             _esGateway = esGateway;
@@ -43,7 +44,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
             if (transactionRequestList.Any())
             {
                 var esRequests = EsFactory.ToTransactionRequestList(transactionRequestList);
-                await _esGateway.BulkIndexTransaction(esRequests).ConfigureAwait(false);
+                await _esGateway.BulkIndex(esRequests).ConfigureAwait(false);
                 context.TransactionEntities.Where(p =>
                         loadedList.Select(i => i.Id).Contains(p.Id))
                     .ForAll(p => p.MigrationStatus = EMigrationStatus.Indexed);

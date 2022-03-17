@@ -19,9 +19,6 @@ namespace FinanceDataMigrationApi.V1.Factories
             if (transaction == null)
                 throw new ArgumentNullException(nameof(transaction));
 
-            //if (transaction. == null)
-            //    throw new Exception("There is no tenure provided for this asset.");
-
             return new QueryableTransaction
             {
                 Id = transaction.Id,
