@@ -35,6 +35,7 @@ using FinanceDataMigrationApi.V1.UseCase.Interfaces.Tenure;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions;
 using FinanceDataMigrationApi.V1.UseCase.Tenure;
 using FinanceDataMigrationApi.V1.UseCase.Transactions;
+using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 
 namespace FinanceDataMigrationApi
 {
@@ -190,7 +191,7 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IDMRunLogGateway, DMRunLogGateway>();
             services.AddScoped<ITenureGateway, TenureGateway>();
             services.AddScoped<IPersonGateway, PersonGateway>();
-            services.AddScoped<IEsGateway, EsGateway>();
+            services.AddScoped<IEsGateway<QueryableTransaction>, EsGateway<QueryableTransaction>>();
             services.AddScoped<IAssetGateway, AssetGateway>();
             services.AddScoped<IAccountsGateway, AccountsGateway>();
 

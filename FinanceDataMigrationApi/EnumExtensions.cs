@@ -1,9 +1,5 @@
-using FinanceDataMigrationApi.V1.Handlers;
 using System;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Reflection;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
 using TargetType = FinanceDataMigrationApi.V1.Domain.TargetType;
 

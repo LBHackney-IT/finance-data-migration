@@ -27,6 +27,7 @@ using FinanceDataMigrationApi.V1.UseCase.Interfaces.Tenure;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Transactions;
 using FinanceDataMigrationApi.V1.UseCase.Tenure;
 using FinanceDataMigrationApi.V1.UseCase.Transactions;
+using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 using Nest;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -83,7 +84,7 @@ namespace FinanceDataMigrationApi
             IDMRunLogGateway dmRunLogGateway = new DMRunLogGateway(context);
             IAccountsGateway accountsGateway = new AccountsGateway(context, amazonDynamoDb);
             IElasticClient elasticClient = CreateElasticClient();
-            IEsGateway esGateway = new EsGateway(elasticClient);
+            IEsGateway<QueryableTransaction> esTransactionGateway = new EsGateway<QueryableTransaction>(elasticClient, "Transactions");
 
             _getLastHintUseCase = new GetLastHintUseCase(hitsGateway);
             _loadChargeEntityUseCase = new LoadChargeEntityUseCase(migrationRunGateway, chargeGateway);
@@ -104,11 +105,8 @@ namespace FinanceDataMigrationApi
             _extractAccountEntityUseCase = new ExtractAccountEntityUseCase(dmRunLogGateway, accountsGateway);
             _loadAccountsUseCase = new LoadAccountsUseCase(dmRunLogGateway, accountsGateway);
             _dmAccountLoadRunStatusSaveUseCase = new DmAccountLoadRunStatusSaveUseCase(dmRunStatusGateway);
-            /*_deleteAccountEntityUseCase = new DeleteAccountEntityUseCase(dmRunLogGateway, accountsGateway);
-            _deleteTransactionEntityUseCase = new DeleteTransactionEntityUseCase(dmRunLogGateway, transactionGateway);*/
             _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
-            _indexTransactionEntityUseCase = new IndexTransactionEntityUseCase(transactionGateway, esGateway);
-            /*_removeChargeTableUseCase = new RemoveChargeTableUseCase((ChargeGateway) chargeGateway);*/
+            _indexTransactionEntityUseCase = new IndexTransactionEntityUseCase(transactionGateway, esTransactionGateway);
         }
 
         public async Task<StepResponse> ExtractTransactions()
@@ -271,7 +269,6 @@ namespace FinanceDataMigrationApi
                     };
                     await _extractChargeEntityUseCase.ExecuteAsync().ConfigureAwait(false);
                     await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
-                    //await _dmChargeExtractRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
                 }
                 return new StepResponse() { Continue = false };
             }
@@ -576,18 +573,5 @@ namespace FinanceDataMigrationApi
                 .DisableDirectStreaming();
             return new ElasticClient(connectionSettings);
         }
-
-        /*public async Task<DeleteTableResponse> RemoveChargeTable()
-        {
-            string env = Environment.GetEnvironmentVariable("ENVIRONMENT") ??
-                         throw new Exception("ENVIRONMENT variable not found");
-            LoggingHandler.LogInfo($"Environment is: {env}.");
-
-            if (env.ToLower().Trim() == "development")
-            {
-                return await _removeChargeTableUseCase.ExecuteAsync();
-            }
-            throw new Exception($"This operation not allowed in {env} environment");
-        }*/
     }
 }
