@@ -63,7 +63,7 @@ functions:
     reservedConcurrency: 1
     role: lambdaExecutionRole
   downloadAssets:
-    name: ${self:service}-${self:provider.stage}-download-assets-segment-scan
+    name: ${self:service}-${self:provider.stage}-assets-segment-scan
     description: "The scheduler to download asset data for migration of charges entities. by calling Asset elastic search endpoint."
     timeout: 900
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::DownloadAssets
