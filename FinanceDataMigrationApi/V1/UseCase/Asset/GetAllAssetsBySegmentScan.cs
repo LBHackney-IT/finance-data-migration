@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FinanceDataMigrationApi.V1.Domain.Assets;
 using FinanceDataMigrationApi.V1.Factories;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
+using FinanceDataMigrationApi.V1.Handlers;
 using FinanceDataMigrationApi.V1.UseCase.Interfaces.Asset;
 
 namespace FinanceDataMigrationApi.V1.UseCase.Asset
@@ -22,7 +23,8 @@ namespace FinanceDataMigrationApi.V1.UseCase.Asset
         public async Task<List<Hackney.Shared.Asset.Domain.Asset>> ExecuteAsync()
         {
             var response = await _gateway.GetAllBySegmentScan().ConfigureAwait(false);
-            var maxBatchCount = 1000;
+            var maxBatchCount = int.Parse(Environment.GetEnvironmentVariable("INDEX_BATCH_SIZE") ??
+                                          throw new Exception($"INDEX_BATCH_SIZE variable not found")); ;
 
             int loopCount;
             if (response.Count % maxBatchCount == 0)
@@ -33,10 +35,12 @@ namespace FinanceDataMigrationApi.V1.UseCase.Asset
             for (var start = 0; start < loopCount; start++)
             {
                 var itemsToIndex = response.Skip(start * maxBatchCount).Take(maxBatchCount);
+                LoggingHandler.LogInfo($"*** Creating Indexing Assets Step : {start}");
                 var esRequests = EsFactory.ToAssetRequestList(itemsToIndex);
                 await _esGateway.BulkIndex(esRequests).ConfigureAwait(false);
+                LoggingHandler.LogInfo($"*** Indexing Assets completed Step : {start}");
             }
-
+            LoggingHandler.LogInfo($"*** All Indexing completed");
             return response;
 
         }
