@@ -34,7 +34,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Asset
             {
                 var itemsToIndex = response.Skip(start * maxBatchCount).Take(maxBatchCount);
                 var esRequests = EsFactory.ToAssetRequestList(itemsToIndex);
-                //await _esGateway.BulkIndex(esRequests).ConfigureAwait(false);
+                await _esGateway.BulkIndex(esRequests).ConfigureAwait(false);
             }
 
             return response;
