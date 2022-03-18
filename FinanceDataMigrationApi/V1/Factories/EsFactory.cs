@@ -1,13 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FinanceDataMigrationApi.V1.Domain.Assets;
 using FinanceDataMigrationApi.V1.Infrastructure.Accounts;
 using FinanceDataMigrationApi.V1.Infrastructure.Extensions;
+using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Domain.Accounts.Enum;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
 using Hackney.Shared.HousingSearch.Gateways.Models.Accounts;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 using Newtonsoft.Json;
+using QueryableAsset = FinanceDataMigrationApi.V1.Domain.Assets.QueryableAsset;
 using TargetType = Hackney.Shared.HousingSearch.Domain.Accounts.Enum.TargetType;
 
 namespace FinanceDataMigrationApi.V1.Factories
@@ -57,6 +61,54 @@ namespace FinanceDataMigrationApi.V1.Factories
         public static List<QueryableTransaction> ToTransactionRequestList(IEnumerable<Transaction> transactions)
         {
             var transactionRequestList = transactions.Select(item => item.ToQueryableTransaction()).ToList();
+            return transactionRequestList;
+        }
+
+        public static QueryableAsset ToQueryableAsset(this Asset asset)
+        {
+            if (asset == null)
+                throw new ArgumentNullException(nameof(asset));
+
+            return new QueryableAsset
+            {
+                Id = asset.Id.ToString(),
+                AssetId = asset.AssetId,
+                AssetAddress = new QueryableAssetAddress()
+                {
+                    AddressLine1 = asset.AssetAddress.AddressLine1,
+                    AddressLine2 = asset.AssetAddress.AddressLine2,
+                    AddressLine3 = asset.AssetAddress.AddressLine3,
+                    AddressLine4 = asset.AssetAddress.AddressLine4,
+                    PostCode = asset.AssetAddress.PostCode,
+                    PostPreamble = asset.AssetAddress.PostPreamble,
+                    Uprn = asset.AssetAddress.Uprn
+                },
+                Tenure = new QueryableAssetTenure()
+                {
+                    Id = asset.Tenure.Id.ToString(),
+                    Type = asset.Tenure.Type,
+                    StartOfTenureDate = asset.Tenure.StartOfTenureDate.ToString(),
+                    EndOfTenureDate = asset.Tenure.EndOfTenureDate.ToString(),
+                    PaymentReference = asset.Tenure.PaymentReference
+                },
+                AssetCharacteristics = new QueryableAssetCharacteristics()
+                {
+                    NumberOfLifts = asset.AssetCharacteristics.NumberOfLifts,
+                    NumberOfLivingRooms = asset.AssetCharacteristics.NumberOfLivingRooms,
+                    WindowType = asset.AssetCharacteristics.WindowType,
+                    YearConstructed = asset.AssetCharacteristics.YearConstructed,
+                    NumberOfBedrooms = asset.AssetCharacteristics.NumberOfBedrooms
+                },
+                ParentAssetIds = asset.ParentAssetIds,
+                RootAsset = asset.RootAsset,
+                AssetType = asset.AssetType.ToString(),
+                IsAssetCautionaryAlerted = false
+            };
+        }
+
+        public static List<QueryableAsset> ToAssetRequestList(IEnumerable<Asset> assets)
+        {
+            var transactionRequestList = assets.Select(item => item.ToQueryableAsset()).ToList();
             return transactionRequestList;
         }
 

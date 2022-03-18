@@ -7,6 +7,7 @@ using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.Core;
 using Elasticsearch.Net;
 using FinanceDataMigrationApi.V1.Boundary.Response;
+using FinanceDataMigrationApi.V1.Domain.Assets;
 using FinanceDataMigrationApi.V1.Gateways;
 using FinanceDataMigrationApi.V1.Infrastructure;
 using FinanceDataMigrationApi.V1.Gateways.Interfaces;
@@ -87,6 +88,7 @@ namespace FinanceDataMigrationApi
             IAccountsGateway accountsGateway = new AccountsGateway(context, amazonDynamoDb);
             IElasticClient elasticClient = CreateElasticClient();
             IEsGateway<QueryableTransaction> esTransactionGateway = new EsGateway<QueryableTransaction>(elasticClient, "Transactions");
+            IEsGateway<QueryableAsset> esAssetGateway = new EsGateway<QueryableAsset>(elasticClient, "AssetsNew");
 
             _getLastHintUseCase = new GetLastHintUseCase(hitsGateway);
             _loadChargeEntityUseCase = new LoadChargeEntityUseCase(migrationRunGateway, chargeGateway);
@@ -109,7 +111,7 @@ namespace FinanceDataMigrationApi
             _dmAccountLoadRunStatusSaveUseCase = new DmAccountLoadRunStatusSaveUseCase(dmRunStatusGateway);
             _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
             _indexTransactionEntityUseCase = new IndexTransactionEntityUseCase(transactionGateway, esTransactionGateway);
-            _allAssetsBySegmentScan = new GetAllAssetsBySegmentScan(assetGateway);
+            _allAssetsBySegmentScan = new GetAllAssetsBySegmentScan(assetGateway, esAssetGateway);
         }
 
         public async Task<StepResponse> ExtractTransactions()
