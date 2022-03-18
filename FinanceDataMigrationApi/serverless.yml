@@ -62,6 +62,13 @@ functions:
     handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::DownloadAssetToIfs
     reservedConcurrency: 1
     role: lambdaExecutionRole
+  downloadAssets:
+    name: ${self:service}-${self:provider.stage}-download-assets-segment-scan
+    description: "The scheduler to download asset data for migration of charges entities. by calling Asset elastic search endpoint."
+    timeout: 900
+    handler: FinanceDataMigrationApi::FinanceDataMigrationApi.Handler::DownloadAssets
+    reservedConcurrency: 1
+    role: lambdaExecutionRole
   loadCharge:
     name: ${self:service}-${self:provider.stage}-load-charge
     description: "The scheduler to load charge data for migration of charge entity. Run at 12:15 AM"
@@ -163,6 +170,46 @@ stepFunctions:
               - Variable: $.Continue
                 BooleanEquals: true
                 Next: DownloadAssetToIfs
+              - Variable: $.Continue
+                BooleanEquals: false
+                Next: EndStep
+          EndStep:
+            Type: Succeed
+      dependsOn: lambdaExecutionRole
+      tags:
+        Team: HousingFinance
+              #- Variable: $.Continue
+              #  BooleanEquals: false
+              #  Next: ImportCashFileTransactions
+    downloadingAssetSegmentScan:
+      name: DownloadingAssetsSegmentScan
+      events:
+        - schedule: cron(0 14 18 3 ? 2022)
+      definition:
+        Comment: "Download asset information by segment scan asset information dynamo db."
+        StartAt: DownloadAssets
+        States:
+          DownloadAssets:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [downloadAssets, Arn]
+            Retry:
+              - ErrorEquals:
+                  - States.All
+                IntervalSeconds: 30
+                MaxAttempts: 3
+                BackoffRate: 2
+            Next: Wait_1
+          Wait_1:
+              Type: Wait
+              TimestampPath: $.NextStepTime
+              Next: Choice_1
+          Choice_1:
+            Type: Choice
+            Choices:
+              - Variable: $.Continue
+                BooleanEquals: true
+                Next: DownloadAssets
               - Variable: $.Continue
                 BooleanEquals: false
                 Next: EndStep

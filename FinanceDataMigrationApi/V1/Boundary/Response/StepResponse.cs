@@ -6,5 +6,6 @@ namespace FinanceDataMigrationApi.V1.Boundary.Response
     {
         public bool Continue { get; set; }
         public DateTime NextStepTime { get; set; }
+        public string NextLambda { get; set; }  
     }
 }

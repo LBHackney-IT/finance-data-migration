@@ -56,6 +56,8 @@ namespace FinanceDataMigrationApi
         readonly IExtractAccountEntityUseCase _extractAccountEntityUseCase;
         readonly ILoadAccountsUseCase _loadAccountsUseCase;
         readonly IDmAccountLoadRunStatusSaveUseCase _dmAccountLoadRunStatusSaveUseCase;
+
+        private readonly IGetAllAssetsBySegmentScan _allAssetsBySegmentScan;
         /*readonly IDeleteAccountEntityUseCase _deleteAccountEntityUseCase;
         readonly IDeleteTransactionEntityUseCase _deleteTransactionEntityUseCase;*/
         readonly IIndexTransactionEntityUseCase _indexTransactionEntityUseCase;
@@ -107,6 +109,7 @@ namespace FinanceDataMigrationApi
             _dmAccountLoadRunStatusSaveUseCase = new DmAccountLoadRunStatusSaveUseCase(dmRunStatusGateway);
             _timeLogSaveUseCase = new TimeLogSaveUseCase(timeLogGateway);
             _indexTransactionEntityUseCase = new IndexTransactionEntityUseCase(transactionGateway, esTransactionGateway);
+            _allAssetsBySegmentScan = new GetAllAssetsBySegmentScan(assetGateway);
         }
 
         public async Task<StepResponse> ExtractTransactions()
@@ -468,6 +471,20 @@ namespace FinanceDataMigrationApi
                     Continue = false
                 };
             }
+        }
+
+        public async Task<StepResponse> DownloadAssets()
+        {
+            LoggingHandler.LogError($"Starting Assets Scan");
+            var data = await _allAssetsBySegmentScan.ExecuteAsync().ConfigureAwait(false);
+            LoggingHandler.LogError($"Completed Assets Scan count {data.Count}");
+
+            return new StepResponse()
+            {
+                Continue = true,
+                NextLambda = "SELF",
+                NextStepTime = DateTime.Now.AddSeconds(_waitDuration)
+            };
         }
 
         public async Task<StepResponse> DownloadAssetToIfs()
