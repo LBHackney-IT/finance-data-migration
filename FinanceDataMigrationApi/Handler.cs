@@ -483,7 +483,7 @@ namespace FinanceDataMigrationApi
 
             return new StepResponse()
             {
-                Continue = true,
+                Continue = false,
                 NextStepTime = DateTime.Now.AddSeconds(_waitDuration)
             };
         }
