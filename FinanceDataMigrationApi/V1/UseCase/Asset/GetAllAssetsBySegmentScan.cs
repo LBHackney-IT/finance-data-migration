@@ -21,9 +21,9 @@ namespace FinanceDataMigrationApi.V1.UseCase.Asset
         }
         public async Task<List<Hackney.Shared.Asset.Domain.Asset>> ExecuteAsync()
         {
-            var response =  await _gateway.GetAllBySegmentScan().ConfigureAwait(false);
+            var response = await _gateway.GetAllBySegmentScan().ConfigureAwait(false);
             var maxBatchCount = 1000;
-            
+
             int loopCount;
             if (response.Count % maxBatchCount == 0)
                 loopCount = response.Count / maxBatchCount;

@@ -70,38 +70,39 @@ namespace FinanceDataMigrationApi.V1.Factories
                 throw new ArgumentNullException(nameof(asset));
 
             return new QueryableAsset
-            {Id = asset.Id.ToString(),
-               AssetId = asset.AssetId,
-               AssetAddress = new QueryableAssetAddress()
-               {
-                   AddressLine1 = asset.AssetAddress.AddressLine1,
-                   AddressLine2 = asset.AssetAddress.AddressLine2,
-                   AddressLine3 = asset.AssetAddress.AddressLine3,
-                   AddressLine4 = asset.AssetAddress.AddressLine4,
-                   PostCode = asset.AssetAddress.PostCode,
-                   PostPreamble = asset.AssetAddress.PostPreamble,
-                   Uprn = asset.AssetAddress.Uprn
-               },
-               Tenure = new QueryableAssetTenure()
-               {
-                   Id = asset.Tenure.Id.ToString(),
-                   Type = asset.Tenure.Type,
-                   StartOfTenureDate = asset.Tenure.StartOfTenureDate.ToString(),
-                   EndOfTenureDate = asset.Tenure.EndOfTenureDate.ToString(),
-                   PaymentReference = asset.Tenure.PaymentReference
-               },
-               AssetCharacteristics = new QueryableAssetCharacteristics()
-               {
-                   NumberOfLifts = asset.AssetCharacteristics.NumberOfLifts,
-                   NumberOfLivingRooms = asset.AssetCharacteristics.NumberOfLivingRooms,
-                   WindowType = asset.AssetCharacteristics.WindowType,
-                   YearConstructed = asset.AssetCharacteristics.YearConstructed,
-                   NumberOfBedrooms = asset.AssetCharacteristics.NumberOfBedrooms
-               },
-               ParentAssetIds = asset.ParentAssetIds,
-               RootAsset = asset.RootAsset,
-               AssetType = asset.AssetType.ToString(),
-               IsAssetCautionaryAlerted = false
+            {
+                Id = asset.Id.ToString(),
+                AssetId = asset.AssetId,
+                AssetAddress = new QueryableAssetAddress()
+                {
+                    AddressLine1 = asset.AssetAddress.AddressLine1,
+                    AddressLine2 = asset.AssetAddress.AddressLine2,
+                    AddressLine3 = asset.AssetAddress.AddressLine3,
+                    AddressLine4 = asset.AssetAddress.AddressLine4,
+                    PostCode = asset.AssetAddress.PostCode,
+                    PostPreamble = asset.AssetAddress.PostPreamble,
+                    Uprn = asset.AssetAddress.Uprn
+                },
+                Tenure = new QueryableAssetTenure()
+                {
+                    Id = asset.Tenure.Id.ToString(),
+                    Type = asset.Tenure.Type,
+                    StartOfTenureDate = asset.Tenure.StartOfTenureDate.ToString(),
+                    EndOfTenureDate = asset.Tenure.EndOfTenureDate.ToString(),
+                    PaymentReference = asset.Tenure.PaymentReference
+                },
+                AssetCharacteristics = new QueryableAssetCharacteristics()
+                {
+                    NumberOfLifts = asset.AssetCharacteristics.NumberOfLifts,
+                    NumberOfLivingRooms = asset.AssetCharacteristics.NumberOfLivingRooms,
+                    WindowType = asset.AssetCharacteristics.WindowType,
+                    YearConstructed = asset.AssetCharacteristics.YearConstructed,
+                    NumberOfBedrooms = asset.AssetCharacteristics.NumberOfBedrooms
+                },
+                ParentAssetIds = asset.ParentAssetIds,
+                RootAsset = asset.RootAsset,
+                AssetType = asset.AssetType.ToString(),
+                IsAssetCautionaryAlerted = false
             };
         }
 
