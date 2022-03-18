@@ -12,12 +12,6 @@
         <UserSecretsId>c1dc564e-5883-4ecf-963b-a8a865566aa2</UserSecretsId>
     </PropertyGroup>
     <ItemGroup>
-      <Compile Remove="V1\Controllers\**" />
-      <Content Remove="V1\Controllers\**" />
-      <EmbeddedResource Remove="V1\Controllers\**" />
-      <None Remove="V1\Controllers\**" />
-    </ItemGroup>
-    <ItemGroup>
       <Compile Remove="V1\Factories\ResponseFactory.cs" />
       <Compile Remove="V1\Gateways\DynamoDbGateway_OLD.cs" />
       <Compile Remove="V1\Gateways\ExampleGateway.cs" />
@@ -60,6 +54,7 @@
     <PackageReference Include="Hackney.Core.Logging" Version="1.49.0" />
     <PackageReference Include="Hackney.Core.Middleware" Version="1.49.0" />
     <PackageReference Include="Hackney.Core.Validation" Version="1.56.0" />
+    <PackageReference Include="Hackney.Shared.Asset" Version="0.7.0" />
     <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.24.0" />
     <PackageReference Include="Hackney.Shared.Person" Version="0.11.0" />
     <PackageReference Include="Hackney.Shared.Tenure" Version="0.9.0" />

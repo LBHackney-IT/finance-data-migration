@@ -227,6 +227,7 @@ namespace FinanceDataMigrationApi
             services.AddScoped<IExtractAccountEntityUseCase, ExtractAccountEntityUseCase>();
             services.AddScoped<ILoadAccountsUseCase, LoadAccountsUseCase>();
             services.AddScoped<IIndexAccountEntityUseCase, IndexAccountEntityUseCase>();
+            services.AddScoped<IGetAllAssetsBySegmentScan, GetAllAssetsBySegmentScan>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

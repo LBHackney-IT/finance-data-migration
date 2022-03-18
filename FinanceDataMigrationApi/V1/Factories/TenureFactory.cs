@@ -59,7 +59,7 @@ namespace FinanceDataMigrationApi.V1.Factories
                                 {"id",new AttributeValue{S = p.Id.ToString()}},
                                 {"fullName",new AttributeValue{S = p.FullName}},
                                 {"isResponsible", new AttributeValue{BOOL = p.IsResponsible}},
-                                {"dateOfBirth",new AttributeValue{S = p.DateOfBirth.ToString("F")}},
+                                {"dateOfBirth",new AttributeValue{S = p.DateOfBirth.ToString()}},
                                 {"personTenureType",new AttributeValue{S = p.PersonTenureType.ToString()}},
                                 {"type",new AttributeValue{S = p.Type.ToString()}}
                             }
