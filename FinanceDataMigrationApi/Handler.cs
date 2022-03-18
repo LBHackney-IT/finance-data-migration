@@ -63,7 +63,7 @@ namespace FinanceDataMigrationApi
 
         public Handler()
         {
-            _waitDuration = int.Parse(Environment.GetEnvironmentVariable("WAIT_DURATION") ?? "5");
+            _waitDuration = int.Parse(Environment.GetEnvironmentVariable("WAIT_DURATION") ?? "2");
             _batchSize = int.Parse(Environment.GetEnvironmentVariable("BATCH_SIZE") ?? "100");
 
             DatabaseContext context = DatabaseContext.Create();
@@ -81,7 +81,7 @@ namespace FinanceDataMigrationApi
             IDMRunLogGateway dmRunLogGateway = new DMRunLogGateway(context);
             IAccountsGateway accountsGateway = new AccountsGateway(context, amazonDynamoDb);
             IElasticClient elasticClient = CreateElasticClient();
-            IEsGateway<QueryableTransaction> esTransactionGateway = new EsGateway<QueryableTransaction>(elasticClient, "Transactions");
+            IEsGateway<QueryableTransaction> esTransactionGateway = new EsGateway<QueryableTransaction>(elasticClient, "transactions");
 
             _getLastHintUseCase = new GetLastHintUseCase(hitsGateway);
             _loadChargeEntityUseCase = new LoadChargeEntityUseCase(migrationRunGateway, chargeGateway);
@@ -111,7 +111,7 @@ namespace FinanceDataMigrationApi
             try
             {
                 var runStatus = await _dmRunStatusGetUseCase.ExecuteAsync().ConfigureAwait(false);
-                if (runStatus.AllTenureDmCompleted && runStatus.TransactionExtractDate < DateTime.Today)
+                if (runStatus.AllTenureDmCompleted && runStatus.TransactionExtractDate <= DateTime.Today)
                 {
                     DmTimeLogModel dmTimeLogModel = new DmTimeLogModel()
                     {
@@ -192,7 +192,7 @@ namespace FinanceDataMigrationApi
                     var result = await _batchIndexTransactionEntityUseCase.ExecuteAsync(count).ConfigureAwait(false);
                     await _timeLogSaveUseCase.ExecuteAsync(dmTimeLogModel).ConfigureAwait(false);
                     if (!result.Continue)
-                        await _dmTransactionLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today).ConfigureAwait(false);
+                        await _dmTransactionLoadRunStatusSaveUseCase.ExecuteAsync(DateTime.Today.AddYears(200)).ConfigureAwait(false);
 
                     return result;
                 }

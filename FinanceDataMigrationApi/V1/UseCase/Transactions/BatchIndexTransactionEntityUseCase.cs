@@ -39,7 +39,7 @@ namespace FinanceDataMigrationApi.V1.UseCase.Transactions
             var esRequests = EsFactory.ToTransactionRequestList(transactionRequestList);
             List<Task> tasks = new List<Task>();
 
-            for (int i = 0; i <= esRequests.Count / 1000; i++)
+            for (int i = 0; i <= esRequests.Count / 500; i++)
             {
                 tasks.Add(_esGateway.BulkIndex(esRequests.Skip(i * 1000).Take(1000)));
             }
