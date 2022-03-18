@@ -73,35 +73,35 @@ namespace FinanceDataMigrationApi.V1.Factories
             {
                 Id = asset.Id.ToString(),
                 AssetId = asset.AssetId,
-                AssetAddress = new QueryableAssetAddress()
+                AssetAddress = asset?.AssetAddress != null ? new QueryableAssetAddress()
                 {
-                    AddressLine1 = asset.AssetAddress.AddressLine1,
-                    AddressLine2 = asset.AssetAddress.AddressLine2,
-                    AddressLine3 = asset.AssetAddress.AddressLine3,
-                    AddressLine4 = asset.AssetAddress.AddressLine4,
-                    PostCode = asset.AssetAddress.PostCode,
-                    PostPreamble = asset.AssetAddress.PostPreamble,
-                    Uprn = asset.AssetAddress.Uprn
-                },
-                Tenure = new QueryableAssetTenure()
+                    AddressLine1 = asset?.AssetAddress?.AddressLine1,
+                    AddressLine2 = asset?.AssetAddress?.AddressLine2,
+                    AddressLine3 = asset?.AssetAddress?.AddressLine3,
+                    AddressLine4 = asset?.AssetAddress?.AddressLine4,
+                    PostCode = asset?.AssetAddress?.PostCode,
+                    PostPreamble = asset?.AssetAddress?.PostPreamble,
+                    Uprn = asset?.AssetAddress?.Uprn
+                } : null,
+                Tenure = asset.Tenure != null ? new QueryableAssetTenure()
                 {
-                    Id = asset.Tenure.Id.ToString(),
-                    Type = asset.Tenure.Type,
-                    StartOfTenureDate = asset.Tenure.StartOfTenureDate.ToString(),
-                    EndOfTenureDate = asset.Tenure.EndOfTenureDate.ToString(),
-                    PaymentReference = asset.Tenure.PaymentReference
-                },
-                AssetCharacteristics = new QueryableAssetCharacteristics()
+                    Id = asset?.Tenure?.Id,
+                    Type = asset?.Tenure?.Type,
+                    StartOfTenureDate = asset?.Tenure?.StartOfTenureDate?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'"),
+                    EndOfTenureDate = asset?.Tenure?.EndOfTenureDate?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'"),
+                    PaymentReference = asset?.Tenure?.PaymentReference
+                } : null,
+                AssetCharacteristics = asset?.AssetCharacteristics != null ? new QueryableAssetCharacteristics()
                 {
-                    NumberOfLifts = asset.AssetCharacteristics.NumberOfLifts,
-                    NumberOfLivingRooms = asset.AssetCharacteristics.NumberOfLivingRooms,
-                    WindowType = asset.AssetCharacteristics.WindowType,
-                    YearConstructed = asset.AssetCharacteristics.YearConstructed,
-                    NumberOfBedrooms = asset.AssetCharacteristics.NumberOfBedrooms
-                },
-                ParentAssetIds = asset.ParentAssetIds,
-                RootAsset = asset.RootAsset,
-                AssetType = asset.AssetType.ToString(),
+                    NumberOfLifts = asset?.AssetCharacteristics?.NumberOfLifts ?? 0,
+                    NumberOfLivingRooms = asset?.AssetCharacteristics?.NumberOfLivingRooms ?? 0,
+                    WindowType = asset?.AssetCharacteristics?.WindowType,
+                    YearConstructed = asset?.AssetCharacteristics?.YearConstructed,
+                    NumberOfBedrooms = asset?.AssetCharacteristics?.NumberOfBedrooms ?? 0
+                } : null,
+                ParentAssetIds = asset?.ParentAssetIds,
+                RootAsset = asset?.RootAsset,
+                AssetType = asset?.AssetType.ToString(),
                 IsAssetCautionaryAlerted = false
             };
         }
