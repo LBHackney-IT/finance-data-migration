@@ -128,7 +128,7 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                         FloorNo = item["assetLocation"].M.ContainsKey("floorNo") ? item["assetLocation"].M["floorNo"].S : null,
                         TotalBlockFloors = item["assetLocation"].M.ContainsKey("totalBlockFloors") ? Convert.ToInt32(item["assetLocation"].M["totalBlockFloors"].N) : 0,
                         ParentAssets = item["assetLocation"].L.Any() ? assetLocation : null,
-                        
+
                     } : null,
                     ParentAssetIds = item.ContainsKey("parentAssetIds") ? (item["parentAssetIds"].NULL ? null : item["parentAssetIds"].S) : null,
                     RootAsset = item.ContainsKey("rootAsset") ? (item["rootAsset"].NULL ? null : item["rootAsset"].S) : null,

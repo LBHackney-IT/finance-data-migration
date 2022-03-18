@@ -149,7 +149,7 @@ namespace FinanceDataMigrationApi.V1.Gateways
 
                 var scannedResult = response.ToAssetsDomain();
                 LoggingHandler.LogInfo($"*** Completed Scan Count : {scannedResult.Count()} ");
-                
+
                 resultList.AddRange(scannedResult);
                 LoggingHandler.LogInfo($"*** Completed Filtered Count:  {resultList.Count} ");
                 Thread.Sleep(2000);

@@ -7,7 +7,7 @@ using FinanceDataMigrationApi.V1.UseCase.Interfaces.Asset;
 
 namespace FinanceDataMigrationApi.V1.UseCase.Asset
 {
-    public class GetAllAssetsBySegmentScan: IGetAllAssetsBySegmentScan
+    public class GetAllAssetsBySegmentScan : IGetAllAssetsBySegmentScan
     {
         private readonly IAssetGateway _gateway;
 

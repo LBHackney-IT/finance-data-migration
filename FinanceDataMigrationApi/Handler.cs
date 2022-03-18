@@ -482,7 +482,6 @@ namespace FinanceDataMigrationApi
             return new StepResponse()
             {
                 Continue = true,
-                NextLambda = "SELF",
                 NextStepTime = DateTime.Now.AddSeconds(_waitDuration)
             };
         }
