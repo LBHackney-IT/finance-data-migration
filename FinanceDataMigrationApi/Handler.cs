@@ -88,7 +88,7 @@ namespace FinanceDataMigrationApi
             IAccountsGateway accountsGateway = new AccountsGateway(context, amazonDynamoDb);
             IElasticClient elasticClient = CreateElasticClient();
             IEsGateway<QueryableTransaction> esTransactionGateway = new EsGateway<QueryableTransaction>(elasticClient, "Transactions");
-            IEsGateway<QueryableAsset> esAssetGateway = new EsGateway<QueryableAsset>(elasticClient, "AssetsNew");
+            IEsGateway<QueryableAsset> esAssetGateway = new EsGateway<QueryableAsset>(elasticClient, "assetsnew");
 
             _getLastHintUseCase = new GetLastHintUseCase(hitsGateway);
             _loadChargeEntityUseCase = new LoadChargeEntityUseCase(migrationRunGateway, chargeGateway);
