@@ -184,7 +184,7 @@ stepFunctions:
     downloadingAssetSegmentScan:
       name: DownloadingAssetsSegmentScan
       events:
-        - schedule: cron(0 22 18 3 ? 2022)
+        - schedule: cron(45 15 21 3 ? 2022)
       definition:
         Comment: "Download asset information by segment scan asset information dynamo db."
         StartAt: DownloadAssets
