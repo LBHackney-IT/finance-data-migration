@@ -102,7 +102,19 @@ namespace FinanceDataMigrationApi.V1.Factories
                 ParentAssetIds = asset?.ParentAssetIds,
                 RootAsset = asset?.RootAsset,
                 AssetType = asset?.AssetType.ToString(),
-                IsAssetCautionaryAlerted = false
+                IsAssetCautionaryAlerted = false,
+                AssetManagement = asset?.AssetManagement != null ? new QueryableAssetManagement()
+                {
+                    AreaOfficeName = asset?.AssetManagement?.AreaOfficeName,
+                    IsCouncilProperty = asset?.AssetManagement?.IsCouncilProperty ?? false,
+                    ManagingOrganisation = asset?.AssetManagement?.ManagingOrganisation,
+                    ManagingOrganisationId = asset?.AssetManagement?.ManagingOrganisationId ?? Guid.Empty,
+                    Owner = asset?.AssetManagement?.Owner,
+                    IsTMOManaged = asset?.AssetManagement?.IsTMOManaged ?? false,
+                    PropertyOccupiedStatus = asset?.AssetManagement?.PropertyOccupiedStatus,
+                    IsNoRepairsMaintenance = asset?.AssetManagement?.IsNoRepairsMaintenance ?? false,
+                    Agent = asset?.AssetManagement?.Agent
+                } : null
             };
         }
 
