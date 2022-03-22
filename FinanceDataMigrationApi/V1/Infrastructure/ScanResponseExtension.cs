@@ -130,6 +130,18 @@ namespace FinanceDataMigrationApi.V1.Infrastructure
                         ParentAssets = item["assetLocation"].L.Any() ? assetLocation : null,
 
                     } : null,
+                    AssetManagement = item.ContainsKey("assetManagement") ? new AssetManagement()
+                    {
+                        Agent = item["assetManagement"].M.ContainsKey("agent") ? item["assetManagement"].M["agent"].S : null,
+                        AreaOfficeName = item["assetManagement"].M.ContainsKey("areaOfficeName") ? item["assetManagement"].M["areaOfficeName"].S : null,
+                        ManagingOrganisation = item["assetManagement"].M.ContainsKey("managingOrganisation") ? item["assetManagement"].M["managingOrganisation"].S : null,
+                        Owner = item["assetManagement"].M.ContainsKey("owner") ? item["assetManagement"].M["owner"].S : null,
+                        PropertyOccupiedStatus = item["assetManagement"].M.ContainsKey("propertyOccupiedStatus") ? item["assetManagement"].M["propertyOccupiedStatus"].S : null,
+                        ManagingOrganisationId = item["assetManagement"].M.ContainsKey("managingOrganisationId") ? Guid.Parse(item["assetManagement"].M["managingOrganisationId"].S) : Guid.Empty,
+                        IsCouncilProperty = item["assetManagement"].M.ContainsKey("isCouncilProperty") && Convert.ToBoolean(item["assetManagement"].M["isCouncilProperty"].BOOL),
+                        IsNoRepairsMaintenance = item["assetManagement"].M.ContainsKey("isNoRepairsMaintenance") && Convert.ToBoolean(item["assetManagement"].M["isNoRepairsMaintenance"].BOOL),
+                        IsTMOManaged = item["assetManagement"].M.ContainsKey("isTMOManaged") && Convert.ToBoolean(item["assetManagement"].M["isTMOManaged"].BOOL)
+                    } : null,
                     ParentAssetIds = item.ContainsKey("parentAssetIds") ? (item["parentAssetIds"].NULL ? null : item["parentAssetIds"].S) : null,
                     RootAsset = item.ContainsKey("rootAsset") ? (item["rootAsset"].NULL ? null : item["rootAsset"].S) : null,
                 };

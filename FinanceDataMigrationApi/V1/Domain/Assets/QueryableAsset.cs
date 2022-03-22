@@ -37,6 +37,6 @@ namespace FinanceDataMigrationApi.V1.Domain.Assets
 
         public QueryableAssetCharacteristics AssetCharacteristics { get; set; }
 
-        //public QueryableAssetManagement AssetManagement { get; set; }
+        public QueryableAssetManagement AssetManagement { get; set; }
     }
 }
